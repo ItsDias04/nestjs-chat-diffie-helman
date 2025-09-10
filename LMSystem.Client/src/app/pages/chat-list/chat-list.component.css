@@ -1,0 +1,278 @@
+
+.grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    height: min-content;
+    width: 400px;
+}
+  .cell {
+    width: fit-content;
+    /* height: 50px; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #BBC856;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    border-radius: 5px;
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+  
+
+
+
+  #but12 {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+    gap: 10px;
+    margin-top: 100px;
+    margin-left: 40px;
+    text-decoration: none;
+    color:black;
+    cursor: pointer;
+}
+#but13 {
+    width: 20px;
+    height: 20px;
+}
+#IZB {
+    margin-left: 20px;
+}
+.zaglav {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 77px;
+    /* margin-left: 20px; */
+    width: 100%;
+}
+.container-main-content {
+    display: flex;
+    gap: 20px;
+    flex-direction: column;
+    columns: 1;
+    overflow-x: auto;
+    overflow-y: auto;
+    padding: 35px;
+    height: 440px;
+    /* width: max-content; */
+    /* height: 580px; */
+}
+.container3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 7fr;
+    grid-gap: 50px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);  /* установите фиксированную ширину для горизонтальной прокрутки */
+    background-color: white;
+    align-items: center;
+    width: 100%;
+    border-radius: 15px;
+    height: 100px;
+}
+.imagebook {
+    width: 100px;
+}
+.checkbox-group {
+    display: flex; /* Размещаем метку и чекбокс в строку */
+    align-items: center; /* Выравниваем элементы по вертикали */
+    flex-direction: row;
+    gap: 10px;
+    height: 50px;
+}
+.image-text-container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+.Reead{
+    background-color: white; /* более темный зеленый при наведении */
+    color: red; /* белый цвет текста */
+    border-color: red; /* убрать границу */
+    padding: 10px 20px; /* внутренние отступы */
+    font-size: 16px; /* размер шрифта */
+    border-radius: 5px; /* скругление углов */
+    cursor: pointer; /* курсор при наведении */
+    margin:0;
+  }
+  .imagek1 {
+    height: auto; /* Автоматическая высота для сохранения пропорций */
+    cursor: pointer; /* курсор при наведении */
+    width: 20%; /* Ограничиваем максимальную ширину изображения */
+    align-items: center; /* Выравниваем элементы по вертикали */
+    justify-content: flex-start; /* Выравниваем содержимое по левому краю */
+    margin: 1.7vw; /* Добавляем отступ вокруг контейнера */
+  }
+  .in-shelf-button {
+    background-color: #1de81c; /* зеленый цвет фона */
+    color: white; /* белый цвет текста */
+    border: none; /* убрать границу */
+    padding: 10px 20px; /* внутренние отступы */
+    font-size: 14px; /* размер шрифта */
+    border-radius: 5px; /* скругление углов */
+    cursor: pointer; /* курсор при наведении */
+    margin: 0.7vw;
+    height: 35px;
+  }
+  
+  .in-shelf-button:hover {
+    background-color: darkgreen; /* более темный зеленый при наведении */
+  }
+  .item  {
+    padding-left: 20px;
+    display: flex;
+    justify-content: center;
+
+  }
+  .item-zaglav {
+    
+  }
+  #read-but {
+    display: flex;
+    align-items: center;
+  }
+  #box-h {
+    display: flex;
+    align-items: center;
+  }
+  #imagek{
+    width: 40px;
+    height: 40px;
+  }
+
+  .description2 {
+    width: 200px;
+  }
+/*--------------------------------------------------*/
+
+[id^="heart"] {
+    position: absolute;
+    left: -100vw;
+}
+
+[for^="heart"] {
+    color: #aab8c2;
+    cursor: pointer;
+    font-size: 2em;
+    align-self: center;  
+    transition: color 0.2s ease-in-out;
+}
+
+[for^="heart"]:hover {
+    color: grey;
+}
+
+[for^="heart"]::selection {
+    color: none;
+    background: transparent;
+}
+
+[for^="heart"]::moz-selection {
+    color: none;
+    background: transparent;
+}
+
+[id^="heart"]:checked + label {
+    color: #e2264d;
+    will-change: font-size;
+    animation: heart 1s cubic-bezier(.17, .89, .32, 1.49);
+}
+
+@keyframes heart {
+    0%, 17.5% {font-size: 0;}
+}
+/* Задний полупрозрачный фон */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Контент модалки */
+.create-chat-modal .modal-content {
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 12px;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    position: relative;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Заголовок */
+.create-chat-modal h2 {
+    margin-top: 0;
+    font-size: 20px;
+    text-align: center;
+    color: #333;
+}
+
+/* Крестик */
+.close-button {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 24px;
+    font-weight: bold;
+    color: #777;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+.close-button:hover {
+    color: #000;
+}
+
+/* Форма */
+.create-chat-modal form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+/* Поле ввода */
+.create-chat-modal input[type="text"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border 0.2s;
+}
+.create-chat-modal input[type="text"]:focus {
+    outline: none;
+    border-color: #761331;
+}
+
+/* Кнопка */
+.create-chat-modal button {
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    background: #761331;
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+.create-chat-modal button:hover {
+    background: #761331;
+}
+
+/* Анимация появления */
+@keyframes fadeIn {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}

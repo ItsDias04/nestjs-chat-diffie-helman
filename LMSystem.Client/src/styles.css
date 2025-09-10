@@ -1,0 +1,15 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    height: 100%;
+    background: url('../public/images/background_login.png') no-repeat center center fixed;
+    background-size: cover;
+}
+
+body, html {
+    height: 100%;
+    display: flex;
+   justify-content: center;
+    align-items: center;
+}

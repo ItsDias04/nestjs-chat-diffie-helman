@@ -1,0 +1,64 @@
+<!-- <div class="chat-list">
+    <h2>My Chats</h2>
+  <ul>
+    <li *ngFor="let chat of chats">
+      <a [routerLink]="['/chats', chat.id]">{{ chat.name }}</a>
+    </li>
+  </ul>
+</div> -->
+<div (click)="openModal()" style="position: absolute;right: 10px;top: 10px;cursor: pointer;display: flex; align-items: center; justify-content: center; width: 30px; height: 30px;color: white; border-radius: 50%; background-color: #761331;">+</div>
+<h2 style="padding-left: 15px;">My chats</h2>
+<div class="container-main-content">
+
+<div *ngFor="let chat of chats; let i = index;">
+    
+    
+        <div class="container3" [routerLink]="['/chat', chat.id]">
+    
+        <div class="item">
+          <p style="text-align: left;">{{chat.name}}</p>
+          
+        </div>
+        
+        <div class="item">
+          <p style="text-align: left;">{{chat}}</p>
+          
+     
+        </div>
+        
+    
+        <div class="item">
+            <div style="display: flex; flex-direction: column;">
+                <!-- <div class="grid">
+                    <div class="cell" 
+                    *ngFor="let iter of grade.grades; let j = index;" 
+                    [ngStyle]="{ 'background-color': getBackgroundColor(iter) }"
+                    >
+                      {{ iter }}
+                    </div>
+                </div> -->
+                
+            </div>
+        </div>
+        
+        </div>
+    
+</div>
+
+
+
+</div>
+
+<div class="overlay" *ngIf="modalOpen">
+    <div class="create-chat-modal">
+        <div class="modal-content" style="display: flex; flex-direction: column; gap: 15px;">
+            <span class="close-button"  (click)="closeModal()">&times;</span>
+            <h2>Create New Chat</h2>
+        
+                <label for="chatName">Chat Name:</label>
+                <input type="text" id="chatName" [(ngModel)]="newChatName"  required>
+                <button (click)="createChat()">Create</button>
+           
+        </div>
+    </div>
+</div>
