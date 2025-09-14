@@ -11,12 +11,17 @@ import { DiffieHelmanGateWay } from '../GateWays/DiffieHelmanGateWay';
 @ApiTags('messages')
 @Controller('messages')
 export class MessageController {
-  constructor(private readonly messageService: MessageService, private readonly diffieHelmanGateWay: DiffieHelmanGateWay) {}
+  constructor(
+    private readonly messageService: MessageService,
+  ) {}
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @Get(':chatId')
-  async getMessages(@CurrentUser() user: UserData, @Param('chatId') chatId: string): Promise<MessageDto[]> {
+  async getMessages(
+    @CurrentUser() user: UserData,
+    @Param('chatId') chatId: string,
+  ): Promise<MessageDto[]> {
     // Можно добавить проверку, что user состоит в чате
     return this.messageService.getMessagesInChat(user.userId, chatId);
   }
@@ -30,18 +35,22 @@ export class MessageController {
     @Body() messageDto: MessageDto,
   ): Promise<MessageDto> {
     // messageDto может содержать toClientId для приватных сообщений (Diffie-Hellman)
-    return this.messageService.addMessageToChat(user.userId, chatId, messageDto);
+    return this.messageService.addMessageToChat(
+      user.userId,
+      chatId,
+      messageDto,
+    );
   }
 
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
-  @Post('diffie-hellman/:chatId')
-  async AddDiffieHellmanMessage(
-    @CurrentUser() user: UserData,
-    @Param('chatId') chatId: string,
-    // @Param('messageId') messageId: string,
-    @Body() diffieHellmanMessageDto: DiffieHellmanMessageDto
-  ): Promise<DiffieHellmanMessageDto> {
-    throw new Error('Method not implemented.');
-  }
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth('access-token')
+  // @Post('diffie-hellman/:chatId')
+  // async AddDiffieHellmanMessage(
+  //   @CurrentUser() user: UserData,
+  //   @Param('chatId') chatId: string,
+  //   // @Param('messageId') messageId: string,
+  //   @Body() diffieHellmanMessageDto: DiffieHellmanMessageDto
+  // ): Promise<DiffieHellmanMessageDto> {
+  //   throw new Error('Method not implemented.');
+  // }
 }

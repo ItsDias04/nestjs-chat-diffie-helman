@@ -2,6 +2,11 @@ import { ApiProperty } from "@nestjs/swagger";
 
 export class DiffieHellmanMessageDto {
   
+    @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000', description: 'ID чата (UUID)', format: 'uuid' })
+    chatId: string;
+
+  @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000', description: 'ID отправителя (UUID)', format: 'uuid' })
+  fromClientId: string;
   @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000', description: 'ID получателя (UUID)', format: 'uuid' })
   toClientId: string;
 
