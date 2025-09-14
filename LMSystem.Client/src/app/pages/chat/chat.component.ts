@@ -1,5 +1,6 @@
-import { Component, ElementRef, EventEmitter, Input, NgZone, Output, ViewChild } from '@angular/core';
-import { Observable } from 'rxjs';
+// chat.component.ts
+import { Component, ElementRef, EventEmitter, Input, NgZone, Output, ViewChild, OnDestroy, OnInit } from '@angular/core';
+import { filter, Observable, Subscription } from 'rxjs';
 import { User } from '../../data/Entities/User';
 import { ChatsService } from '../../data/services/chats.service';
 import { Message } from '../../data/Entities/Message';
@@ -8,7 +9,8 @@ import { FormsModule } from '@angular/forms';
 import { UsersService } from '../../data/services/users.service';
 import { InviteService } from '../../data/services/invite.service';
 import { MessageService } from '../../data/services/message.service';
-import { ChatSocketService } from '../../data/websockets/ChatSocketService';
+import { ChatSocketService, ChatUsersUpdate } from '../../data/websockets/ChatSocketService';
+import { NavigationEnd, Router } from '@angular/router';
 
 @Component({
   selector: 'app-chat',
@@ -16,12 +18,12 @@ import { ChatSocketService } from '../../data/websockets/ChatSocketService';
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css'],
 })
-export class ChatComponent {
+export class ChatComponent implements OnDestroy, OnInit {
   @ViewChild('messagesContainer') private messagesContainer!: ElementRef<HTMLDivElement>;
-  private userScrolledUp = false; // true если пользователь отойдет от низа
-  private readonly SCROLL_THRESHOLD = 150; // px — что считать «у низа»
-  // @Input() chatId!: string; // передаётся извне
-  // @Input() chatName: string | null = null;
+  private userScrolledUp = false;
+  private readonly SCROLL_THRESHOLD = 150;
+  private subscriptions: Subscription[] = [];
+
   @Output() messageSend = new EventEmitter<string>();
   chatId!: string;
   myId: string | undefined;
@@ -30,13 +32,12 @@ export class ChatComponent {
   users$!: Observable<User[]>;
 
   UsersInChat: User[] = [];
-
   UsersActive: string[] = [];
   modalUsersOpen: boolean = false;
-  // временные локальные сообщения (пока нет сервиса сообщений)
   messages: Message[] = [];
   newMessage = '';
   users: User[] = [];
+  isConnected = false;
 
   constructor(
     private chatsService: ChatsService,
@@ -44,37 +45,56 @@ export class ChatComponent {
     private invitesService: InviteService,
     private messageService: MessageService,
     private chatSocket: ChatSocketService,
-        private ngZone: NgZone,
-
+    private ngZone: NgZone,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.chatId = window.location.pathname.split('/').pop() || '';
     if (!this.chatId) {
       console.warn('ChatWindowComponent: chatId не задан');
-      // Можно получить chatId из маршрута если нужно
-
       return;
     }
+   
+    this.initializeChat();
+  }
 
+  ngOnDestroy(): void {
+    // Отписываемся от всех подписок
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    
+    // Покидаем чат при уничтожении компонента
+    if (this.chatId) {
+      this.chatSocket.leaveChat(this.chatId);
+    }
+  }
+
+  private async initializeChat(): Promise<void> {
     this.getChat();
     this.loadUsers();
-    this.loadMockMessages(); // временно
+    // this.loadMockMessages();
     this.getMe();
     this.getMessages();
 
+    // Подключаемся к сокету
+    this.chatSocket.connect({ token: localStorage.getItem('token') || undefined });
 
-        this.chatSocket.connect({ token: localStorage.getItem('token') || undefined });
+    // Подписываемся на статус соединения
+    const connectionSub = this.chatSocket.connectionStatus$.subscribe(connected => {
+      this.isConnected = connected;
+      console.log('[ChatComponent] Connection status:', connected);
+    });
+    this.subscriptions.push(connectionSub);
 
-    // 2) получаем инфо о себе и регистрируемся на сокете
-    this.usersService.getMe().subscribe(me => {
+    // Получаем информацию о себе
+    const userSub = this.usersService.getMe().subscribe(me => {
       this.myId = me.id;
       this.myName = me.name;
-      this.chatSocket.registerUser(this.myId);
 
-      // сразу подписываемся на сообщения
-      this.chatSocket.messages$.subscribe(msg => {
+      // Подписываемся на сообщения
+      const messagesSub = this.chatSocket.messages$.subscribe(msg => {
         if (msg.chatId === this.chatId) {
+          console.log('[ChatComponent] New message received:', msg);
           this.messages.push(msg);
           if (this.isAtBottom()) {
             this.scrollToBottomAfterRender();
@@ -82,21 +102,64 @@ export class ChatComponent {
           }
         }
       });
-      this.chatSocket.chatUsers$.subscribe(update => {
+      this.subscriptions.push(messagesSub);
+
+      // Подписываемся на обновления пользователей в чате
+      const chatUsersSub = this.chatSocket.chatUsers$.subscribe((update: ChatUsersUpdate) => {
         if (update.chatId === this.chatId) {
+          console.log('[ChatComponent] Chat users update:', update);
+          
+          // Обновляем список активных пользователей
           this.UsersActive = update.users;
+          
+          // Опционально: показываем уведомления о подключении/отключении
+          if (update.disconnectedUser) {
+            // this.showUserStatusMessage(`Пользователь ${update.disconnectedUser} отключился`, 'disconnect');
+          }
+          if (update.leftUser) {
+            // this.showUserStatusMessage(`Пользователь ${update.leftUser} покинул чат`, 'leave');
+          }
         }
       });
+      this.subscriptions.push(chatUsersSub);
 
-      // входим в комнату чата
+      // Входим в комнату чата
       this.chatSocket.joinChat(this.chatId);
     });
-
+    this.subscriptions.push(userSub);
   }
 
-   onMessagesScroll() {
+  private showUserStatusMessage(message: string, type: 'connect' | 'disconnect' | 'leave'): void {
+    // Можно показать toast уведомление или добавить системное сообщение в чат
+    console.info(`[ChatComponent] ${type.toUpperCase()}: ${message}`);
+    
+    // Пример добавления системного сообщения в чат
+    const systemMessage: Message = {
+      id: `system-${Date.now()}`,
+      chatId: this.chatId,
+      userId: 'system',
+      user: {
+        id: 'system',
+        email: '',
+        name: 'System',
+      },
+      content: message,
+      timestamp: new Date().toISOString(),
+      reviewed: true,
+      type: 'system',
+      toClientId: null,
+    };
+
+    this.messages.push(systemMessage);
+    if (this.isAtBottom()) {
+      this.scrollToBottomAfterRender();
+    }
+  }
+
+  onMessagesScroll() {
     this.userScrolledUp = !this.isAtBottom();
   }
+
   isAtBottom(): boolean {
     const el = this.messagesContainer?.nativeElement;
     if (!el) return true;
@@ -106,19 +169,17 @@ export class ChatComponent {
   }
 
   private scrollToBottomAfterRender() {
-    // requestAnimationFrame гарантирует, что DOM обновлён
     requestAnimationFrame(() => {
       const el = this.messagesContainer?.nativeElement;
       if (!el) return;
-      // Можно использовать smooth или instant. Smooth может не сработать при быстрых обновлениях.
       el.scrollTo({ top: el.scrollHeight, behavior: 'auto' });
     });
   }
 
   onMediaLoad() {
-    // если пользователь был у низа — доскроллим после загрузки картинки
     if (this.isAtBottom()) this.scrollToBottomAfterRender();
   }
+
   getMessages() {
     this.messageService.getMessages(this.chatId).subscribe((messages) => {
       this.messages = messages;
@@ -133,9 +194,13 @@ export class ChatComponent {
       console.error('User info is missing');
       return;
     }
+    if (!this.isConnected) {
+      // console.error('Socket not connected');
+      // return;
+    }
 
     const message: Message = {
-      id: '', // ID будет назначен сервером
+      id: '',
       chatId: this.chatId,
       userId: this.myId,
       user: {
@@ -155,39 +220,8 @@ export class ChatComponent {
       .subscribe((response) => {
         this.scrollToBottomAfterRender();
         this.newMessage = '';
-        // this.messages.push(response);
       });
   }
-  // import { User } from "./User";
-
-  // export enum DiffieHellmanStage {
-  //   PublicKeyExchange = "public_key_exchange",
-  //   SharedKeyGenerated = "shared_key_generated",
-  //   EncryptedMessage = "encrypted_message",
-  //   HandshakeComplete = "handshake_complete"
-  // }
-
-  // export enum MessageType {
-  //   Text = "text",
-  //   Image = "image",
-  //   Video = "video",
-  //   File = "file",
-  //   Audio = "audio",
-  //   Encryption = "encryption"
-  // }
-
-  // export interface Message {
-  //   id: string;
-  //   chatId: string;
-  //   userId: string;
-  //   user: User;
-  //   content: string;
-  //   timestamp: string; // ISO string
-  //   reviewed: boolean;
-  //   type: MessageType | string;
-  //   dhStage?: DiffieHellmanStage | string;
-  //   toClientId: string | null;
-  // }
 
   getMe() {
     this.usersService.getMe().subscribe((user) => {
@@ -195,6 +229,7 @@ export class ChatComponent {
       this.myName = user.name;
     });
   }
+
   getChat() {
     return this.chatsService.getChat(this.chatId).subscribe((chat) => {
       this.chatName = chat?.name || null;
@@ -206,9 +241,7 @@ export class ChatComponent {
     this.users$ = this.chatsService.getChatUsers(this.chatId);
   }
 
-  // TODO: заменить на вызов реального сервиса сообщений
   loadMockMessages(): void {}
-
 
   trackByMessage(_index: number, item: Message) {
     return item.id;
@@ -217,16 +250,28 @@ export class ChatComponent {
   trackByUser(_index: number, item: User) {
     return item.id;
   }
+
   openUsersModal() {
     this.modalUsersOpen = true;
     this.usersService.getAllUsers().subscribe((users) => {
       this.users = users;
     });
   }
+
   sendInvite(chatId: string, userReceiverId: string) {
     this.invitesService.sendInvite({ chatId, userReceiverId }).subscribe();
   }
+
   closeUsersModal() {
     this.modalUsersOpen = false;
+  }
+
+  // Дополнительные методы для работы с активными пользователями
+  isUserActive(userId: string): boolean {
+    return this.UsersActive.includes(userId);
+  }
+
+  getActiveUsersCount(): number {
+    return this.UsersActive.length;
   }
 }

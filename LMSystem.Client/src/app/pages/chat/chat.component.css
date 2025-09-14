@@ -295,7 +295,7 @@
     border-color: #16a34a; /* Зеленая рамка */
   }
   .user-offline {
-    color: #6b7280; /* Серый цвет для оффлайн */
-    background-color: #f3f4f6; /* Светло-серый фон */
-    border-color: #6b7280; /* Серая рамка */
+    color:  #f44336; /* Красный цвет для оффлайн */
+    background-color: white;
+    border-color: #f44336; /* Красная рамка */
   }

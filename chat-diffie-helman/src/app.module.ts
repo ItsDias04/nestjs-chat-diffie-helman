@@ -19,6 +19,7 @@ import { MessageController } from './WebApi/Controllers/MessageController';
 import { InviteController } from './WebApi/Controllers/InviteController';
 import { InviteService } from './BL/Services/InviteService';
 import { ActiveUsersService } from './BL/Singelton/Services/ActiveUsersService';
+import { DiffieHelmanGateWay } from './WebApi/GateWays/DiffieHelmanGateWay';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -35,13 +36,36 @@ import { ActiveUsersService } from './BL/Singelton/Services/ActiveUsersService';
     PassportModule,
     JwtModule.register({
       secret: 'your_jwt_secret',
-      signOptions: { expiresIn: '1d' },
+      // signOptions: { },
     }),
     TypeOrmModule.forFeature([Chat, User, Message, Invite]),
   ],
-  providers: [AuthService, JwtStrategy, UserService, ChatService,InviteService, MessageService,   ChatGateway, ActiveUsersService],
-  exports: [AuthService, UserService, ChatService, MessageService, InviteService,ActiveUsersService],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    UserService,
+    ChatService,
+    InviteService,
+    MessageService,
+    ChatGateway,
+    ActiveUsersService,
+    DiffieHelmanGateWay,
+  ],
+  exports: [
+    AuthService,
+    UserService,
+    ChatService,
+    MessageService,
+    InviteService,
+    ActiveUsersService,
+  ],
 
-  controllers: [UserController, AuthController, ChatController, MessageController, InviteController],
+  controllers: [
+    UserController,
+    AuthController,
+    ChatController,
+    MessageController,
+    InviteController,
+  ],
 })
 export class AppModule {}

@@ -69,8 +69,23 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
   }
 
   handleDisconnect(client: Socket) {
+    const userId = client.data?.userId as string | undefined;
+    
+    // Получаем все чаты, в которых был этот пользователь, перед удалением
+    const userChats = this.activeUsersService.getUserChats(userId);
+    
+    // Удаляем пользователя из сервиса
     this.activeUsersService.removeUser(client.id);
     
+    // Уведомляем все чаты об отключении пользователя
+    userChats.forEach(chatId => {
+      const activeUsers = this.activeUsersService.getActiveUsersInChat(chatId);
+      this.server.to(chatId).emit('chatUsersUpdate', {
+        chatId,
+        users: activeUsers,
+        disconnectedUser: userId, // Опционально: явно указываем кто отключился
+      });
+    });
   }
 
   @SubscribeMessage('joinChat')
@@ -94,6 +109,31 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     this.server.to(chatId).emit('chatUsersUpdate', {
       chatId,
       users: activeUsers,
+    });
+  }
+
+  @SubscribeMessage('leaveChat')
+  handleLeaveChat(
+    @MessageBody() data: { chatId: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { chatId } = data;
+    const userId = client.data.userId as string | undefined;
+
+    if (!userId) {
+      client.emit('error', { message: 'Unauthorized' });
+      return;
+    }
+
+    client.leave(chatId);
+    this.activeUsersService.removeUserFromChat(chatId, userId);
+
+    const activeUsers = this.activeUsersService.getActiveUsersInChat(chatId);
+
+    this.server.to(chatId).emit('chatUsersUpdate', {
+      chatId,
+      users: activeUsers,
+      leftUser: userId, // Опционально: явно указываем кто покинул чат
     });
   }
 
