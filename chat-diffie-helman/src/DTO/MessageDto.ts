@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { UserDto } from "./UserDto";
+import { ChatDto } from "./ChatDto";
 
 export class MessageDto {
           @ApiProperty({
@@ -12,6 +13,7 @@ export class MessageDto {
     description: 'ID чата (UUID)',
     format: 'uuid',
   })  chatId: string;
+  chat: ChatDto;
     @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000', description: 'ID пользователя (UUID)', format: 'uuid' })
     userId: string;
     @ApiProperty({ description: 'Информация о пользователе, отправившем сообщение', type: UserDto })
@@ -26,8 +28,11 @@ export class MessageDto {
     reviewed: boolean;
     @ApiProperty({ example: 'text', description: 'Тип сообщения' })
     type: string;
-    @ApiProperty({ example: 'public_key_exchange', description: 'Этап обмена ключами Диффи-Хеллмана' })
-    dhStage?: string;
-    @ApiProperty({ example: null, description: 'ID клиента, которому предназначено сообщение (для приватных сообщений), если null, то сообщение открытое. Предназначено для вебсокета', type: 'string', format: 'uuid', nullable: true })
-    toClientId: string | null;
+
+    @ApiProperty({ example: 0, description: 'Порядковый номер ключа шифрования в чате', nullable: true })
+    encryptionKeyIndex?: number;
+    // @ApiProperty({ example: 'public_key_exchange', description: 'Этап обмена ключами Диффи-Хеллмана' })
+    // dhStage?: string;
+    // @ApiProperty({ example: null, description: 'ID клиента, которому предназначено сообщение (для приватных сообщений), если null, то сообщение открытое. Предназначено для вебсокета', type: 'string', format: 'uuid', nullable: true })
+    // toClientId: string | null;
 }

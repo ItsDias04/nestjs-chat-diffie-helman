@@ -30,7 +30,7 @@ export class InviteController {
   @ApiBody({ type: InviteCreateDto })
   async sendInvite(
     @CurrentUser() user: UserData,
-    @Body('userReceiverId') inviteCreate: InviteCreateDto
+    @Body() inviteCreate: InviteCreateDto
   ): Promise<InviteDto> {
     // Здесь только отправитель, получатель можно добавить по необходимости
     return this.inviteService.createInvite(inviteCreate.chatId, user.userId, inviteCreate.userReceiverId);
@@ -39,7 +39,6 @@ export class InviteController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @Get()
-
   async getMyInvites(@CurrentUser() user: UserData): Promise<InviteDto[]> {
     return this.inviteService.getInvitesForUser(user.userId);
   }
@@ -51,9 +50,8 @@ export class InviteController {
   async respondToInvite(
     @CurrentUser() user: UserData,
     
-    @Body('accept') { inviteId, accept }: InviteRespondDto
+    @Body() acception: InviteRespondDto
   ): Promise<InviteDto> {
-    // Если accept === true — принять, иначе отклонить
-    return this.inviteService.respondToInvite(inviteId, accept);
+    return this.inviteService.respondToInvite(acception.inviteId, acception.accept);
   }
 }

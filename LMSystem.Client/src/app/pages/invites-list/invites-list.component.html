@@ -1,0 +1,69 @@
+<!-- <div class="chat-list">
+    <h2>My Chats</h2>
+  <ul>
+    <li *ngFor="let chat of chats">
+      <a [routerLink]="['/chats', chat.id]">{{ chat.name }}</a>
+    </li>
+  </ul>
+</div> -->
+<!-- <div (click)="openModal()" style="position: absolute;right: 10px;top: 10px;cursor: pointer;display: flex; align-items: center; justify-content: center; width: 30px; height: 30px;color: white; border-radius: 50%; background-color: #761331;">+</div> -->
+<h2 style="padding-left: 15px;">My invites</h2>
+<div class="container-main-content">
+    <ng-container *ngFor="let invite of invites; let i = index;"> <ng-container  *ngIf="invite.status == 'pending'"><div >
+        <div class="container3">
+            <div class="info">
+                <div class="item">
+                    <p style="text-align: left;">{{invite.status}}</p>
+
+                </div>
+
+                <div class="item">
+                    <p style="text-align: left;">{{invite.userSender.email}}</p>
+
+
+                </div>
+                <div class="item">
+                    <p style="text-align: left;">{{invite.chat.name}}</p>
+                </div>
+                <div class="item">
+                    <p style="text-align: left;">{{invite.updatedAt | date:'short'}}</p>
+
+
+                </div>
+            </div>
+
+
+            <div class="accept-decline">
+                <div class="item">
+                    <div style="display: flex; flex-direction: row; gap: 20px; justify-content: center; align-items: center; width: 80px;">
+                        <div (click)="acceptInvite(invite.id)" class="accept">&#10003;</div>
+                        <div (click)="declineInvite(invite.id)" class="decline">&#10005;</div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div></ng-container></ng-container>
+   
+    
+
+</div>
+
+
+
+<!-- <div class="overlay" *ngIf="modalOpen">
+    <div class="create-chat-modal">
+        <div class="modal-content" style="display: flex; flex-direction: column; gap: 15px;">
+            <span class="close-button"  (click)="closeModal()">&times;</span>
+            <h2>Create New Chat</h2>
+        
+                <label for="chatName">Chat Name:</label>
+                <input type="text" id="chatName" [(ngModel)]="newChatName"  required>
+                <button (click)="createChat()">Create</button>
+           
+        </div>
+    </div>
+</div> -->

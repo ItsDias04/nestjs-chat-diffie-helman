@@ -1,45 +1,71 @@
 <div class="chat-window">
-<div class="chat-main">
-<header class="chat-header">
-<div class="chat-title">Chat: {{ chatName || 'Чат' }}</div>
-<div class="chat-actions">
-<!-- <button class="icon-btn" title="Инфо">i</button> -->
-</div>
-</header>
+    <div class="chat-main">
+        <header class="chat-header">
+            <div class="chat-title">Chat: {{ chatName || 'Чат' }}</div>
+            <div class="chat-actions">
+                <!-- <button class="icon-btn" title="Инфо">i</button> -->
+            </div>
+        </header>
 
 
-<div class="messages" role="log" aria-live="polite">
-<div class="message" *ngFor="let m of messages; trackBy: trackByMessage"
-[class.mine]="m.userId === 'me'">
-<!-- <div class="avatar">{{ m. ? m.authorName.charAt(0).toUpperCase() : '?' }}</div> -->
-<div class="bubble">
-<div class="meta"><span class="author">{{ m.user.username }}</span>
-<span class="time">{{ m.timestamp| date:'shortTime' }}</span>
-</div>
-<div class="text">{{ m.content }}</div>
-</div>
-</div>
-</div>
+        <div #messagesContainer  class="messages" role="log" aria-live="polite" (scroll)="onMessagesScroll()">
+            <div class="message" *ngFor="let m of messages" [ngClass]="{'own-message': m.user.id === myId}">
+                <!-- <div class="avatar">{{ m. ? m.authorName.charAt(0).toUpperCase() : '?' }}</div> -->
+                <div class="bubble">
+                    <div class="meta"><span class="author">{{ m.user.name }}</span>
+                        <span class="time">{{ m.timestamp | date:'shortTime' }}</span>
+                    </div>
+                    <div class="text">{{ m.content }}</div>
+                </div>
+            </div>
+        </div>
 
 
-<div class="composer">
-<textarea [(ngModel)]="newMessage" placeholder="Написать сообщение..." rows="1"></textarea>
-<button class="send-btn" (click)="send()" [disabled]="!newMessage.trim()">Отправить</button>
-</div>
-</div>
+        <div class="composer">
+            <textarea [(ngModel)]="newMessage" placeholder="Написать сообщение..." rows="1"></textarea>
+            <button class="send-btn" (click)="sendMessage()" [disabled]="!newMessage.trim()">Отправить</button>
+        </div>
+    </div>
 
 
-<aside class="chat-users">
-<div class="users-header"><p>Пользователи</p><button (click)="openInviteModal()" class="send-btn">Пригласить</button></div>
-<!-- <input class="users-search" placeholder="Поиск..." /> -->
-<ul class="users-list">
-<li *ngFor="let u of users$ | async; trackBy: trackByUser" class="user-item">
-<div class="avatar">{{ u.username?.charAt(0)?.toUpperCase() }}</div>
-<div class="user-info">
-<div class="username">{{ u.username }}</div>
-<div class="email">{{ u.email }}</div>
+    <aside class="chat-users">
+        <div class="users-header">
+            <p>Users</p><button (click)="  openUsersModal()" class="send-btn">Invite</button>
+        </div>
+        <!-- <input class="users-search" placeholder="Поиск..." /> -->
+        <ul class="users-list">
+            <li *ngFor="let u of users$ | async; trackBy: trackByUser" class="user-item">
+              
+                <div class="avatar">{{ u.name?.charAt(0)?.toUpperCase() }}</div>
+                <div class="user-info">
+                    <div class="username">{{ u.name }}</div>
+                    <div class="email">{{ u.email }}</div>
+                   
+                </div>
+                 <div class="user-status" [ngClass]="{'user-online': UsersActive.includes(u.id), 'user-offline': !UsersActive.includes(u.id)}">
+                        {{ UsersActive.includes(u.id) ? 'Online' : 'Offline' }}
+                    </div>
+            </li>
+        </ul>
+    </aside>
 </div>
-</li>
-</ul>
-</aside>
-</div>
+
+<div class="overlay" *ngIf="modalUsersOpen">
+    <div class="create-chat-modal">
+        <div class="modal-content" style="display: flex; flex-direction: column; gap: 15px;">
+            <span class="close-button" (click)="closeUsersModal()">&times;</span>
+            <h2>Send invite to</h2>
+            <div *ngFor="let user of users"
+                style="display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid #ccc;">
+                <div>
+                    <p style="margin: 0;">{{ user.name }} ({{ user.email }})</p>
+                </div>
+                <div>
+                    <button (click)="sendInvite(chatId, user.id)"
+                        style="padding: 5px 10px; background-color: #761331; color: white; border: none; border-radius: 4px; cursor: pointer;">Send
+                        Invite</button>
+                </div>
+
+            </div>
+        </div>
+    </div>

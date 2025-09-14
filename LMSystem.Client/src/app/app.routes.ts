@@ -5,6 +5,7 @@ import { NavigateBarComponent } from './common-ui/navigate-bar/navigate-bar.comp
 import { RegistrationComponent } from './pages/registration/registration.component';
 import { ChatListComponent } from './pages/chat-list/chat-list.component';
 import { ChatComponent } from './pages/chat/chat.component';
+import { InvitesListComponent } from './pages/invites-list/invites-list.component';
 
 export const routes: Routes = [
   {
@@ -14,6 +15,7 @@ export const routes: Routes = [
       // path: '',
      { path: 'chats', component: ChatListComponent},
      { path: 'chat/:id', component: ChatComponent},
+     { path: 'invites', component: InvitesListComponent}
     ],
     canActivate: [() => canActivateAuth(undefined)], 
   },

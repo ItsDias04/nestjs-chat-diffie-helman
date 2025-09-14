@@ -1,4 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { ChatDto } from "./ChatDto";
+import { UserDto } from "./UserDto";
 
 export class InviteDto {
     @ApiProperty({
@@ -6,24 +8,28 @@ export class InviteDto {
        description: 'ID приглашения (UUID)',
        format: 'uuid',
      })  id: string;
+     
 
     @ApiProperty({
        example: '123e4567-e89b-12d3-a456-426614174001',
        description: 'ID чата (UUID)',
        format: 'uuid',
      })  chatId: string;
+     chat: ChatDto;
 
     @ApiProperty({
        example: '123e4567-e89b-12d3-a456-426614174002',
        description: 'ID отправителя (UUID)',
        format: 'uuid',
      })  userSenderId: string;
+    userSender: UserDto;
 
     @ApiProperty({
        example: '123e4567-e89b-12d3-a456-426614174003',
        description: 'ID получателя (UUID)',
        format: 'uuid',
      })  userReceiverId: string | null;
+     userReceiver: UserDto | null;
 
     @ApiProperty({
        example: 'pending',

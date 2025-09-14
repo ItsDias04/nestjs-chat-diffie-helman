@@ -18,7 +18,7 @@ export class InviteService {
         private readonly chatRepository: Repository<Chat>,
     ) {}
     async createInvite(chatId: string, inviterId: string, userReceiverId: string): Promise<InviteDto> {
-        const chat = await this.chatRepository.findOne({ where: { id: chatId } });
+        const chat = await this.chatRepository.findOne({ where: { id: chatId }, relations: ['users'] });
         if (!chat) {
             throw new Error(`Chat with id ${chatId} not found`);
         }
@@ -29,7 +29,7 @@ export class InviteService {
         if (!chat.users.find(u => u.id === inviterId)) {
             throw new Error(`User with id ${inviterId} is not a member of chat with id ${chatId}`);
         }
-        const invite = await this.inviteRepository.findOne({ where: { chat: { id: chatId }, userSender: { id: inviterId } } });
+        const invite = await this.inviteRepository.findOne({ where: { chat: { id: chatId }, userSender: { id: inviterId }, userReceiver: { id: userReceiverId } } });
         if (invite) {
             throw new Error(`Invite already exists`);
         }
@@ -43,21 +43,24 @@ export class InviteService {
             }
            
         // You may need to provide userReceiver as well, here it's set to null for demonstration
-   const newInvite = this.inviteRepository.create({
-        chat: chat,
-        userSender: inviter,
-        userReceiver: userReceiver,
-        status: 'pending',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-    } as DeepPartial<Invite>);
+        const newInvite = this.inviteRepository.create({
+            chat: chat,
+            userSender: inviter,
+            userReceiver: userReceiver,
+            status: 'pending',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        } as DeepPartial<Invite>);
     await this.inviteRepository.save(newInvite);
     return this.toInviteDto(newInvite);
     }
-        async getInvitesForUser(userId: string): Promise<InviteDto[]> {
-            const invites = await this.inviteRepository.find({ where: { userReceiver: { id: userId } } });
-            return invites.map(invite => this.toInviteDto(invite));
-        }
+     async getInvitesForUser(userId: string): Promise<InviteDto[]> {
+    const invites = await this.inviteRepository.find({
+        where: { userReceiver: { id: userId } },
+        relations: ['chat', 'userSender', 'userReceiver'], // <--- добавьте это
+    });
+    return invites.map(invite => this.toInviteDto(invite));
+}
     
     async respondToInvite(inviteId: string, accept: boolean): Promise<InviteDto> {
         const invite = await this.inviteRepository.findOne({ where: { id: inviteId }, relations: ['chat', 'userSender', 'userReceiver'] });
@@ -72,6 +75,8 @@ export class InviteService {
             const chat = await this.chatRepository.findOne({ where: { id: invite.chat.id }, relations: ['users'] });
             
             chat?.users.push(invite.userReceiver);
+
+            await this.chatRepository.save(chat!);
         }
 
         await this.inviteRepository.save(invite);
@@ -81,8 +86,11 @@ export class InviteService {
         return Object.assign(new InviteDto(), {
             id: invite.id,
             chatId: invite.chat.id,
+            chat: invite.chat,
             userSenderId: invite.userSender.id,
+            userSender: invite.userSender,
             userReceiverId: invite.userReceiver ? invite.userReceiver.id : null,
+            userReceiver: invite.userReceiver ? invite.userReceiver : null,
             status: invite.status,
             createdAt: invite.createdAt,
             updatedAt: invite.updatedAt

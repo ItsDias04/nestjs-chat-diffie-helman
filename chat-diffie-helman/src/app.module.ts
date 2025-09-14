@@ -14,10 +14,11 @@ import { UserController } from './WebApi/Controllers/UserController';
 import { AuthController } from './WebApi/Controllers/AuthController';
 import { ChatController } from './WebApi/Controllers/ChatController';
 import { MessageService } from './BL/Services/MessageService';
-import { ChatGateway } from './WebApi/GateWays/ChatGateWey';
+import { ChatGateway } from './WebApi/GateWays/ChatGateWay';
 import { MessageController } from './WebApi/Controllers/MessageController';
 import { InviteController } from './WebApi/Controllers/InviteController';
 import { InviteService } from './BL/Services/InviteService';
+import { ActiveUsersService } from './BL/Singelton/Services/ActiveUsersService';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -38,8 +39,8 @@ import { InviteService } from './BL/Services/InviteService';
     }),
     TypeOrmModule.forFeature([Chat, User, Message, Invite]),
   ],
-  providers: [AuthService, JwtStrategy, UserService, ChatService,InviteService, MessageService, ChatGateway],
-  exports: [AuthService, UserService, ChatService, MessageService, InviteService],
+  providers: [AuthService, JwtStrategy, UserService, ChatService,InviteService, MessageService,   ChatGateway, ActiveUsersService],
+  exports: [AuthService, UserService, ChatService, MessageService, InviteService,ActiveUsersService],
 
   controllers: [UserController, AuthController, ChatController, MessageController, InviteController],
 })

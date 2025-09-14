@@ -20,4 +20,7 @@ export class Chat {
 
     @OneToMany(() => Message, message => message.chat)
     messages: Message[];
+
+    @Column({ type: "int", default: null, nullable: true })
+    currentEncryptionKeyIndex?: number;
 }

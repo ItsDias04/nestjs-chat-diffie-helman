@@ -15,7 +15,7 @@ export enum MessageType {
     Video = "video",
     File = "file",
     Audio = "audio",
-    Encryption = "encryption"
+    // Encryption = "encryption"
 }
 
 @Entity()
@@ -23,7 +23,10 @@ export class Message {
     @PrimaryGeneratedColumn("uuid")
     id: string;
 
+    @Column( )
     chatId: string;
+
+    @Column()
     userId: string;
     @ManyToOne(() => Chat, chat => chat.messages)
     chat: Chat;
@@ -43,8 +46,9 @@ export class Message {
     @Column({ type: "enum", enum: MessageType })
     type: MessageType;
 
-    @Column({ type: "enum", enum: DiffieHellmanStage, nullable: true })
-    dhStage?: DiffieHellmanStage;
-
+    // @Column({ type: "enum", enum: DiffieHellmanStage, nullable: true })
+    // dhStage?: DiffieHellmanStage;
+    @Column({ type: "int", nullable: true })
+    encryptionKeyIndex?: number;
     
 }
