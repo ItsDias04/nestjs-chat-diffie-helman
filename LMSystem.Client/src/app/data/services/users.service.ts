@@ -18,4 +18,12 @@ export class UsersService {
       getMe() {
     return this.http.get<User>(`${this.apiUrl}/me`);
   }
+
+  saveToLocalStorage(user: User) {
+    localStorage.setItem('currentUser', JSON.stringify(user));
+  }
+  getFromLocalStorage() {
+    const user = localStorage.getItem('currentUser');
+    return user ? JSON.parse(user) : null;
+  }
 }

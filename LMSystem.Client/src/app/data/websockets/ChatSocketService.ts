@@ -41,37 +41,37 @@ export class ChatSocketService {
     });
 
     this.socket.on('connect', () => {
-      console.log('[ChatSocket] connected', this.socket?.id);
+      // console.log('[ChatSocket] connected', this.socket?.id);
       this.ngZone.run(() => this.connectionStatusSubject.next(true));
     });
 
     this.socket.on('disconnect', (reason: any) => {
-      console.log('[ChatSocket] disconnected', reason);
+      // console.log('[ChatSocket] disconnected', reason);
       this.ngZone.run(() => this.connectionStatusSubject.next(false));
     });
 
     this.socket.on('connect_error', (err: any) => {
-      console.error('[ChatSocket] connect_error', err);
+      // console.error('[ChatSocket] connect_error', err);
       this.ngZone.run(() => this.connectionStatusSubject.next(false));
     });
 
     this.socket.on('connected', (data: any) => {
-      console.log('[ChatSocket] server confirmed connection', data);
+      // console.log('[ChatSocket] server confirmed connection', data);
     });
 
     this.socket.on('error', (error: any) => {
-      console.error('[ChatSocket] server error', error);
+      // console.error('[ChatSocket] server error', error);
     });
 
     // Новое сообщение
     this.socket.on('newMessage', (message: Message) => {
-      console.log('[ChatSocket] received message', message);
+      // console.log('[ChatSocket] received message', message);
       this.ngZone.run(() => this.messageSubject.next(message));
     });
 
     // Обновление пользователей в чате
     this.socket.on('chatUsersUpdate', (payload: ChatUsersUpdate) => {
-      console.log('[ChatSocket] chatUsersUpdate', payload);
+      // console.log('[ChatSocket] chatUsersUpdate', payload);
       this.ngZone.run(() => this.chatUsersSubject.next(payload));
     });
   }
@@ -86,23 +86,23 @@ export class ChatSocketService {
   /** Зарегистрировать пользователя на сервере - больше не нужно, аутентификация через middleware */
   registerUser(userId: string) {
     // Метод оставлен для обратной совместимости, но не используется
-    console.log('[ChatSocket] registerUser called (deprecated)', userId);
+    // console.log('[ChatSocket] registerUser called (deprecated)', userId);
   }
 
   /** Войти в комнату (чат) */
   joinChat(chatId: string) {
     if (!this.socket?.connected) {
-      console.warn('[ChatSocket] Cannot join chat - socket not connected');
+      // console.warn('[ChatSocket] Cannot join chat - socket not connected');
       return;
     }
-    console.log('[ChatSocket] joining chat', chatId);
+    // console.log('[ChatSocket] joining chat', chatId);
     this.socket.emit('joinChat', { chatId });
   }
 
   /** Покинуть чат */
   leaveChat(chatId: string) {
     if (!this.socket?.connected) return;
-    console.log('[ChatSocket] leaving chat', chatId);
+    // console.log('[ChatSocket] leaving chat', chatId);
     this.socket.emit('leaveChat', { chatId });
   }
 

@@ -25,6 +25,7 @@ export interface Message {
   timestamp: string; // ISO string
   reviewed: boolean;
   type: MessageType | string;
-  dhStage?: DiffieHellmanStage | string;
-  toClientId: string | null;
+  keyId?: string;
+  // dhStage?: DiffieHellmanStage | string;
+  // toClientId: string | null;
 }

@@ -12,6 +12,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { ActiveUsersService } from 'src/BL/Singelton/Services/ActiveUsersService';
 import { DiffieHellmanMessageDto } from '../../DTO/DiffieHellmanMessageDto';
+import { ChatService } from 'src/BL/Services/ChatService';
 
 interface DiffieHellmanSession {
   chatId: string;
@@ -39,6 +40,7 @@ export class DiffieHelmanGateWay
 
   constructor(
     private readonly activeUsersService: ActiveUsersService,
+    private readonly chatService: ChatService,
     private readonly jwtService: JwtService,
   ) {}
 
@@ -161,7 +163,12 @@ export class DiffieHelmanGateWay
       ok: true,
       chatId,
       message: 'Joined Diffie-Hellman session for chat',
+      // message: session.activeUsers
     });
+
+    const activeUsers = session.activeUsers
+    
+   this.server.to(`dh:${chatId}`).emit('dh-chatUsersUpdate', { chatId, users: Array.from(activeUsers) });
   }
 
   // Client leaves DH exchange for chatId
@@ -231,7 +238,8 @@ export class DiffieHelmanGateWay
     this.activeSessions.set(message.chatId, session);
 
     // Forward message to recipient's sockets
-    const recipientSockets = this.userSockets.get(message.toClientId) ?? new Set();
+    const recipientSockets =
+      this.userSockets.get(message.toClientId) ?? new Set();
     if (recipientSockets.size === 0) {
       client.emit('dh-error', { message: 'Recipient not connected' });
       return;
@@ -248,7 +256,7 @@ export class DiffieHelmanGateWay
 
     for (const sid of recipientSockets) {
       // socket object retrieval
-      const sock = (this.server.sockets as any).sockets.get(sid) as Socket | undefined;
+      const sock = (this.server.sockets as any).get(sid) as Socket | undefined;
       if (sock && sock.connected) {
         // optionally ensure sock is in same room `dh:${message.chatId}`
         // if you want to enforce chat-room membership on server side
@@ -257,8 +265,14 @@ export class DiffieHelmanGateWay
     }
 
     // confirm to sender
-    client.emit('dh-sent', { ok: true, to: message.toClientId, chatId: message.chatId });
+    client.emit('dh-sent', {
+      ok: true,
+      to: message.toClientId,
+      chatId: message.chatId,
+    });
   }
+
+  // @SubscribeMessage('')
 
   // OPTIONAL: Periodic cleanup could be added (not implemented as an interval here) —
   // remove sessions older than e.g. 10 minutes. If you need that, add a setInterval on init.

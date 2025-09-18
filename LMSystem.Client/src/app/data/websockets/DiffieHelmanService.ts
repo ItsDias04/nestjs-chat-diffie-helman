@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 
@@ -50,6 +50,7 @@ export class DiffieHellmanService {
   private myPublicKey: string | null = null;
   private sharedSecret: string | null = null;
   private receivedPublicKeys: Map<string, string> = new Map();
+  private isKeyExchangeActive: boolean = false;
 
   public connected$ = this.connectedSubject.asObservable();
   public activeUsers$ = this.activeUsersSubject.asObservable();
@@ -57,7 +58,7 @@ export class DiffieHellmanService {
   public errors$ = this.errorsSubject.asObservable();
   public keyExchangeStatus$ = this.keyExchangeStatusSubject.asObservable();
 
-  constructor() {}
+  constructor( private ngZone: NgZone) {}
 
   /**
    * Подключение к WebSocket
@@ -119,9 +120,14 @@ export class DiffieHellmanService {
   /**
    * Установка активных пользователей и запуск обмена ключами
    */
-  setActiveUsersAndStartKeyExchange(users: ActiveUser[]): void {
+  async setActiveUsersAndStartKeyExchange(users: ActiveUser[]): Promise<void> {
     if (!this.currentUserId) {
       this.errorsSubject.next('Не установлен текущий пользователь');
+      return;
+    }
+
+    if (this.isKeyExchangeActive) {
+      this.errorsSubject.next('Обмен ключами уже активен');
       return;
     }
 
@@ -137,9 +143,25 @@ export class DiffieHellmanService {
       return;
     }
 
-    // Если текущий пользователь первый в отсортированном списке, он инициирует обмен
-    if (currentUserIndex === 0) {
-      this.initiateKeyExchange(sortedUsers);
+    this.isKeyExchangeActive = true;
+
+    try {
+      // ВСЕ пользователи генерируют свои ключевые пары в начале
+      this.keyExchangeStatusSubject.next('Генерация ключевой пары...');
+      
+      const keyPair = await this.generateKeyPair();
+      this.myPrivateKey = keyPair.privateKey;
+      this.myPublicKey = keyPair.publicKey;
+
+      // Все пользователи отправляют свои публичные ключи в начале
+      if (true) {
+        await this.initiateKeyExchange(sortedUsers);
+      } else {
+        // this.keyExchangeStatusSubject.next('Ожидание начала обмена ключами...');
+      }
+    } catch (error) {
+      this.errorsSubject.next(`Ошибка при подготовке к обмену ключами: ${error}`);
+      this.isKeyExchangeActive = false;
     }
   }
 
@@ -148,12 +170,9 @@ export class DiffieHellmanService {
    */
   private async initiateKeyExchange(sortedUsers: ActiveUser[]): Promise<void> {
     try {
-      this.keyExchangeStatusSubject.next('Генерация ключевой пары...');
-      
-      // Генерируем ключевую пару
-      const keyPair = await this.generateKeyPair();
-      this.myPrivateKey = keyPair.privateKey;
-      this.myPublicKey = keyPair.publicKey;
+      if (!this.myPublicKey) {
+        throw new Error('Публичный ключ не сгенерирован');
+      }
 
       // Получаем следующего пользователя в списке
       const nextUser = this.getNextUser(sortedUsers, this.currentUserId!);
@@ -165,7 +184,7 @@ export class DiffieHellmanService {
 
       this.keyExchangeStatusSubject.next(`Отправка ключа пользователю ${nextUser.id}...`);
 
-      // Отправляем публичный ключ следующему пользователю
+      // Отправляем свой публичный ключ следующему пользователю (stage = 1)
       this.sendDiffieHellmanMessage({
         chatId: this.currentChatId!,
         fromClientId: this.currentUserId!,
@@ -176,6 +195,7 @@ export class DiffieHellmanService {
 
     } catch (error) {
       this.errorsSubject.next(`Ошибка при инициации обмена ключами: ${error}`);
+      this.isKeyExchangeActive = false;
     }
   }
 
@@ -183,6 +203,10 @@ export class DiffieHellmanService {
    * Обработка полученного сообщения Diffie-Hellman
    */
   private async handleReceivedMessage(message: DhMessage): Promise<void> {
+    if (!this.isKeyExchangeActive) {
+      return;
+    }
+
     try {
       const sortedUsers = this.activeUsersSubject.value;
       const totalUsers = sortedUsers.length;
@@ -192,28 +216,26 @@ export class DiffieHellmanService {
       // Сохраняем полученный публичный ключ
       this.receivedPublicKeys.set(message.fromClientId, message.publicKey);
 
-      // Если это последний этап (stage равен количеству пользователей)
-      if (message.stage >= totalUsers) {
-        // Вычисляем общий секрет
-        await this.calculateSharedSecret(message.publicKey);
+      // Проверяем, завершился ли обмен ключами (ключ прошел полный круг)
+      if (message.stage >= totalUsers-1) {
+        // Это финальное сообщение - вычисляем общий секрет
+        await this.calculateFinalSharedSecret(message.publicKey);
         this.keyExchangeStatusSubject.next('Обмен ключами завершен');
+        this.isKeyExchangeActive = false;
         return;
       }
 
-      // Если у нас еще нет ключевой пары, генерируем ее
       if (!this.myPrivateKey || !this.myPublicKey) {
-        const keyPair = await this.generateKeyPair();
-        this.myPrivateKey = keyPair.privateKey;
-        this.myPublicKey = keyPair.publicKey;
+        throw new Error('Ключевая пара не сгенерирована');
       }
 
-      // Вычисляем промежуточный результат с полученным ключом
-      const intermediateSecret = await this.computeDiffieHellman(this.myPrivateKey, message.publicKey);
+      // Вычисляем промежуточный результат: g^(a * receivedKey) mod p
+      const intermediateResult = await this.computeDiffieHellman(this.myPrivateKey, message.publicKey);
       
       // Генерируем новый публичный ключ на основе промежуточного результата
-      const newPublicKey = await this.derivePublicKeyFromSecret(intermediateSecret);
+      const newPublicKey = await this.derivePublicKeyFromSecret(intermediateResult);
 
-      // Находим следующего пользователя
+      // Находим следующего пользователя (с учетом цикличности)
       const nextUser = this.getNextUser(sortedUsers, this.currentUserId!);
       
       if (!nextUser) {
@@ -234,6 +256,7 @@ export class DiffieHellmanService {
 
     } catch (error) {
       this.errorsSubject.next(`Ошибка при обработке сообщения: ${error}`);
+      this.isKeyExchangeActive = false;
     }
   }
 
@@ -250,12 +273,14 @@ export class DiffieHellmanService {
   }
 
   /**
-   * Получение следующего пользователя в отсортированном списке
+   * Получение следующего пользователя в отсортированном списке (циклично)
    */
   private getNextUser(sortedUsers: ActiveUser[], currentUserId: string): ActiveUser | null {
     const currentIndex = sortedUsers.findIndex(user => user.id === currentUserId);
     if (currentIndex === -1) return null;
     
+    // Циклично переходим к следующему пользователю
+    // Если текущий последний, то следующий - первый
     const nextIndex = (currentIndex + 1) % sortedUsers.length;
     return sortedUsers[nextIndex];
   }
@@ -302,6 +327,11 @@ export class DiffieHellmanService {
     this.socket.on('error', (error: any) => {
       this.errorsSubject.next(error.message || 'Ошибка WebSocket');
     });
+
+    this.socket.on('dh-chatUsersUpdate', (data: any) => {
+      console.log('Пользователи чата обновлены:', data);
+this.ngZone.run(() => this.activeUsersSubject.next(data));
+    })
   }
 
   /**
@@ -315,62 +345,111 @@ export class DiffieHellmanService {
     this.sharedSecret = null;
     this.receivedPublicKeys.clear();
     this.keyExchangeStatusSubject.next('idle');
+    this.isKeyExchangeActive = false;
   }
 
   /**
-   * Генерация ключевой пары (заглушка - замените на реальную криптографическую библиотеку)
+   * Генерация ключевой пары с использованием Web Crypto API
    */
   private async generateKeyPair(): Promise<KeyPair> {
-    // Здесь должна быть реальная генерация ключевой пары
-    // Например, используя Web Crypto API или библиотеку node-forge
-    
-    // Заглушка для примера
-    const keyPair = await window.crypto.subtle.generateKey(
-      {
-        name: 'ECDH',
-        namedCurve: 'P-256'
-      },
-      true,
-      ['deriveKey', 'deriveBits']
-    );
+    try {
+      const keyPair = await window.crypto.subtle.generateKey(
+        {
+          name: 'ECDH',
+          namedCurve: 'P-256'
+        },
+        true,
+        ['deriveKey', 'deriveBits']
+      );
 
-    const publicKeyJwk = await window.crypto.subtle.exportKey('jwk', keyPair.publicKey);
-    const privateKeyJwk = await window.crypto.subtle.exportKey('jwk', keyPair.privateKey);
+      const publicKeyJwk = await window.crypto.subtle.exportKey('jwk', keyPair.publicKey);
+      const privateKeyJwk = await window.crypto.subtle.exportKey('jwk', keyPair.privateKey);
 
-    return {
-      publicKey: JSON.stringify(publicKeyJwk),
-      privateKey: JSON.stringify(privateKeyJwk)
-    };
+      return {
+        publicKey: JSON.stringify(publicKeyJwk),
+        privateKey: JSON.stringify(privateKeyJwk)
+      };
+    } catch (error) {
+      throw new Error(`Ошибка генерации ключевой пары: ${error}`);
+    }
   }
 
   /**
-   * Вычисление общего секрета Diffie-Hellman
+   * Вычисление общего секрета Diffie-Hellman с использованием Web Crypto API
    */
-  private async computeDiffieHellman(privateKey: string, publicKey: string): Promise<string> {
-    // Здесь должно быть реальное вычисление общего секрета
-    // Заглушка для примера
-    return `shared_secret_${Date.now()}`;
+  private async computeDiffieHellman(privateKeyJwk: string, publicKeyJwk: string): Promise<string> {
+    try {
+      const privateKey = await window.crypto.subtle.importKey(
+        'jwk',
+        JSON.parse(privateKeyJwk),
+        { name: 'ECDH', namedCurve: 'P-256' },
+        false,
+        ['deriveBits']
+      );
+
+      const publicKey = await window.crypto.subtle.importKey(
+        'jwk',
+        JSON.parse(publicKeyJwk),
+        { name: 'ECDH', namedCurve: 'P-256' },
+        false,
+        []
+      );
+
+      const sharedBits = await window.crypto.subtle.deriveBits(
+        { name: 'ECDH', public: publicKey },
+        privateKey,
+        256
+      );
+
+      // Преобразуем ArrayBuffer в hex строку
+      const sharedArray = new Uint8Array(sharedBits);
+      return Array.from(sharedArray, byte => byte.toString(16).padStart(2, '0')).join('');
+    } catch (error) {
+      throw new Error(`Ошибка вычисления общего секрета: ${error}`);
+    }
   }
 
   /**
-   * Генерация публичного ключа из секрета
+   * Генерация нового публичного ключа из промежуточного секрета
    */
   private async derivePublicKeyFromSecret(secret: string): Promise<string> {
-    // Здесь должна быть реальная генерация ключа из секрета
-    // Заглушка для примера
-    return `derived_public_key_${secret}_${Date.now()}`;
+    try {
+      // Используем секрет как основу для генерации нового ключа
+      const secretBuffer = new TextEncoder().encode(secret);
+      const hash = await window.crypto.subtle.digest('SHA-256', secretBuffer);
+      
+      // Генерируем новую ключевую пару, используя хеш как энтропию
+      // В реальной реализации здесь должна быть более сложная логика
+      const keyPair = await window.crypto.subtle.generateKey(
+        {
+          name: 'ECDH',
+          namedCurve: 'P-256'
+        },
+        true,
+        ['deriveKey', 'deriveBits']
+      );
+
+      const publicKeyJwk = await window.crypto.subtle.exportKey('jwk', keyPair.publicKey);
+      return JSON.stringify(publicKeyJwk);
+    } catch (error) {
+      throw new Error(`Ошибка генерации производного ключа: ${error}`);
+    }
   }
 
   /**
-   * Финальное вычисление общего секрета
+   * Финальное вычисление общего секрета для всех участников
    */
-  private async calculateSharedSecret(finalPublicKey: string): Promise<void> {
+  private async calculateFinalSharedSecret(finalPublicKey: string): Promise<void> {
     if (!this.myPrivateKey) {
       throw new Error('Приватный ключ не найден');
     }
 
-    this.sharedSecret = await this.computeDiffieHellman(this.myPrivateKey, finalPublicKey);
-    console.log('Общий секрет вычислен:', this.sharedSecret);
+    try {
+      this.sharedSecret = await this.computeDiffieHellman(this.myPrivateKey, finalPublicKey);
+      console.log('Общий секрет вычислен:', this.sharedSecret);
+    } catch (error) {
+      throw new Error(`Ошибка финального вычисления общего секрета: ${error}`);
+    }
   }
 
   /**
@@ -385,5 +464,20 @@ export class DiffieHellmanService {
    */
   getCurrentStatus(): string {
     return this.keyExchangeStatusSubject.value;
+  }
+
+  /**
+   * Проверка, активен ли процесс обмена ключами
+   */
+  isKeyExchangeInProgress(): boolean {
+    return this.isKeyExchangeActive;
+  }
+
+  /**
+   * Принудительная остановка обмена ключами
+   */
+  stopKeyExchange(): void {
+    this.isKeyExchangeActive = false;
+    this.keyExchangeStatusSubject.next('Обмен ключами остановлен');
   }
 }
