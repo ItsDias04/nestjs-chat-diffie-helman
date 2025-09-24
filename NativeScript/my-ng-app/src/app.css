@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.btn {
+    color: white;
+    background-color: #65ADF1;
+}
+.btn-primary {
+    width: 100%;
+    height: 50%;
+
+}

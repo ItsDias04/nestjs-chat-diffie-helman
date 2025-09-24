@@ -170,7 +170,9 @@ export class ChatComponent implements OnDestroy, OnInit {
       
       // Если подключились и есть активные пользователи, присоединяемся к сессии DH
       if (connected && this.myId) {
-        this.dhService.joinDiffieHellmanSession(this.chatId, this.myId);
+          setTimeout(() => {
+      this.dhService.joinDiffieHellmanSession(this.chatId, this.myId!);
+    }, 100);
       }
     });
     this.subscriptions.push(dhConnectionSub);

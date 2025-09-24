@@ -312,8 +312,10 @@ export class DiffieHellmanService {
     });
 
     this.socket.on('dh-message', (message: DhMessage) => {
-      this.messagesSubject.next(message);
-      this.handleReceivedMessage(message);
+   this.ngZone.run(() => {
+    this.messagesSubject.next(message);
+    this.handleReceivedMessage(message);
+  });
     });
 
     this.socket.on('dh-sent', (data: any) => {

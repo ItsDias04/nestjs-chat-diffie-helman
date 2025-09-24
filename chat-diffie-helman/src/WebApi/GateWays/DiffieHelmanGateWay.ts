@@ -158,6 +158,16 @@ export class DiffieHelmanGateWay
 
     // join socket.io room for convenience
     client.join(`dh:${chatId}`);
+    console.debug(
+      'activeUsers',
+      JSON.stringify(session.activeUsers, null, 2),
+      session.activeUsers,
+    );
+    console.debug(
+      'activeSessions',
+      JSON.stringify(this.activeSessions, null, 2),
+      this.activeSessions,
+    );
 
     client.emit('dh-joined', {
       ok: true,
@@ -166,9 +176,11 @@ export class DiffieHelmanGateWay
       // message: session.activeUsers
     });
 
-    const activeUsers = session.activeUsers
-    
-   this.server.to(`dh:${chatId}`).emit('dh-chatUsersUpdate', { chatId, users: Array.from(activeUsers) });
+    const activeUsers = session.activeUsers;
+
+    this.server
+      .to(`dh:${chatId}`)
+      .emit('dh-chatUsersUpdate', { chatId, users: Array.from(activeUsers) });
   }
 
   // Client leaves DH exchange for chatId
@@ -201,6 +213,9 @@ export class DiffieHelmanGateWay
     @ConnectedSocket() client: Socket,
   ) {
     const userId = client.data?.userId as string | undefined;
+
+    console.debug('message', message);
+    console.debug('client', client.data);
     // Basic validation
     if (!userId) {
       client.emit('dh-error', { message: 'Unauthorized' });
@@ -233,6 +248,13 @@ export class DiffieHelmanGateWay
       client.emit('dh-error', { message: 'Recipient not in session' });
       return;
     }
+    console.debug(
+      '################info##############',
+      session.activeUsers,
+      message.fromClientId,
+      message.toClientId,
+      '################info##############',
+    );
 
     session.timestamp = Date.now();
     this.activeSessions.set(message.chatId, session);
@@ -244,6 +266,7 @@ export class DiffieHelmanGateWay
       client.emit('dh-error', { message: 'Recipient not connected' });
       return;
     }
+    console.debug('recipientSockets', recipientSockets);
 
     const payloadToSend = {
       chatId: message.chatId,
@@ -255,11 +278,16 @@ export class DiffieHelmanGateWay
     };
 
     for (const sid of recipientSockets) {
-      // socket object retrieval
+      // const sock = this.server.sockets.sockets.get(sid);
+      // if (sock && sock.connected && sock.rooms.has(`dh:${message.chatId}`)) {
+      // sock.emit('dh-message', payloadToSend);
+      // console.debug('--------------------------------------');
+      // console.debug('sock.rooms', sock.rooms);
+
       const sock = (this.server.sockets as any).get(sid) as Socket | undefined;
       if (sock && sock.connected) {
-        // optionally ensure sock is in same room `dh:${message.chatId}`
-        // if you want to enforce chat-room membership on server side
+        console.debug('--------------------------------------');
+        console.debug('sock.rooms', sock.rooms);
         sock.emit('dh-message', payloadToSend);
       }
     }
