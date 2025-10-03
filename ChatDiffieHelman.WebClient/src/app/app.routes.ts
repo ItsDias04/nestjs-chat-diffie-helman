@@ -6,6 +6,7 @@ import { RegistrationComponent } from './pages/registration/registration.compone
 import { ChatListComponent } from './pages/chat-list/chat-list.component';
 import { ChatComponent } from './pages/chat/chat.component';
 import { InvitesListComponent } from './pages/invites-list/invites-list.component';
+import { ColumnCipherComponent } from './pages/column-cipher/column-cipher.component';
 
 export const routes: Routes = [
   {
@@ -15,7 +16,8 @@ export const routes: Routes = [
       // path: '',
      { path: 'chats', component: ChatListComponent},
      { path: 'chat/:id', component: ChatComponent},
-     { path: 'invites', component: InvitesListComponent}
+     { path: 'invites', component: InvitesListComponent},
+     { path: 'column-cipher', component: ColumnCipherComponent},
     ],
     canActivate: [() => canActivateAuth(undefined)], 
   },

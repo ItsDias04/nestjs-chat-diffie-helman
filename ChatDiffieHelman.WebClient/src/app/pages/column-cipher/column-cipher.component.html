@@ -1,0 +1,118 @@
+    <div class="cipher-container">
+      <h2>Шифр столбцовой перестановки</h2>
+      
+      <div class="input-section">
+        <div class="form-group">
+          <label for="inputText">Введите текст:</label>
+          <textarea 
+            id="inputText" 
+            [(ngModel)]="inputText" 
+            placeholder="Введите текст для шифрования/расшифрования"
+            rows="3">
+          </textarea>
+        </div>
+        
+        <div class="form-group">
+          <label for="matrixSize">Размер матрицы:</label>
+          <select id="matrixSize" [(ngModel)]="matrixSize" (change)="updateMatrixSize()">
+            <option value="auto">Автоматически (квадратная)</option>
+            <option value="custom">Задать вручную</option>
+          </select>
+        </div>
+        
+        <div class="form-group" *ngIf="matrixSize === 'custom'">
+          <label>Размеры матрицы:</label>
+          <div class="matrix-size-inputs">
+            <input 
+              type="number" 
+              [(ngModel)]="customRows" 
+              min="1" 
+              max="20"
+              placeholder="Строки">
+            <span>×</span>
+            <input 
+              type="number" 
+              [(ngModel)]="customCols" 
+              min="1" 
+              max="20"
+              placeholder="Столбцы">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="columnOrder">Порядок столбцов (для расшифрования):</label>
+          <input 
+            id="columnOrder" 
+            [(ngModel)]="columnOrder" 
+            placeholder="Например: 2,4,1,3,5 или оставьте пустым для автоанализа"
+            type="text">
+        </div>
+        
+        <div class="button-group">
+          <button (click)="encrypt()" [disabled]="!inputText.trim()">
+            Зашифровать
+          </button>
+          <button (click)="decrypt()" [disabled]="!inputText.trim()">
+            Расшифровать
+          </button>
+          <button (click)="analyzeText()" [disabled]="!inputText.trim()">
+            Криптоанализ
+          </button>
+          <button (click)="clear()">Очистить</button>
+        </div>
+      </div>
+      
+      <div class="results-section" *ngIf="result">
+        <h3>Результат:</h3>
+        <div class="result-text">{{ result.result }}</div>
+        
+        <div class="matrix-display" *ngIf="result.matrix">
+          <h4>Матрица:</h4>
+          <table class="cipher-matrix">
+            <thead>
+              <tr>
+                <th *ngFor="let col of getColumnHeaders(result.matrix[0]?.length || 0); index as i">
+                  {{ i + 1 }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of result.matrix">
+                <td *ngFor="let cell of row" [class.empty]="cell === '_'">
+                  {{ cell === '_' ? ' ' : cell }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="explanation" *ngIf="result.explanation">
+          <h4>Пояснение:</h4>
+          <p [innerHTML]="result?.explanation"></p>
+        </div>
+      </div>
+      
+      <div class="analysis-section" *ngIf="analysisResults.length > 0">
+        <h3>Результаты криптоанализа:</h3>
+        <div class="analysis-variants">
+          <div *ngFor="let variant of analysisResults; index as i" 
+               class="variant" 
+               [class.best]="i === 0">
+            <h4>Вариант {{ i + 1 }}{{ i === 0 ? ' (лучший)' : '' }}</h4>
+            <p><strong>Порядок столбцов:</strong> {{ variant.order.join(', ') }}</p>
+            <p><strong>Результат:</strong> {{ variant.text }}</p>
+            <p><strong>Оценка:</strong> {{ variant.score.toFixed(2) }}</p>
+            <button (click)="applyVariant(variant)">Применить этот вариант</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="examples-section">
+        <h3>Примеры:</h3>
+        <div class="example-buttons">
+          <button (click)="loadExample(1)">Пример 1 (из файла)</button>
+          <button (click)="loadExample(2)">Вариант 1</button>
+          <button (click)="loadExample(3)">Вариант 2</button>
+        </div>
+      </div>
+    </div>

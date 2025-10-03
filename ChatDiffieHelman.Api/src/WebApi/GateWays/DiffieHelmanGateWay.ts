@@ -214,8 +214,8 @@ export class DiffieHelmanGateWay
   ) {
     const userId = client.data?.userId as string | undefined;
 
-    console.debug('message', message);
-    console.debug('client', client.data);
+    console.debug('message', JSON.stringify(message, null, 2));
+    console.debug('client', JSON.stringify(client.data, null, 2));
     // Basic validation
     if (!userId) {
       client.emit('dh-error', { message: 'Unauthorized' });
@@ -250,9 +250,9 @@ export class DiffieHelmanGateWay
     }
     console.debug(
       '################info##############',
-      session.activeUsers,
-      message.fromClientId,
-      message.toClientId,
+      JSON.stringify(session.activeUsers, null, 2),
+      JSON.stringify(message.fromClientId, null, 2),
+      JSON.stringify(message.toClientId, null, 2),
       '################info##############',
     );
 

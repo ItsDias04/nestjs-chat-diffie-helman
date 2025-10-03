@@ -21,6 +21,7 @@ font-family: 'Inter', sans-serif;
 .container-content {
     position: relative;
     width: 100%;
+    overflow-y: auto;
 }
 .card {
     background-color: #F3F3F7;

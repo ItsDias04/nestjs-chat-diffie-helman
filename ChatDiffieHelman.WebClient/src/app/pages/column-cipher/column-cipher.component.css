@@ -1,0 +1,173 @@
+    .cipher-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    h2 {
+      color: #2c3e50;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #34495e;
+    }
+    
+    textarea, input, select {
+      width: 100%;
+      padding: 8px 12px;
+      border: 2px solid #bdc3c7;
+      border-radius: 5px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    
+    textarea:focus, input:focus, select:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+    
+    .matrix-size-inputs {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .matrix-size-inputs input {
+      width: 80px;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    
+    button {
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover:not(:disabled) {
+      background-color: #2980b9;
+    }
+    
+    button:disabled {
+      background-color: #95a5a6;
+      cursor: not-allowed;
+    }
+    
+    .results-section {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #3498db;
+    }
+    
+    .result-text {
+      font-size: 18px;
+      font-weight: bold;
+      color: #2c3e50;
+      background-color: white;
+      padding: 15px;
+      border-radius: 5px;
+      margin: 10px 0;
+      word-break: break-all;
+    }
+    
+    .cipher-matrix {
+      border-collapse: collapse;
+      margin: 10px 0;
+      background-color: white;
+    }
+    
+    .cipher-matrix th,
+    .cipher-matrix td {
+      border: 1px solid #bdc3c7;
+      padding: 8px 12px;
+      text-align: center;
+      min-width: 30px;
+    }
+    
+    .cipher-matrix th {
+      background-color: #34495e;
+      color: white;
+      font-weight: bold;
+    }
+    
+    .cipher-matrix td.empty {
+      background-color: #ecf0f1;
+      color: #7f8c8d;
+    }
+    
+    .explanation {
+      margin-top: 15px;
+      padding: 15px;
+      background-color: white;
+      border-radius: 5px;
+      border-left: 3px solid #27ae60;
+    }
+    
+    .analysis-section {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #fff9e6;
+      border-radius: 8px;
+      border-left: 4px solid #f39c12;
+    }
+    
+    .variant {
+      margin: 15px 0;
+      padding: 15px;
+      background-color: white;
+      border-radius: 5px;
+      border: 1px solid #e0e0e0;
+    }
+    
+    .variant.best {
+      border-color: #27ae60;
+      background-color: #f0f8f0;
+    }
+    
+    .variant h4 {
+      color: #2c3e50;
+      margin-top: 0;
+    }
+    
+    .examples-section {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #f0f4f8;
+      border-radius: 8px;
+    }
+    
+    .example-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .example-buttons button {
+      background-color: #27ae60;
+    }
+    
+    .example-buttons button:hover {
+      background-color: #229954;
+    }
