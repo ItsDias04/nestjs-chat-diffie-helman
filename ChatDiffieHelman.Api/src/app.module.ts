@@ -20,6 +20,9 @@ import { InviteController } from './WebApi/Controllers/InviteController';
 import { InviteService } from './BL/Services/InviteService';
 import { ActiveUsersService } from './BL/Singelton/Services/ActiveUsersService';
 import { DiffieHelmanGateWay } from './WebApi/GateWays/DiffieHelmanGateWay';
+
+import { FiatSessionsService } from './BL/Singelton/Services/FiatSessionsService';
+import { FiatService } from './BL/Services/FiatService';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -36,9 +39,10 @@ import { DiffieHelmanGateWay } from './WebApi/GateWays/DiffieHelmanGateWay';
     PassportModule,
     JwtModule.register({
       secret: 'your_jwt_secret',
-      // signOptions: { },
+      // signOptions: { expiresIn: '1d' },
     }),
     TypeOrmModule.forFeature([Chat, User, Message, Invite]),
+    // FiatSessionsModule,
   ],
   providers: [
     AuthService,
@@ -50,6 +54,8 @@ import { DiffieHelmanGateWay } from './WebApi/GateWays/DiffieHelmanGateWay';
     ChatGateway,
     ActiveUsersService,
     DiffieHelmanGateWay,
+    FiatSessionsService,
+    FiatService
   ],
   exports: [
     AuthService,

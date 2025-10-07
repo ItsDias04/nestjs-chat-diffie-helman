@@ -39,7 +39,7 @@ export class DiffieHelmanGateWay
   private userSockets = new Map<string, Set<string>>();
 
   constructor(
-    private readonly activeUsersService: ActiveUsersService,
+    // private readonly activeUsersService: ActiveUsersService,
     private readonly chatService: ChatService,
     private readonly jwtService: JwtService,
   ) {}

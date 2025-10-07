@@ -8,6 +8,7 @@ import { AuthService } from '../../auth/auth.service';
 
 @Component({
   selector: 'app-login-page',
+  standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './login-page.component.html',
   styleUrls: ['./login-page.component.css'] // Исправлено
