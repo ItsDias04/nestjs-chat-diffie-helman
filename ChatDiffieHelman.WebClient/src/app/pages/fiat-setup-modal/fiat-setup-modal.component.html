@@ -1,0 +1,127 @@
+<div class="modal-overlay" (click)="cancel()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>🔐 Настройка двухфакторной аутентификации</h2>
+      <button class="close-btn" (click)="cancel()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Шаг 1: Генерация -->
+      <div *ngIf="currentStep === 'generate'" class="step-content">
+        <div class="info-block warning">
+          <h3>⚠️ Важная информация</h3>
+          <p>
+            Вы собираетесь включить двухфакторную аутентификацию с использованием
+            протокола Fiat-Shamir.
+          </p>
+          <ul>
+            <li>Будут сгенерированы криптографические ключи</li>
+            <li>Вам необходимо будет скачать и сохранить секретный ключ</li>
+            <li>Без секретного ключа вы не сможете войти в систему</li>
+            <li>Храните ключ в надёжном месте и не передавайте его другим</li>
+          </ul>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn-primary" (click)="generateKeys()">
+            Сгенерировать ключи
+          </button>
+          <button class="btn-secondary" (click)="cancel()">Отмена</button>
+        </div>
+      </div>
+
+      <!-- Шаг 2: Скачивание -->
+      <div *ngIf="currentStep === 'download'" class="step-content">
+        <div class="info-block success">
+          <h3>✅ Ключи успешно сгенерированы</h3>
+          <p>
+            Теперь необходимо скачать файл с параметрами и секретным ключом.
+          </p>
+        </div>
+
+        <div class="keys-preview">
+          <h4>Параметры Fiat-Shamir:</h4>
+          <div class="keys-grid">
+            <div class="key-item">
+              <span class="key-label">Модуль (n):</span>
+              <span class="key-value">{{ keys?.n }}</span>
+            </div>
+            <div class="key-item">
+              <span class="key-label">Публичный ключ (v):</span>
+              <span class="key-value">{{ keys?.v }}</span>
+            </div>
+            <div class="key-item secret">
+              <span class="key-label">Секретный ключ (s):</span>
+              <span class="key-value">{{ keys?.s }}</span>
+              <span class="badge">СЕКРЕТНО</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="warning-box">
+          <strong>⚠️ ВНИМАНИЕ:</strong> Секретный ключ (s) никогда не должен
+          передаваться третьим лицам!
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn-primary" (click)="downloadKeys()">
+            📥 Скачать файл с ключами
+          </button>
+          <button class="btn-secondary" (click)="copyToClipboard()">
+            📋 Копировать в буфер
+          </button>
+        </div>
+      </div>
+
+      <!-- Шаг 3: Подтверждение -->
+      <div *ngIf="currentStep === 'confirm'" class="step-content">
+        <div class="info-block success">
+          <h3>✅ Файл скачан</h3>
+          <p>Убедитесь, что файл сохранён в надёжном месте.</p>
+        </div>
+
+        <div class="checklist">
+          <h4>Контрольный список:</h4>
+          <label class="checkbox-item">
+            <input type="checkbox" />
+            Я скачал файл с ключами
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" />
+            Я сохранил файл в безопасном месте
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" />
+            Я создал резервную копию ключа
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" />
+            Я понимаю, что без секретного ключа не смогу войти в систему
+          </label>
+        </div>
+
+        <div class="warning-box critical">
+          <strong>⚠️ КРИТИЧЕСКИ ВАЖНО:</strong>
+          <p>
+            Если вы потеряете секретный ключ, вы не сможете войти в систему.
+            Восстановление возможно только через администратора.
+          </p>
+        </div>
+
+        <div class="action-buttons">
+          <button
+            class="btn-primary"
+            [disabled]="!hasDownloaded"
+            (click)="confirmSetup()"
+          >
+            Подтвердить и включить 2FA
+          </button>
+          <button class="btn-secondary" (click)="downloadKeys()">
+            Скачать файл ещё раз
+          </button>
+          <button class="btn-danger" (click)="cancel()">Отмена</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

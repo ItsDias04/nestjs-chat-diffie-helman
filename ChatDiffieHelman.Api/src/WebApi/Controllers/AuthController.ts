@@ -28,8 +28,7 @@ export class AuthController {
     return this.authService.login(data);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
+
   @Post('fiat/start')
   async fiatStart(
     @Body() body: { sid: string; t: string },
@@ -37,8 +36,6 @@ export class AuthController {
     return this.fiatService.start(body.sid, body.t);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
   @Post('fiat/finish')
   async fiatFinish(
     @Body() body: { sid: string; r: string },
@@ -53,8 +50,9 @@ export class AuthController {
     @Param('userId') userId: string,
     // @Body('n') n: string,
     @Body('v') v: string,
-  ): Promise<UserDto> {
-    return this.authService.enableFiatForUser(userId, v);
+    @Body('n') n: string,
+  ): Promise<string> {
+    return this.authService.enableFiatForUser(userId, v, n);
   }
 
   @UseGuards(JwtAuthGuard)

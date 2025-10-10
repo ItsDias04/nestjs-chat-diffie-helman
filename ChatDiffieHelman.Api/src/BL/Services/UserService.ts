@@ -42,6 +42,7 @@ export class UserService {
       id: user.id,
       name: user.name,
       email: user.email,
+      fiat_enabled: user.fiat_enabled,
       // Добавьте другие поля, если нужно
     };
   }

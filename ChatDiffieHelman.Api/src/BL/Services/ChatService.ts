@@ -1,70 +1,82 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Chat } from "src/Data/Entities/Chat";
-import { Message } from "src/Data/Entities/Message";
-import { User } from "src/Data/Entities/User";
-import { ChatDto } from "src/DTO/ChatDto";
-import { MessageDto } from "src/DTO/MessageDto";
-import { UserDto } from "src/DTO/UserDto";
-import { Repository } from "typeorm/repository/Repository";
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Chat } from 'src/Data/Entities/Chat';
+import { Message } from 'src/Data/Entities/Message';
+import { User } from 'src/Data/Entities/User';
+import { ChatDto } from 'src/DTO/ChatDto';
+import { MessageDto } from 'src/DTO/MessageDto';
+import { UserDto } from 'src/DTO/UserDto';
+import { Repository } from 'typeorm/repository/Repository';
 
 @Injectable()
 export class ChatService {
+  constructor(
+    @InjectRepository(Chat)
+    private readonly chatRepository: Repository<Chat>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
 
-    constructor(
-        @InjectRepository(Chat)
-        private readonly chatRepository: Repository<Chat>,
-        @InjectRepository(User)
-        private readonly userRepository: Repository<User>,
-    ) {}
+  async getAllChatsById(userId: string): Promise<ChatDto[]> {
+    const chats = await this.chatRepository.find({
+      where: { users: { id: userId } },
+      relations: ['users'],
+    });
+    return chats.map((chat) => this.toChatDto(chat));
+  }
 
-    async getAllChatsById(userId: string): Promise<ChatDto[]> {
-        const chats = await this.chatRepository.find({
-            where: { users: { id: userId } },
-            relations: ['users'],
-        });
-        return chats.map(chat => this.toChatDto(chat));
+  async getChatById(userId: string, chatId: string): Promise<ChatDto | null> {
+    const chat = await this.chatRepository.findOne({
+      where: { id: chatId, users: { id: userId } },
+    });
+    return chat ? this.toChatDto(chat) : null;
+  }
+
+  async getChatUsers(userId: string, chatId: string): Promise<UserDto[]> {
+    const chat = await this.chatRepository.findOne({
+      where: { id: chatId },
+      relations: ['users'],
+    });
+    if (!chat || !chat.users.find((u) => u.id === userId)) {
+      throw new Error(
+        `Chat with id ${chatId} not found or user with id ${userId} is not a member of the chat`,
+      );
+    }
+    return chat ? chat.users.map((user) => this.toUserDto(user)) : [];
+  }
+
+  async createChat(name: string, userAdminId: string): Promise<ChatDto> {
+    const userAdmin = await this.userRepository.findOne({
+      where: { id: userAdminId },
+    });
+    if (!userAdmin) {
+      throw new Error(`User with id ${userAdminId} not found`);
     }
 
-    async getChatById(userId: string, chatId: string): Promise<ChatDto | null> {
-        const chat = await this.chatRepository.findOne({ where: { id: chatId, users: { id: userId } } });
-        return chat ? this.toChatDto(chat) : null;
-    }
+    const chat = this.chatRepository.create({
+      name,
+      users: [userAdmin],
+      userAdmin: userAdmin,
+    });
+    await this.chatRepository.save(chat);
+    return this.toChatDto(chat);
+  }
 
-    async getChatUsers(userId: string, chatId: string): Promise<UserDto[]> {
-        const chat = await this.chatRepository.findOne({ where: { id: chatId }, relations: ['users'] });
-        if (!chat || !chat.users.find(u => u.id === userId)) {
-            throw new Error(`Chat with id ${chatId} not found or user with id ${userId} is not a member of the chat`);
-        }
-        return chat ? chat.users.map(user => this.toUserDto(user)) : [];
-    }
+  private toChatDto(chat: Chat): ChatDto {
+    return Object.assign(new ChatDto(), {
+      id: chat.id,
+      name: chat.name,
+    });
+  }
 
-    async createChat(name: string, userAdminId: string): Promise<ChatDto> {
-        const userAdmin = await this.userRepository.findOne({ where: { id: userAdminId } });
-        if (!userAdmin) {
-            throw new Error(`User with id ${userAdminId} not found`); 
-        }
-
-        const chat = this.chatRepository.create({ name, users: [userAdmin], userAdmin: userAdmin });
-        await this.chatRepository.save(chat);
-        return this.toChatDto(chat);
-    }
-
-    private toChatDto(chat: Chat): ChatDto {
-        return Object.assign(new ChatDto(), {
-            id: chat.id,
-            name: chat.name,
-        });
-    }
-
-    private toUserDto(user: User): UserDto {
+  private toUserDto(user: User): UserDto {
     return {
       id: user.id,
       name: user.name,
       email: user.email,
+      fiat_enabled: user.fiat_enabled,
     };
   }
-   
 }
 // import { ApiProperty } from "@nestjs/swagger";
 

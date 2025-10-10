@@ -29,12 +29,16 @@ export class LoginPageComponent {
       //@ts-ignore
       this.authService.login(this.form.value).subscribe((res) => {
         console.log(res.access_token);
-      //   if (res.role == "tutor"){
-      //     this.router.navigate(['/tutor/profile']);
-      // } else {
-      //   this.router.navigate(['/student/profile']);
-      // }
-       this.router.navigate(['/']); 
+        if (!res.fiat_required) {
+          this.authService.token = { access_token: res.access_token || ''};
+          localStorage.setItem('token', res.access_token || '');
+          this.router.navigate(['/']); 
+        } else {
+          console.log(res);
+          localStorage.setItem('fiat_session_id', res.fiat_session_id || '');
+          this.authService.fiatSessionId = res.fiat_session_id || '';
+          this.router.navigate(['/fiat-2fa']); 
+        }
       }, (er: any) => {
         console.log(er);
       });

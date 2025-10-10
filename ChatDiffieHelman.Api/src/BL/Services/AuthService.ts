@@ -39,14 +39,15 @@ export class AuthService implements IAuthService {
     };
   }
 
-  async enableFiatForUser(userId: string, vHex: string): Promise<User> {
+  async enableFiatForUser(userId: string, vHex: string, nHex: string): Promise<string> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new UnauthorizedException('User not found');
-    user.fiat_n = this.getN().toString();
+    // user.fiat_n = this.getN().toString();
+    user.fiat_n = nHex;
     user.fiat_v = vHex;
     user.fiat_enabled = true;
     await this.userRepository.save(user);
-    return user;
+    return user.fiat_n;
   }
 
   async disableFiatForUser(userId: string): Promise<User> {

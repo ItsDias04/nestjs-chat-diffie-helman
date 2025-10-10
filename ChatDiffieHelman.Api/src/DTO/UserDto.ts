@@ -12,4 +12,9 @@ export class UserDto {
 
   @ApiProperty({ example: 'john.doe@example.com', description: 'Email пользователя' })
   email: string;
+
+  // @ApiProperty({ example: '123e4567-e89b-12d3-a456-426614174000', description: 'ID чата (UUID)', format: 'uuid' })
+  // chatId: string;
+  @ApiProperty({ example: true, description: 'Включена ли функция Fiat' })
+  fiat_enabled: boolean;
 }

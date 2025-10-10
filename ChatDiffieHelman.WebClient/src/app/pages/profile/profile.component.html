@@ -1,0 +1,95 @@
+<div class="profile-container">
+    <div class="profile-card">
+        <div *ngIf="isLoading" class="loading">
+            <div class="spinner"></div>
+            <p>Загрузка профиля...</p>
+        </div>
+
+        <div *ngIf="!isLoading && errorMessage" class="error-message">
+            <p>{{ errorMessage }}</p>
+            <button (click)="loadUserProfile()">Повторить попытку</button>
+        </div>
+
+        <div *ngIf="!isLoading && !errorMessage && currentUser" class="profile-content">
+            <!-- Avatar Section -->
+            <div class="profile-header">
+                <div class="avatar-large">
+                    {{ getInitials() }}
+                </div>
+                <h2>{{ currentUser.name }}</h2>
+                <p class="user-id">ID: {{ currentUser.id }}</p>
+            </div>
+
+            <!-- Success Message -->
+            <div *ngIf="saveMessage" class="save-message"
+                [class.success]="saveMessage.includes('успешно') || saveMessage.includes('✅')">
+                {{ saveMessage }}
+            </div>
+
+            <!-- Profile Form -->
+            <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+                <div class="form-group">
+                    <label for="name">Имя</label>
+                    <input type="text" id="name" class="textfield" formControlName="name" [readonly]="!isEditMode"
+                        [class.readonly]="!isEditMode" />
+                    <div *ngIf="profileForm.get('name')?.invalid && profileForm.get('name')?.touched && isEditMode"
+                        class="validation-error">
+                        Имя должно содержать минимум 2 символа
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="textfield" formControlName="email" [readonly]="!isEditMode"
+                        [class.readonly]="!isEditMode" />
+                    <div *ngIf="profileForm.get('email')?.invalid && profileForm.get('email')?.touched && isEditMode"
+                        class="validation-error">
+                        Введите корректный email
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="button-group">
+                    <button *ngIf="!isEditMode" type="button" class="btn-edit" (click)="toggleEditMode()">
+                        Редактировать
+                    </button>
+
+                    <ng-container *ngIf="isEditMode">
+                        <button type="submit" class="btn-save" [disabled]="profileForm.invalid">
+                            Сохранить
+                        </button>
+                        <button type="button" class="btn-cancel" (click)="toggleEditMode()">
+                            Отмена
+                        </button>
+                    </ng-container>
+                </div>
+            </form>
+
+            <!-- Additional Actions -->
+            <div class="additional-actions">
+                <button type="button" class="btn-secondary" (click)="goToChats()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Мои чаты
+                </button>
+
+                <div class="two-fa-toggle">
+                    <label class="toggle-switch">
+                        <input type="checkbox" [checked]="is2FAEnabled" (change)="toggle2FA()" />
+                        <span class="slider"></span>
+                    </label>
+                    <div class="toggle-label">
+                        <strong>Двухфакторная аутентификация (2FA)</strong>
+                        <small>{{ is2FAEnabled ? 'Включена' : 'Отключена' }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно настройки Fiat-Shamir 2FA -->
+<app-fiat-setup-modal *ngIf="showFiatSetupModal" [userId]="currentUser?.id || ''"
+    (confirmed)="onFiatSetupConfirmed($event)" (cancelled)="onFiatSetupCancelled()"></app-fiat-setup-modal>

@@ -7,6 +7,8 @@ import { ChatListComponent } from './pages/chat-list/chat-list.component';
 import { ChatComponent } from './pages/chat/chat.component';
 import { InvitesListComponent } from './pages/invites-list/invites-list.component';
 import { ColumnCipherComponent } from './pages/column-cipher/column-cipher.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { FiatShamir2FAComponent } from './pages/fiat-shamir2-fa/fiat-shamir2-fa.component';
 
 export const routes: Routes = [
   {
@@ -18,9 +20,12 @@ export const routes: Routes = [
      { path: 'chat/:id', component: ChatComponent},
      { path: 'invites', component: InvitesListComponent},
      { path: 'column-cipher', component: ColumnCipherComponent},
+     { path: 'profile', component: ProfileComponent},
+
     ],
     canActivate: [() => canActivateAuth(undefined)], 
   },
+  { path: 'fiat-2fa', component: FiatShamir2FAComponent },
   { path: 'login', component: LoginPageComponent },
   { path: 'registration', component: RegistrationComponent },
 ];

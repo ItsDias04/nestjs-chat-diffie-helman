@@ -29,9 +29,9 @@ export class User {
     @Column({ default: false })
     fiat_enabled: boolean;
 
-    @Column({ type: "int", default: null, nullable: true })
+    @Column({ type: "text", default: null, nullable: true })
     fiat_n: string | null;
 
-    @Column({ type: "int", default: null, nullable: true })
+    @Column({ type: "text", default: null, nullable: true })
     fiat_v: string | null;
 }

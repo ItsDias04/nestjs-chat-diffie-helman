@@ -337,6 +337,7 @@ export class ChatComponent implements OnDestroy, OnInit {
         id: 'system',
         email: '',
         name: 'System',
+        fiat_enabled: false
       },
       content: message,
       timestamp: new Date().toISOString(),
@@ -412,6 +413,7 @@ export class ChatComponent implements OnDestroy, OnInit {
         id: this.myId,
         email: '',
         name: this.myName,
+        fiat_enabled: false
       },
       content: messageContent,
       timestamp: new Date().toISOString(),
