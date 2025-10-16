@@ -17,4 +17,7 @@ export class UserDto {
   // chatId: string;
   @ApiProperty({ example: true, description: 'Включена ли функция Fiat' })
   fiat_enabled: boolean;
+
+  @ApiProperty({ example: false, description: 'Включен ли протокол Brickell–McCurley' })
+  bmc_enabled: boolean;
 }

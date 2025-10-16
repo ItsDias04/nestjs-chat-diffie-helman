@@ -1,0 +1,20 @@
+<div class="modal-backdrop">
+  <div class="modal">
+    <h3>Настройка Brickell–McCurley 2FA</h3>
+    <ng-container [ngSwitch]="step">
+      <div *ngSwitchCase="'generate'">
+        <p>Сгенерируйте параметры (учебные, не для продакшена).</p>
+        <button (click)="generate()">Сгенерировать</button>
+      </div>
+      <div *ngSwitchCase="'download'">
+        <pre>{{ formatted() }}</pre>
+        <button (click)="download()">Скачать файл ключей</button>
+      </div>
+      <div *ngSwitchCase="'confirm'">
+        <p>Убедитесь, что вы сохранили файл с секретным ключом x.</p>
+        <button (click)="confirm()">Подтвердить</button>
+      </div>
+    </ng-container>
+    <button class="secondary" (click)="cancel()">Отмена</button>
+  </div>
+</div>

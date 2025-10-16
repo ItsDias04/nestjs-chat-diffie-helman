@@ -6,6 +6,7 @@ import { FiatShamirService } from '../../auth/fiat-shamir.service';
 
 @Component({
   selector: 'app-fiat-shamir2-fa',
+  standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './fiat-shamir2-fa.component.html',
   styleUrl: './fiat-shamir2-fa.component.css'
@@ -34,16 +35,14 @@ export class FiatShamir2FAComponent {
       alert('Please upload your parameters file');
       return;
     }
-    // Run full protocol: compute t locally, get c from server, compute r and finish
     this.fiatShamirService.runFullFiatProtocol(sid, this.data).subscribe({
       next: (res) => {
         console.log('Fiat-Shamir login finished:', res);
-        // Если сервер вернул access_token, переходим на главную
+     
         if ((res as any).access_token) {
           localStorage.removeItem('fiat_session_id');
           localStorage.setItem('token', (res as any).access_token);
-          // navigate to root
-          // since Router isn't injected here we just reload
+      
           this.router.navigate(['/']);
         }
       },

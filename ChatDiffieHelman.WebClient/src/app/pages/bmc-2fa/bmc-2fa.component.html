@@ -1,0 +1,11 @@
+<div class="bmc-container">
+  <h2>Brickell–McCurley 2FA</h2>
+  <p>Загрузите файл параметров (включает N, g, y и секрет x).</p>
+  <input type="file" (change)="onFileSelected($event)" />
+  <div class="actions">
+    <button (click)="onAuthorize()">Авторизоваться</button>
+    <a routerLink="/login">Назад</a>
+  </div>
+  <pre *ngIf="data">{{ data | json }}</pre>
+  
+</div>

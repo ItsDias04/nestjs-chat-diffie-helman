@@ -79,15 +79,7 @@ export class FiatShamirService {
     return this.http.post<any>(
       `${this.urlLogin}/fiat/enable/${userId}`,
       { v, n }
-    ).subscribe({
-      next: (res) => {
-        console.log('Fiat 2FA enabled for user', res);
-      },
-      error: (error) => {
-        console.error('Enable Fiat 2FA failed', error);
-        return throwError(() => new Error('Enable Fiat 2FA failed'));
-      }
-    });
+    );
   }
 
   /**
@@ -139,36 +131,39 @@ export class FiatShamirService {
       return throwError(() => new Error('Missing Fiat-Shamir keys'));
     }
 
-    // Конвертируем s и n в BN
+ 
     const sBN = new BN(keys.s.toString(), 10);
     const nBN = new BN(keys.n.toString(), 10);
     const red = BN.red(nBN);
 
-    // Генерируем случайное a: 1 < a < n, gcd(a,n) = 1
-    const aBN = this.generateRandomA(nBN);
+  
+  // Случайный элемент a ∈ Z*_n (взаимно простой с n)
+  const aBN = this.generateRandomA(nBN);
     
-    // Вычисляем t = a^2 mod n
-    const tBN = aBN.toRed(red).redSqr().fromRed();
+
+  // x = a^2 mod n (в коде поле t)
+  const tBN = aBN.toRed(red).redSqr().fromRed();
     const tHex = tBN.toString(16);
 
     console.log('Generated commitment t:', tHex);
 
-    // Отправляем t -> получаем challenge c
+
     return this.fiatStart(sid, tHex).pipe(
       switchMap((res) => {
         const c = res.c;
         console.log('Challenge from server:', c);
 
-        // Вычисляем r = a * s^c mod n
-        let rRedBN = aBN.toRed(red);
+   
+  // y = a · s^c mod n; начинаем с a
+  let rRedBN = aBN.toRed(red);
         
         if (c === 1) {
           const sPowBN = sBN.toRed(red);
           rRedBN = rRedBN.redMul(sPowBN);
         }
-        // если c === 0, то r = a
         
-        const rBN = rRedBN.fromRed();
+        
+  const rBN = rRedBN.fromRed(); // y в обычном представлении
         const rHex = rBN.toString(16);
 
         console.log('Computed response r:', rHex);
@@ -181,9 +176,6 @@ export class FiatShamirService {
     );
   }
 
-  /**
-   * Генерирует случайное число a: 1 < a < n, gcd(a,n) = 1
-   */
   private generateRandomA(nBN: BN): BN {
     const bitLength = nBN.bitLength();
     let a: BN;
@@ -191,11 +183,10 @@ export class FiatShamirService {
     const maxAttempts = 100;
 
     do {
-      // Генерируем случайное число той же длины что и n
+    
       const randomBytes = this.getRandomBytes(Math.ceil(bitLength / 8));
       a = new BN(randomBytes);
       
-      // Приводим в диапазон (1, n)
       a = a.umod(nBN.subn(2)).addn(2);
       
       attempts++;

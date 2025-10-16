@@ -75,16 +75,28 @@
                     Мои чаты
                 </button>
 
-                <div class="two-fa-toggle">
-                    <label class="toggle-switch">
-                        <input type="checkbox" [checked]="is2FAEnabled" (change)="toggle2FA()" />
-                        <span class="slider"></span>
-                    </label>
-                    <div class="toggle-label">
-                        <strong>Двухфакторная аутентификация (2FA)</strong>
-                        <small>{{ is2FAEnabled ? 'Включена' : 'Отключена' }}</small>
-                    </div>
-                </div>
+                                <div class="two-fa-toggle">
+                                    <div class="proto-item">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" [checked]="is2FAEnabled" (change)="toggle2FA()" />
+                                            <span class="slider"></span>
+                                        </label>
+                                        <div class="toggle-label">
+                                            <strong>Fiat–Shamir 2FA</strong>
+                                            <small>{{ is2FAEnabled ? 'Включена' : 'Отключена' }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="proto-item">
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" [checked]="isBmcEnabled" (change)="toggleBMC()" />
+                                            <span class="slider"></span>
+                                        </label>
+                                        <div class="toggle-label">
+                                            <strong>Brickell–McCurley 2FA</strong>
+                                            <small>{{ isBmcEnabled ? 'Включена' : 'Отключена' }}</small>
+                                        </div>
+                                    </div>
+                                </div>
             </div>
         </div>
     </div>
@@ -93,3 +105,5 @@
 <!-- Модальное окно настройки Fiat-Shamir 2FA -->
 <app-fiat-setup-modal *ngIf="showFiatSetupModal" [userId]="currentUser?.id || ''"
     (confirmed)="onFiatSetupConfirmed($event)" (cancelled)="onFiatSetupCancelled()"></app-fiat-setup-modal>
+<app-bmc-setup-modal *ngIf="showBmcSetupModal" [userId]="currentUser?.id || ''"
+    (confirmed)="onBmcSetupConfirmed($event)" (cancelled)="onBmcSetupCancelled()"></app-bmc-setup-modal>

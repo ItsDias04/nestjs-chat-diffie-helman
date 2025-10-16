@@ -75,6 +75,7 @@ export class ChatService {
       name: user.name,
       email: user.email,
       fiat_enabled: user.fiat_enabled,
+      bmc_enabled: user.bmc_enabled,
     };
   }
 }

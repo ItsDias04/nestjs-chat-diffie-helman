@@ -1,0 +1,5 @@
+.modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; }
+.modal { background: #fff; padding: 16px; border-radius: 8px; width: 520px; max-width: 95vw; }
+pre { background: #f7f7f7; padding: 8px; max-height: 200px; overflow: auto; }
+button { margin-right: 8px; }
+button.secondary { background: #eee; }

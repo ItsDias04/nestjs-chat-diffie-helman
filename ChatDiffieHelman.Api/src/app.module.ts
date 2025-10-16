@@ -23,6 +23,8 @@ import { DiffieHelmanGateWay } from './WebApi/GateWays/DiffieHelmanGateWay';
 
 import { FiatSessionsService } from './BL/Singelton/Services/FiatSessionsService';
 import { FiatService } from './BL/Services/FiatService';
+import { BmcSessionsService } from './BL/Singelton/Services/BmcSessionsService';
+import { BmcService } from './BL/Services/BmcService';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -55,7 +57,9 @@ import { FiatService } from './BL/Services/FiatService';
     ActiveUsersService,
     DiffieHelmanGateWay,
     FiatSessionsService,
-    FiatService
+    FiatService,
+    BmcSessionsService,
+    BmcService,
   ],
   exports: [
     AuthService,

@@ -9,6 +9,7 @@ import { InvitesListComponent } from './pages/invites-list/invites-list.componen
 import { ColumnCipherComponent } from './pages/column-cipher/column-cipher.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { FiatShamir2FAComponent } from './pages/fiat-shamir2-fa/fiat-shamir2-fa.component';
+import { Bmc2FAComponent } from './pages/bmc-2fa/bmc-2fa.component';
 
 export const routes: Routes = [
   {
@@ -26,6 +27,7 @@ export const routes: Routes = [
     canActivate: [() => canActivateAuth(undefined)], 
   },
   { path: 'fiat-2fa', component: FiatShamir2FAComponent },
+  { path: 'bmc-2fa', component: Bmc2FAComponent },
   { path: 'login', component: LoginPageComponent },
   { path: 'registration', component: RegistrationComponent },
 ];

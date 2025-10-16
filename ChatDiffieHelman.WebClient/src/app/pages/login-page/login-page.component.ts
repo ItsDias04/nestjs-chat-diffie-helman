@@ -29,15 +29,18 @@ export class LoginPageComponent {
       //@ts-ignore
       this.authService.login(this.form.value).subscribe((res) => {
         console.log(res.access_token);
-        if (!res.fiat_required) {
+        if (!res.fiat_required && !res.bmc_required) {
           this.authService.token = { access_token: res.access_token || ''};
           localStorage.setItem('token', res.access_token || '');
           this.router.navigate(['/']); 
-        } else {
+        } else if (res.fiat_required) {
           console.log(res);
           localStorage.setItem('fiat_session_id', res.fiat_session_id || '');
           this.authService.fiatSessionId = res.fiat_session_id || '';
           this.router.navigate(['/fiat-2fa']); 
+        } else if (res.bmc_required) {
+          localStorage.setItem('bmc_session_id', res.bmc_session_id || '');
+          this.router.navigate(['/bmc-2fa']);
         }
       }, (er: any) => {
         console.log(er);

@@ -51,6 +51,8 @@ export class AuthService {
       access_token: string | null;
       fiat_required: boolean;
       fiat_session_id: string | null;
+      bmc_required?: boolean;
+      bmc_session_id?: string | null;
     }>(`${this.urlLogin}/login`, payload).pipe(
       tap((res) => {
         console.log(res);
@@ -59,6 +61,8 @@ export class AuthService {
         if (res.fiat_required && res.fiat_session_id) {
           this.fiatSessionId = res.fiat_session_id;
           localStorage.setItem('fiat_session_id', res.fiat_session_id);
+        } else if (res.bmc_required && res.bmc_session_id) {
+          localStorage.setItem('bmc_session_id', res.bmc_session_id);
         } else if (res.access_token) {
           // Обычный логин без 2FA
           this.token = { access_token: res.access_token };
