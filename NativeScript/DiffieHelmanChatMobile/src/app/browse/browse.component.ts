@@ -11,6 +11,8 @@ export class BrowseComponent implements OnInit {
     // Use the component constructor to inject providers.
   }
 
+  
+
   ngOnInit(): void {
     // Init your component properties here.
   }

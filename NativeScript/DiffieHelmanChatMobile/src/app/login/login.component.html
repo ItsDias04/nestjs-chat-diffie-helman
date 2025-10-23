@@ -1,0 +1,8 @@
+<StackLayout class="login-container" verticalAlignment="center">
+  <Label text="Авторизация" class="title" horizontalAlignment="center"></Label>
+
+  <TextField hint="Логин" (ngModelChange)="onInputChange()" [(ngModel)]="username" autocorrect="false" autocapitalizationType="none"></TextField>
+  <TextField hint="Пароль" (ngModelChange)="onInputChange()" [(ngModel)]="password" secure="true"></TextField>
+
+  <Button text="Войти" (tap)="onLogin()" class="btn"></Button>
+</StackLayout>

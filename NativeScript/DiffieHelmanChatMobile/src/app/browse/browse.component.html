@@ -8,6 +8,14 @@
 </ActionBar>
 
 <GridLayout class="page__content">
-  <Label class="page__content-icon far" text="&#xf1ea;"></Label>
-  <Label class="page__content-placeholder" text="<!-- Page content goes here -->"></Label>
-</GridLayout>
+  <!-- <Label class="page__content-icon far" text="&#xf1ea;"></Label> -->
+  <!-- <Label class="page__content-placeholder" text="Page content goes here"></Label> -->
+
+   
+<FlexboxLayout flexDirection="column" backgroundColor="#3c495e">
+
+   <ng-container *ngFor="let item of [1, 2, 3, 4, 5]">
+      <Label text="Chats" class="p-r-10"></Label>
+    </ng-container>
+</FlexboxLayout>
+

@@ -8,6 +8,7 @@ import {
 } from 'nativescript-ui-sidedrawer'
 import { filter } from 'rxjs/operators'
 import { Application } from '@nativescript/core'
+import { AuthService } from './data/auth/auth.service'
 
 @Component({
   selector: 'ns-app',
@@ -17,13 +18,26 @@ export class AppComponent implements OnInit {
   private _activatedUrl: string
   private _sideDrawerTransition: DrawerTransitionBase
 
-  constructor(private router: Router, private routerExtensions: RouterExtensions) {
+  constructor(private router: Router, private routerExtensions: RouterExtensions, private authService: AuthService) {
     // Use the component constructor to inject services.
+    console.log('AppComponent constructor')
   }
 
   ngOnInit(): void {
-    this._activatedUrl = '/home'
+    console.log('AppComponent initialized', this.authService.isAuth)
     this._sideDrawerTransition = new SlideInOnTopTransition()
+
+    // Navigate to login when not authenticated, otherwise go to home.
+    // Previously code only set a variable — that doesn't trigger route change.
+    if (this.authService.isAuth) {
+      this._activatedUrl = '/home'
+      // navigate to home if not already there
+      this.routerExtensions.navigate(['/home'], { clearHistory: false }).catch((e) => console.error(e))
+    } else {
+      this._activatedUrl = '/login'
+      // force navigation to login (clear history so back-stack doesn't return to protected pages)
+      this.routerExtensions.navigate(['/login'], { clearHistory: true }).catch((e) => console.error(e))
+    }
 
     this.router.events
       .pipe(filter((event: any) => event instanceof NavigationEnd))

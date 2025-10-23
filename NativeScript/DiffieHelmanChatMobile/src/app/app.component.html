@@ -24,8 +24,9 @@
           [class.-selected]="isComponentSelected('/browse')"
           (tap)="onNavItemTap('/browse')"
         >
-          <Label col="0" text="&#xf1ea;" class="nt-icon far"></Label>
-          <Label col="1" text="Browse" class="p-r-10"></Label>
+          <!-- <Label col="0" text="&#xf1ea;" class="nt-icon far"></Label> -->
+           <Label col="0" text="&#xf1ad;" class="nt-icon fas"></Label>
+          <Label col="1" text="Chats" class="p-r-10"></Label>
         </GridLayout>
 
         <GridLayout
@@ -54,7 +55,7 @@
           columns="auto, *"
           class="nt-drawer__list-item"
           [class.-selected]="isComponentSelected('/settings')"
-          (tap)="onNavItemTap('/settings')"
+          (tap)="onNavItemTap('/login')"
         >
           <Label col="0" text="&#xf013;" class="nt-icon fas"></Label>
           <Label col="1" text="Settings" class="p-r-10"></Label>
