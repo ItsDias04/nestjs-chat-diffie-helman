@@ -1,0 +1,502 @@
+.ecdsa-lab-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Навигация по вкладкам */
+.tabs-navigation {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 10px;
+}
+
+.tabs-navigation button {
+  padding: 12px 20px;
+  border: none;
+  background: #f5f5f5;
+  color: #333;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.tabs-navigation button:hover {
+  background: #e0e0e0;
+}
+
+.tabs-navigation button.active {
+  background: #007bff;
+  color: white;
+  font-weight: 600;
+}
+
+.tabs-navigation button.download-btn {
+  margin-left: auto;
+  background: #28a745;
+  color: white;
+}
+
+.tabs-navigation button.download-btn:hover {
+  background: #218838;
+}
+
+/* Контент вкладок */
+.tab-content {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Теоретическая часть */
+.theory-section h1 {
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 32px;
+}
+
+.info-block {
+  background: #f8f9fa;
+  border-left: 4px solid #007bff;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+
+.info-block.warning {
+  border-left-color: #ffc107;
+  background: #fff3cd;
+}
+
+.info-block.success {
+  border-left-color: #28a745;
+  background: #d4edda;
+}
+
+.info-block h2, .info-block h3 {
+  margin-top: 0;
+  color: #2c3e50;
+}
+
+.info-block ul, .info-block ol {
+  margin: 10px 0;
+  padding-left: 25px;
+}
+
+.info-block li {
+  margin: 8px 0;
+  line-height: 1.6;
+}
+
+/* Описание заданий */
+.task-description {
+  background: #e7f3ff;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-left: 4px solid #007bff;
+}
+
+.task-description p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Кнопки */
+.primary-btn, .secondary-btn {
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 10px 10px 10px 0;
+}
+
+.primary-btn {
+  background: #007bff;
+  color: white;
+}
+
+.primary-btn:hover:not(:disabled) {
+  background: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.primary-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.secondary-btn {
+  background: #6c757d;
+  color: white;
+}
+
+.secondary-btn:hover {
+  background: #545b62;
+}
+
+.copy-btn {
+  background: #17a2b8;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+  font-size: 14px;
+}
+
+.copy-btn:hover {
+  background: #138496;
+}
+
+/* Блоки результатов */
+.result-block {
+  background: white;
+  border: 2px solid #28a745;
+  border-radius: 8px;
+  padding: 25px;
+  margin-top: 20px;
+}
+
+.result-block.error {
+  border-color: #dc3545;
+  background: #f8d7da;
+}
+
+.result-block.success {
+  border-color: #28a745;
+  background: #d4edda;
+}
+
+.result-block h3 {
+  margin-top: 0;
+  color: #155724;
+}
+
+.result-block.error h3 {
+  color: #721c24;
+}
+
+/* Отображение ключей */
+.key-display {
+  margin: 20px 0;
+}
+
+.key-display label {
+  display: block;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 8px;
+}
+
+.key-value {
+  display: flex;
+  align-items: center;
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+.key-value code {
+  flex: 1;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  word-break: break-all;
+  color: #e83e8c;
+}
+
+.hint {
+  font-size: 13px;
+  color: #6c757d;
+  font-style: italic;
+  margin-top: 5px;
+}
+
+.hint.warning {
+  color: #856404;
+}
+
+/* Отображение подписей */
+.signature-display {
+  margin: 15px 0;
+}
+
+.signature-display label {
+  display: block;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 5px;
+}
+
+.signature-display code {
+  display: block;
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #dee2e6;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  word-break: break-all;
+  color: #d63384;
+}
+
+.info-text {
+  background: #cfe2ff;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 15px;
+  color: #084298;
+}
+
+/* Поля ввода */
+.input-group {
+  margin: 20px 0;
+}
+
+.input-group label {
+  display: block;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 8px;
+}
+
+.input-group input,
+.input-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ced4da;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.input-group input:focus,
+.input-group textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* Эксперимент - сравнение */
+.experiment-result {
+  margin-top: 20px;
+}
+
+.comparison-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.comparison-col {
+  background: #e7f9ed;
+  padding: 20px;
+  border-radius: 8px;
+  border: 2px solid #28a745;
+}
+
+.comparison-col.tampered {
+  background: #f8d7da;
+  border-color: #dc3545;
+}
+
+.comparison-col h4 {
+  margin-top: 0;
+  color: #155724;
+}
+
+.comparison-col.tampered h4 {
+  color: #721c24;
+}
+
+.comparison-col p {
+  margin: 10px 0;
+  word-break: break-word;
+}
+
+.comparison-col code {
+  background: white;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  display: inline-block;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.badge {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.badge.success {
+  background: #28a745;
+  color: white;
+}
+
+.badge.error {
+  background: #dc3545;
+  color: white;
+}
+
+.conclusion-box {
+  background: #fff3cd;
+  border: 2px solid #ffc107;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.conclusion-box h4 {
+  color: #856404;
+  margin-top: 0;
+}
+
+.conclusion-box ul {
+  margin: 10px 0;
+  padding-left: 25px;
+}
+
+.conclusion-box li {
+  margin: 8px 0;
+  color: #856404;
+}
+
+/* Таблица подписей */
+.signatures-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  background: white;
+}
+
+.signatures-table th,
+.signatures-table td {
+  padding: 12px;
+  text-align: left;
+  border: 1px solid #dee2e6;
+}
+
+.signatures-table th {
+  background: #007bff;
+  color: white;
+  font-weight: 600;
+}
+
+.signatures-table tr:nth-child(even) {
+  background: #f8f9fa;
+}
+
+.signatures-table code {
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  color: #e83e8c;
+}
+
+.info-box {
+  background: #d1ecf1;
+  border-left: 4px solid #17a2b8;
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 20px;
+}
+
+.info-box p {
+  margin: 0;
+  color: #0c5460;
+}
+
+/* Контрольные вопросы */
+.question-block {
+  margin: 30px 0;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+}
+
+.question-block h3 {
+  color: #2c3e50;
+  margin-top: 0;
+}
+
+.question-block textarea {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ced4da;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.question-block textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.hint-details {
+  margin-top: 10px;
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.hint-details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #007bff;
+  user-select: none;
+}
+
+.hint-details p {
+  margin: 10px 0 0 0;
+  color: #6c757d;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .tabs-navigation {
+    flex-direction: column;
+  }
+  
+  .tabs-navigation button {
+    width: 100%;
+  }
+  
+  .comparison-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .key-value {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .copy-btn {
+    margin-left: 0;
+    margin-top: 10px;
+  }
+}

@@ -1,0 +1,211 @@
+<div class="prng-container">
+  <h1>Генераторы псевдослучайных чисел</h1>
+
+  <div class="section lcg-section">
+    <h2>Линейный конгруэнтный генератор (LCG)</h2>
+    
+    <div class="formula-box">
+      <h3>Формула:</h3>
+      <div class="formula">
+        X<sub>n+1</sub> = (a · X<sub>n</sub> + c) mod m
+      </div>
+      <p class="formula-description">
+        где:<br>
+        • X<sub>n</sub> — текущее значение<br>
+        • a — множитель<br>
+        • c — приращение<br>
+        • m — модуль<br>
+        • X<sub>0</sub> — начальное значение (seed)
+      </p>
+    </div>
+
+    <div class="parameters">
+      <h3>Параметры:</h3>
+      <div class="param-grid">
+        <div class="param">
+          <label>Начальное значение (X0):</label>
+          <input type="number" [(ngModel)]="lcgSeed" min="0">
+        </div>
+        <div class="param">
+          <label>Множитель (a):</label>
+          <input type="number" [(ngModel)]="lcgA" min="1">
+        </div>
+        <div class="param">
+          <label>Приращение (c):</label>
+          <input type="number" [(ngModel)]="lcgC" min="0">
+        </div>
+        <div class="param">
+          <label>Модуль (m):</label>
+          <input type="number" [(ngModel)]="lcgM" min="2">
+        </div>
+        <div class="param">
+          <label>Количество итераций:</label>
+          <input type="number" [(ngModel)]="lcgIterations" min="1" max="100">
+        </div>
+      </div>
+      
+      <div class="buttons">
+        <button (click)="generateLCG()" class="btn-primary">Генерировать</button>
+        <button (click)="clearLCG()" class="btn-secondary">Очистить</button>
+      </div>
+    </div>
+
+    <div class="results" *ngIf="lcgResults.length > 0">
+      <h3>Результаты:</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Итерация</th>
+              <th>X<sub>n</sub></th>
+              <th>Нормализованное [0, 1)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let result of lcgResults">
+              <td [textContent]="result.iteration"></td>
+              <td [textContent]="result.value"></td>
+              <td [textContent]="result.normalized.toFixed(8)"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <h4>Популярные параметры:</h4>
+      <ul>
+        <li><strong>MINSTD:</strong> a=16807, c=0, m=2^31-1</li>
+        <li><strong>Numerical Recipes:</strong> a=1664525, c=1013904223, m=2^32</li>
+        <li><strong>RANDU (плохой):</strong> a=65539, c=0, m=2^31</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section lfsr-section">
+    <h2>Генератор двоичных m-последовательностей (РСЛОС)</h2>
+    
+    <div class="formula-box">
+      <h3>Формула:</h3>
+      <div class="formula">
+        b<sub>n</sub> = (c<sub>1</sub>b<sub>n-1</sub> ⊕ c<sub>2</sub>b<sub>n-2</sub> ⊕ ... ⊕ c<sub>r</sub>b<sub>n-r</sub>) mod 2
+      </div>
+      <p class="formula-description">
+        где:<br>
+        • b<sub>n</sub> — выходной бит<br>
+        • c<sub>i</sub> ∈ (0, 1) — коэффициенты обратной связи<br>
+        • ⊕ — операция XOR<br>
+        • r — степень регистра<br>
+        Максимальный период: T = 2^r - 1
+      </p>
+    </div>
+
+    <div class="parameters">
+      <h3>Параметры:</h3>
+      <div class="param-grid">
+        <div class="param">
+          <label>Начальное состояние (binary):</label>
+          <input type="text" [(ngModel)]="lfsrSeed" placeholder="1101">
+          <small>Только 0 и 1, не все нули</small>
+        </div>
+        <div class="param">
+          <label>Позиции отводов (tap positions):</label>
+          <input type="text" [(ngModel)]="lfsrTaps" placeholder="0,1">
+          <small>Индексы через запятую (справа налево)</small>
+        </div>
+        <div class="param">
+          <label>Количество итераций:</label>
+          <input type="number" [(ngModel)]="lfsrIterations" min="1" max="100">
+        </div>
+      </div>
+      
+      <div class="buttons">
+        <button (click)="generateLFSR()" class="btn-primary">Генерировать</button>
+        <button (click)="clearLFSR()" class="btn-secondary">Очистить</button>
+      </div>
+      
+      <div class="info-text" *ngIf="lfsrSeed">
+        <span [textContent]="getPeriodInfo()"></span>
+      </div>
+    </div>
+
+    <div class="results" *ngIf="lfsrResults.length > 0">
+      <h3>Результаты:</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Итерация</th>
+              <th>Состояние регистра</th>
+              <th>Выходной бит</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let result of lfsrResults">
+              <td [textContent]="result.iteration"></td>
+              <td><code [textContent]="result.state"></code></td>
+              <td><strong [textContent]="result.output"></strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <div class="sequence">
+        <h4>Сгенерированная последовательность:</h4>
+        <code [textContent]="getLFSRSequence()"></code>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <h4>Примеры полиномов для максимального периода:</h4>
+      <ul>
+        <li><strong>4-бит:</strong> x^4 + x + 1 → отводы [0, 3]</li>
+        <li><strong>5-бит:</strong> x^5 + x^2 + 1 → отводы [1, 4]</li>
+        <li><strong>8-бит:</strong> x^8 + x^6 + x^5 + x^4 + 1 → отводы [3, 4, 5, 7]</li>
+        <li><strong>16-бит:</strong> x^16 + x^15 + x^13 + x^4 + 1 → отводы [3, 12, 14, 15]</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section info-section">
+    <h2>Дополнительная информация</h2>
+    
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>LCG - Преимущества</h3>
+        <ul>
+          <li>Простота реализации</li>
+          <li>Высокая скорость генерации</li>
+          <li>Малое потребление памяти</li>
+        </ul>
+      </div>
+      
+      <div class="info-card">
+        <h3>LCG - Недостатки</h3>
+        <ul>
+          <li>Не криптостойкий</li>
+          <li>Корреляция между значениями</li>
+          <li>Предсказуемость</li>
+        </ul>
+      </div>
+      
+      <div class="info-card">
+        <h3>LFSR - Преимущества</h3>
+        <ul>
+          <li>Аппаратная эффективность</li>
+          <li>Хорошие статистические свойства</li>
+          <li>Максимальный период</li>
+        </ul>
+      </div>
+      
+      <div class="info-card">
+        <h3>LFSR - Применение</h3>
+        <ul>
+          <li>Потоковые шифры (A5/1, E0)</li>
+          <li>CRC и контроль ошибок</li>
+          <li>Скремблирование данных</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
