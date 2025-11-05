@@ -1,3 +1,45 @@
+# ChatDiffieHelman.Api
+
+Small README for the NestJS API subproject. Contains exact npm scripts available in `package.json` and steps to run locally.
+
+Requirements
+- Node.js and npm (or yarn)
+
+Install
+
+  cd ChatDiffieHelman.Api
+  npm install
+
+Available scripts (from package.json)
+
+- npm run build       — compile the project (nest build)
+- npm run format      — run Prettier to format source files
+- npm start           — run production server (nest start)
+- npm run start:dev   — run in development mode with watch (nest start --watch)
+- npm run start:debug — run in debug mode with watch
+- npm run start:prod  — run compiled production build (node dist/main)
+- npm run lint        — run ESLint and autofix
+- npm test            — run Jest tests
+- npm run test:e2e    — run e2e Jest tests (test/jest-e2e.json)
+
+Running locally (development)
+
+1. Make sure your environment variables are set (see repository `.env.example`).
+2. Start the API in dev mode:
+
+  cd ChatDiffieHelman.Api
+  npm run start:dev
+
+By default the NestJS server typically listens on port 3000. Check `src/main.ts` to confirm or change this.
+
+Tests
+
+  npm test
+  npm run test:e2e
+
+Notes
+- If you use a database, ensure your DB connection environment variables are set and migrations are applied or TypeORM is configured appropriately.
+- Configure CORS or WebSocket origins if the frontend is served from a different host/port.
 <p align="center">
   <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>

@@ -1,3 +1,29 @@
+# ChatDiffieHelman.WebClient
+
+This is the Angular web client for the Chat Diffie-Hellman project.
+
+Requirements
+- Node.js and npm (or yarn)
+- Angular CLI (optional, `npm install -g @angular/cli`)
+
+Install
+
+  cd ChatDiffieHelman.WebClient
+  npm install
+
+Available scripts (from package.json)
+
+- npm start  — start the dev server (ng serve)
+- npm run build — build the production bundle (ng build)
+- npm run watch — build in watch mode
+- npm test   — run frontend unit tests (ng test)
+
+Running locally
+
+  cd ChatDiffieHelman.WebClient
+  npm start
+
+By default Angular serves on http://localhost:4200. Adjust API endpoint URLs in `src/app` or environment files if your API runs on a different host/port.
 # Chat DiffieHelman
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.0.6.
