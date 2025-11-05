@@ -8,6 +8,7 @@ import { UsersService } from '../../data/services/users.service';
 
 @Component({
   selector: 'app-navigate-bar',
+  standalone: true,
   imports: [RouterOutlet, CommonModule, RouterLink],
   templateUrl: './navigate-bar.component.html',
   styleUrl: './navigate-bar.component.css'

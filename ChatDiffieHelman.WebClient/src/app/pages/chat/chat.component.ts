@@ -16,6 +16,7 @@ import { CryptoStorageService } from '../../data/services/crypto-storage.service
 
 @Component({
   selector: 'app-chat',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css'],

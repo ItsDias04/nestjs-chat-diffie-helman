@@ -12,6 +12,7 @@ import { FiatShamir2FAComponent } from './pages/fiat-shamir2-fa/fiat-shamir2-fa.
 import { Bmc2FAComponent } from './pages/bmc-2fa/bmc-2fa.component';
 import { EcdsaLabComponent } from './pages/ecdsa-lab/ecdsa-lab.component';
 import { PrngLabComponent } from './pages/prng-lab/prng-lab.component';
+import { EcdsaBlockchainComponent } from './pages/ecdsa-blockchain/ecdsa-blockchain.component';
 
 export const routes: Routes = [
   {
@@ -26,6 +27,7 @@ export const routes: Routes = [
      { path: 'profile', component: ProfileComponent},
      { path: 'ecdsa-lab', component: EcdsaLabComponent},
      { path: 'prng-lab', component: PrngLabComponent},
+     { path: 'ecdsa-blockchain', component: EcdsaBlockchainComponent},
 
     ],
     canActivate: [() => canActivateAuth(undefined)], 

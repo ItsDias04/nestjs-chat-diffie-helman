@@ -1,0 +1,477 @@
+<div class="ecdsa-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>🔐 ECDSA в Блокчейн: Практическая работа №8</h1>
+    <p class="subtitle">Реализация и анализ цифровой подписи ECDSA (Bitcoin/Ethereum)</p>
+    
+    <div class="network-selector">
+      <label>Блокчейн-сеть:</label>
+      <select [(ngModel)]="selectedNetwork" (change)="resetAll()">
+        <option *ngFor="let network of networks" [value]="network">{{ network }}</option>
+      </select>
+      <small>{{ getNetworkInfo() }}</small>
+    </div>
+  </div>
+
+  <!-- Theory Section -->
+  <div class="theory-section" [class.collapsed]="!showTheory">
+    <button class="theory-toggle" (click)="toggleTheory()">
+      {{ showTheory ? '▼' : '▶' }} Теоретические сведения
+    </button>
+    
+    <div class="theory-content" *ngIf="showTheory">
+      <div class="theory-grid">
+        <div class="theory-card">
+          <h3>📚 Что такое ECDSA?</h3>
+          <p><strong>ECDSA</strong> (Elliptic Curve Digital Signature Algorithm) — алгоритм электронной подписи на основе эллиптических кривых.</p>
+          <ul>
+            <li>Высокий уровень безопасности при меньшей длине ключа</li>
+            <li>256-битный ключ ECDSA ≈ 3072-битный ключ RSA</li>
+            <li>Быстрее и эффективнее традиционных алгоритмов</li>
+          </ul>
+        </div>
+
+        <div class="theory-card">
+          <h3>🔑 Применение в блокчейне</h3>
+          <p>В блокчейн-сетях ECDSA используется для:</p>
+          <ul>
+            <li><strong>Аутентификации транзакций</strong> — подтверждение владельца</li>
+            <li><strong>Целостности данных</strong> — защита от изменений</li>
+            <li><strong>Неотказуемости</strong> — нельзя отрицать авторство</li>
+          </ul>
+          <p><strong>Bitcoin & Ethereum:</strong> используют кривую secp256k1</p>
+        </div>
+
+        <div class="theory-card">
+          <h3>⚙️ Основные шаги ECDSA</h3>
+          <ol>
+            <li><strong>Генерация ключей:</strong> private key → public key</li>
+            <li><strong>Хэширование сообщения:</strong> SHA-256 или Keccak-256</li>
+            <li><strong>Создание подписи:</strong> (r, s) с использованием приватного ключа</li>
+            <li><strong>Верификация:</strong> проверка подписи публичным ключом</li>
+          </ol>
+        </div>
+
+        <div class="theory-card formula-card">
+          <h3>📐 Математическая основа</h3>
+          <div class="formula-box">
+            <p><strong>Эллиптическая кривая:</strong></p>
+            <div class="formula">y² = x³ + ax + b (mod p)</div>
+            <p><strong>secp256k1:</strong></p>
+            <div class="formula">y² = x³ + 7 (mod p)</div>
+            <p><strong>Подпись (r, s):</strong></p>
+            <div class="formula">
+              r = (k × G)<sub>x</sub> mod n<br>
+              s = k⁻¹(hash + r × privKey) mod n
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Steps -->
+  <div class="progress-steps">
+    <div class="step" [class.active]="currentStep >= 1" [class.completed]="currentStep > 1" (click)="goToStep(1)">
+      <div class="step-number">1</div>
+      <div class="step-label">Генерация ключей</div>
+    </div>
+    <div class="step-line" [class.active]="currentStep >= 2"></div>
+    <div class="step" [class.active]="currentStep >= 2" [class.completed]="currentStep > 2" (click)="goToStep(2)">
+      <div class="step-number">2</div>
+      <div class="step-label">Создание транзакции</div>
+    </div>
+    <div class="step-line" [class.active]="currentStep >= 3"></div>
+    <div class="step" [class.active]="currentStep >= 3" [class.completed]="currentStep > 3" (click)="goToStep(3)">
+      <div class="step-number">3</div>
+      <div class="step-label">Подписание</div>
+    </div>
+    <div class="step-line" [class.active]="currentStep >= 4"></div>
+    <div class="step" [class.active]="currentStep >= 4" [class.completed]="currentStep > 4" (click)="goToStep(4)">
+      <div class="step-number">4</div>
+      <div class="step-label">Верификация</div>
+    </div>
+    <div class="step-line" [class.active]="currentStep >= 5"></div>
+    <div class="step" [class.active]="currentStep >= 5" [class.completed]="currentStep > 5" (click)="goToStep(5)">
+      <div class="step-number">5</div>
+      <div class="step-label">Тест изменения</div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    
+    <!-- Step 1: Key Generation -->
+    <div class="section" *ngIf="currentStep === 1">
+      <h2>Шаг 1: Генерация пары ключей ECDSA</h2>
+      <p>Генерация приватного и публичного ключей на эллиптической кривой <strong>{{ selectedNetwork }}</strong></p>
+      
+      <div class="action-box">
+        <button class="btn-primary btn-large" (click)="generateKeyPair()">
+          🔑 Сгенерировать пару ключей
+        </button>
+      </div>
+
+      <div class="key-display" *ngIf="keyPair">
+        <div class="key-card private-key-card">
+          <h3>🔒 Приватный ключ (Private Key)</h3>
+          <div class="key-value">
+            <code *ngIf="showPrivateKey">{{ keyPair.privateKey }}</code>
+            <code *ngIf="!showPrivateKey">{{ '•'.repeat(64) }}</code>
+            <button class="btn-icon" (click)="togglePrivateKeyVisibility()">
+              {{ showPrivateKey ? '👁️' : '🙈' }}
+            </button>
+            <button class="btn-icon" (click)="copyToClipboard(keyPair.privateKey, 'Приватный ключ')">📋</button>
+          </div>
+          <div class="warning">
+            ⚠️ <strong>ВАЖНО:</strong> Никогда не передавайте приватный ключ третьим лицам!
+          </div>
+        </div>
+
+        <div class="key-card public-key-card">
+          <h3>🔓 Публичный ключ (Public Key)</h3>
+          <div class="key-value">
+            <code>{{ formatHash(keyPair.publicKey, 32) }}</code>
+            <button class="btn-icon" (click)="copyToClipboard(keyPair.publicKey, 'Публичный ключ')">📋</button>
+          </div>
+        </div>
+
+        <div class="key-card address-card">
+          <h3>📍 Адрес (Address)</h3>
+          <div class="key-value">
+            <code>{{ keyPair.address }}</code>
+            <button class="btn-icon" (click)="copyToClipboard(keyPair.address, 'Адрес')">📋</button>
+          </div>
+          <p class="info-text">Этот адрес используется для получения транзакций</p>
+        </div>
+
+        <div class="action-box">
+          <button class="btn-success" (click)="currentStep = 2">
+            Далее: Создать транзакцию →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Create Transaction -->
+    <div class="section" *ngIf="currentStep === 2">
+      <h2>Шаг 2: Создание транзакции</h2>
+      <p>Сформируйте транзакцию, которую необходимо подписать</p>
+
+      <div class="transaction-form">
+        <div class="form-group">
+          <label>От (From):</label>
+          <input type="text" [value]="keyPair?.address" disabled>
+        </div>
+
+        <div class="form-group">
+          <label>Кому (To):</label>
+          <input type="text" [(ngModel)]="recipientAddress" placeholder="0x...">
+        </div>
+
+        <div class="form-group">
+          <label>Сумма:</label>
+          <input type="number" [(ngModel)]="transactionAmount" step="0.01" min="0">
+        </div>
+
+        <div class="form-group">
+          <label>Сообщение/Описание:</label>
+          <textarea [(ngModel)]="transactionMessage" rows="3" placeholder="Описание транзакции..."></textarea>
+        </div>
+
+        <div class="action-box">
+          <button class="btn-primary" (click)="createTransaction()">
+            📝 Создать транзакцию
+          </button>
+        </div>
+      </div>
+
+      <div class="transaction-preview" *ngIf="originalTransaction">
+        <h3>Предварительный просмотр транзакции:</h3>
+        <div class="transaction-details">
+          <div class="detail-row">
+            <span class="label">Hash:</span>
+            <code>{{ formatHash(originalTransaction.hash, 16) }}</code>
+          </div>
+          <div class="detail-row">
+            <span class="label">From:</span>
+            <code>{{ formatHash(originalTransaction.from, 10) }}</code>
+          </div>
+          <div class="detail-row">
+            <span class="label">To:</span>
+            <code>{{ formatHash(originalTransaction.to, 10) }}</code>
+          </div>
+          <div class="detail-row">
+            <span class="label">Amount:</span>
+            <strong>{{ originalTransaction.amount }} {{ selectedNetwork.includes('Bitcoin') ? 'BTC' : 'ETH' }}</strong>
+          </div>
+          <div class="detail-row">
+            <span class="label">Timestamp:</span>
+            <span>{{ formatTimestamp(originalTransaction.timestamp) }}</span>
+          </div>
+        </div>
+
+        <div class="action-box">
+          <button class="btn-success" (click)="currentStep = 3">
+            Далее: Подписать транзакцию →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Sign Transaction -->
+    <div class="section" *ngIf="currentStep === 3">
+      <h2>Шаг 3: Подписание транзакции</h2>
+      <p>Создание цифровой подписи ECDSA с использованием приватного ключа</p>
+
+      <div class="info-box">
+        <h4>Процесс подписания:</h4>
+        <ol>
+          <li>Вычисляется хэш транзакции: <code>hash = SHA-256(transaction)</code></li>
+          <li>Генерируется случайное число k</li>
+          <li>Вычисляется точка на кривой: <code>R = k × G</code></li>
+          <li>Извлекается r = R<sub>x</sub> mod n</li>
+          <li>Вычисляется s = k⁻¹(hash + r × privateKey) mod n</li>
+          <li>Подпись = (r, s, v)</li>
+        </ol>
+      </div>
+
+      <div class="action-box" *ngIf="originalTransaction">
+        <button class="btn-primary btn-large" (click)="signTransaction()">
+          ✍️ Подписать транзакцию
+        </button>
+      </div>
+
+      <div class="signature-result" *ngIf="signedTransaction && signedTransaction.signature">
+        <h3>✅ Транзакция успешно подписана!</h3>
+        
+        <div class="signature-details">
+          <div class="signature-component">
+            <h4>r (координата X точки на кривой):</h4>
+            <code>{{ formatHash(signedTransaction.signature.r, 16) }}</code>
+          </div>
+          
+          <div class="signature-component">
+            <h4>s (подпись сообщения):</h4>
+            <code>{{ formatHash(signedTransaction.signature.s, 16) }}</code>
+          </div>
+          
+          <div class="signature-component">
+            <h4>v (recovery id):</h4>
+            <code>{{ signedTransaction.signature.v }}</code>
+          </div>
+        </div>
+
+        <div class="action-box">
+          <button class="btn-secondary" (click)="exportTransaction(signedTransaction)">
+            💾 Экспортировать транзакцию
+          </button>
+          <button class="btn-success" (click)="currentStep = 4">
+            Далее: Проверить подпись →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Verify Signature -->
+    <div class="section" *ngIf="currentStep === 4">
+      <h2>Шаг 4: Верификация подписи</h2>
+      <p>Проверка подлинности подписи с использованием публичного ключа</p>
+
+      <div class="info-box">
+        <h4>Процесс верификации:</h4>
+        <ol>
+          <li>Получаем публичный ключ отправителя</li>
+          <li>Восстанавливаем хэш транзакции</li>
+          <li>Используем компоненты подписи (r, s)</li>
+          <li>Проверяем математическое равенство на эллиптической кривой</li>
+          <li>Если равенство выполняется → подпись валидна ✅</li>
+        </ol>
+      </div>
+
+      <div class="action-box">
+        <button class="btn-primary btn-large" (click)="verifySignature()">
+          🔍 Проверить подпись
+        </button>
+      </div>
+
+      <div class="verification-result" *ngIf="verificationResult !== null">
+        <div class="result-card" [class.valid]="verificationResult" [class.invalid]="!verificationResult">
+          <div class="result-icon">
+            {{ verificationResult ? '✅' : '❌' }}
+          </div>
+          <h3>{{ verificationResult ? 'Подпись валидна!' : 'Подпись недействительна!' }}</h3>
+          <p *ngIf="verificationResult">
+            Транзакция подтверждена. Открытый ключ соответствует приватному ключу, использованному для подписания.
+          </p>
+          <p *ngIf="!verificationResult">
+            Транзакция не прошла проверку. Возможно, данные были изменены или использован неверный ключ.
+          </p>
+        </div>
+
+        <div class="action-box">
+          <button class="btn-success" (click)="currentStep = 5">
+            Далее: Тест с изменённым сообщением →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5: Test Modified Transaction -->
+    <div class="section" *ngIf="currentStep === 5">
+      <h2>Шаг 5: Эксперимент с изменённым сообщением</h2>
+      <p>Демонстрация того, что изменение данных делает подпись недействительной</p>
+
+      <div class="warning-box">
+        <h4>⚠️ Важный принцип безопасности:</h4>
+        <p>Любое изменение в подписанных данных делает подпись недействительной. Это обеспечивает целостность и неизменность транзакций в блокчейне.</p>
+      </div>
+
+      <div class="form-group">
+        <label>Изменённое сообщение:</label>
+        <textarea [(ngModel)]="modifiedMessage" rows="3" placeholder="Введите изменённое сообщение..."></textarea>
+      </div>
+
+      <div class="action-box">
+        <button class="btn-warning" (click)="createModifiedTransaction()">
+          📝 Создать модифицированную транзакцию
+        </button>
+      </div>
+
+      <div class="comparison-view" *ngIf="modifiedTransaction">
+        <div class="comparison-grid">
+          <div class="comparison-card original">
+            <h4>📄 Оригинальная транзакция</h4>
+            <code>Hash: {{ formatHash(signedTransaction?.hash || '', 12) }}</code>
+          </div>
+
+          <div class="comparison-card modified">
+            <h4>📝 Изменённая транзакция</h4>
+            <code>Hash: {{ formatHash(modifiedTransaction.hash, 12) }}</code>
+          </div>
+        </div>
+
+        <div class="action-box">
+          <button class="btn-primary" (click)="verifyModifiedTransaction()">
+            🔍 Проверить изменённую транзакцию
+          </button>
+        </div>
+
+        <div class="verification-result" *ngIf="modifiedVerificationResult !== null">
+          <div class="result-card invalid">
+            <div class="result-icon">❌</div>
+            <h3>Подпись недействительна для изменённых данных!</h3>
+            <p>
+              Хэш изменённой транзакции не совпадает с оригинальным хэшом. 
+              Подпись, созданная для оригинальной транзакции, не может быть использована для проверки изменённых данных.
+            </p>
+            <div class="explanation-box">
+              <strong>Вывод:</strong> Это доказывает, что ECDSA обеспечивает целостность данных. 
+              Злоумышленник не может изменить транзакцию без приватного ключа.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Transaction History -->
+  <div class="section history-section" *ngIf="transactionHistory.length > 0">
+    <h2>📜 История транзакций</h2>
+    <div class="transaction-list">
+      <div class="transaction-item" *ngFor="let tx of transactionHistory; let i = index">
+        <div class="tx-header">
+          <span class="tx-number">#{{ transactionHistory.length - i }}</span>
+          <span class="tx-time">{{ formatTimestamp(tx.timestamp) }}</span>
+        </div>
+        <div class="tx-details">
+          <div><strong>From:</strong> <code>{{ formatHash(tx.from, 8) }}</code></div>
+          <div><strong>To:</strong> <code>{{ formatHash(tx.to, 8) }}</code></div>
+          <div><strong>Amount:</strong> {{ tx.amount }}</div>
+          <div><strong>Hash:</strong> <code>{{ formatHash(tx.hash, 12) }}</code></div>
+        </div>
+        <button class="btn-small" (click)="exportTransaction(tx)">💾 Экспорт</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Control Questions -->
+  <div class="section questions-section">
+    <h2>❓ Контрольные вопросы</h2>
+    <div class="questions-list">
+      <details class="question-item">
+        <summary>1. В чём отличие ECDSA от классического RSA-подписания?</summary>
+        <div class="answer">
+          <ul>
+            <li><strong>Длина ключа:</strong> ECDSA использует более короткие ключи (256 бит ≈ 3072 бит RSA)</li>
+            <li><strong>Производительность:</strong> ECDSA быстрее при генерации подписи</li>
+            <li><strong>Математическая основа:</strong> ECDSA основан на эллиптических кривых, RSA — на факторизации</li>
+            <li><strong>Размер подписи:</strong> Подписи ECDSA меньше по размеру</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="question-item">
+        <summary>2. Почему блокчейн использует именно эллиптические кривые secp256k1?</summary>
+        <div class="answer">
+          <ul>
+            <li><strong>Эффективность:</strong> Оптимальное соотношение безопасности и производительности</li>
+            <li><strong>Стандартизация:</strong> Широко используемая и проверенная кривая</li>
+            <li><strong>Размер данных:</strong> Компактные подписи важны для блокчейна</li>
+            <li><strong>Скорость верификации:</strong> Быстрая проверка подписей в сети</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="question-item">
+        <summary>3. Как обеспечивается неизменность транзакции после её подписания?</summary>
+        <div class="answer">
+          <p>Неизменность обеспечивается через:</p>
+          <ul>
+            <li><strong>Криптографический хэш:</strong> Любое изменение меняет хэш</li>
+            <li><strong>Цифровая подпись:</strong> Подпись привязана к конкретному хэшу</li>
+            <li><strong>Публичная верификация:</strong> Любой узел может проверить подпись</li>
+            <li><strong>Консенсус сети:</strong> Изменённая транзакция будет отклонена</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="question-item">
+        <summary>4. Что произойдёт, если закрытый ключ утечёт?</summary>
+        <div class="answer">
+          <p><strong>Критические последствия:</strong></p>
+          <ul>
+            <li>❌ Злоумышленник получит полный контроль над средствами</li>
+            <li>❌ Сможет подписывать транзакции от вашего имени</li>
+            <li>❌ Невозможно отменить или изменить ключ в блокчейне</li>
+            <li>✅ Необходимо немедленно перевести средства на новый адрес</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="question-item">
+        <summary>5. Можно ли использовать одну пару ключей для разных блокчейн-сетей?</summary>
+        <div class="answer">
+          <p><strong>Технически возможно, но НЕ рекомендуется:</strong></p>
+          <ul>
+            <li>⚠️ Разные сети могут иметь разные форматы адресов</li>
+            <li>⚠️ Повышается риск при компрометации ключа</li>
+            <li>⚠️ Возможны replay-атаки между сетями</li>
+            <li>✅ Лучшая практика: использовать отдельные ключи для каждой сети</li>
+          </ul>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <!-- Footer Actions -->
+  <div class="footer-actions">
+    <button class="btn-danger" (click)="resetAll()">
+      🔄 Сбросить всё
+    </button>
+    <button class="btn-secondary" (click)="currentStep = 1">
+      ⬅️ В начало
+    </button>
+  </div>
+</div>
