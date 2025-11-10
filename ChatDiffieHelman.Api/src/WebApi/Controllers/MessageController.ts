@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Param, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiProperty, ApiTags, ApiOperation, ApiOkResponse, ApiParam, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { MessageService } from 'src/BL/Services/MessageService';
 import { MessageDto } from 'src/DTO/MessageDto';
 import { JwtAuthGuard } from '../Helpers/JwtAuthGuard';
@@ -18,6 +18,11 @@ export class MessageController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @Get(':chatId')
+  @ApiOperation({ summary: 'Получить сообщения в чате', description: 'Возвращает все сообщения в указанном чате' })
+  @ApiParam({ name: 'chatId', type: 'string', format: 'uuid', description: 'UUID чата' })
+  @ApiOkResponse({ type: MessageDto, isArray: true, description: 'Список сообщений' })
+  @ApiResponse({ status: 403, description: 'Доступ запрещен' })
+  @ApiResponse({ status: 404, description: 'Чат не найден' })
   async getMessages(
     @CurrentUser() user: UserData,
     @Param('chatId') chatId: string,
@@ -29,6 +34,15 @@ export class MessageController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
   @Post(':chatId')
+  @ApiOperation({ 
+    summary: 'Отправить сообщение', 
+    description: 'Создает новое сообщение в чате. Поддерживает как обычные, так и зашифрованные сообщения (Diffie-Hellman)' 
+  })
+  @ApiParam({ name: 'chatId', type: 'string', format: 'uuid', description: 'UUID чата' })
+  @ApiBody({ type: MessageDto })
+  @ApiOkResponse({ type: MessageDto, description: 'Отправленное сообщение' })
+  @ApiResponse({ status: 403, description: 'Доступ запрещен' })
+  @ApiResponse({ status: 400, description: 'Некорректные данные' })
   async sendMessage(
     @CurrentUser() user: UserData,
     @Param('chatId') chatId: string,

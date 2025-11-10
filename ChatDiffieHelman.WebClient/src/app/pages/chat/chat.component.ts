@@ -70,7 +70,7 @@ export class ChatComponent implements OnDestroy, OnInit {
     }
  
     this.initializeChat();  
-     this.initializeDiffieHellman();
+    //  this.initializeDiffieHellman();
  
   }
 
@@ -81,11 +81,11 @@ export class ChatComponent implements OnDestroy, OnInit {
     // Покидаем чат при уничтожении компонента
     if (this.chatId) {
       this.chatSocket.leaveChat(this.chatId);
-      this.dhService.leaveDiffieHellmanSession();
+      // this.dhService.leaveDiffieHellmanSession();
     }
     
     // Отключаем Diffie-Hellman сервис
-    this.dhService.disconnect();
+    // this.dhService.disconnect();
   }
 
   private async initializeChat(): Promise<void> {

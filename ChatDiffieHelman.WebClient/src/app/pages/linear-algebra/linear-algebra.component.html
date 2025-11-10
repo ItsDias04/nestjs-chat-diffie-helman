@@ -1,0 +1,453 @@
+<div class="linear-algebra-container">
+  <h1>Linear Algebra Operations Lab</h1>
+  
+  <div class="tabs">
+    <button [class.active]="activeTab === 'operations'" (click)="setTab('operations')">
+      1. Matrix Operations
+    </button>
+    <button [class.active]="activeTab === 'determinants'" (click)="setTab('determinants')">
+      2. Determinants
+    </button>
+    <button [class.active]="activeTab === 'inverses'" (click)="setTab('inverses')">
+      3. Inverses
+    </button>
+    <button [class.active]="activeTab === 'systems'" (click)="setTab('systems')">
+      4. Linear Systems
+    </button>
+    <button [class.active]="activeTab === 'eigenvalues'" (click)="setTab('eigenvalues')">
+      5. Eigenvalues
+    </button>
+    <button [class.active]="activeTab === 'cramers'" (click)="setTab('cramers')">
+      6. Cramer's Rule
+    </button>
+    <button [class.active]="activeTab === 'rref'" (click)="setTab('rref')">
+      7. Row Reduction
+    </button>
+    <button [class.active]="activeTab === 'relationship'" (click)="setTab('relationship')">
+      8. Det-Inverse
+    </button>
+  </div>
+
+  <!-- Task 1: Matrix Operations -->
+  <div *ngIf="activeTab === 'operations'" class="tab-content">
+    <h2>Task 1: Matrix Operations</h2>
+    <p>Perform addition, subtraction, and scalar multiplication on matrices.</p>
+    
+    <div class="matrix-operations">
+      <div class="matrix-input-section">
+        <h3>Matrix A</h3>
+        <div class="matrix-size-controls">
+          <label>
+            Rows: <input type="number" [(ngModel)]="matrixA.rows" min="1" max="5" 
+                         (change)="updateMatrixSize(matrixA, matrixA.rows, matrixA.cols)">
+          </label>
+          <label>
+            Cols: <input type="number" [(ngModel)]="matrixA.cols" min="1" max="5"
+                         (change)="updateMatrixSize(matrixA, matrixA.rows, matrixA.cols)">
+          </label>
+        </div>
+        <div class="matrix-grid">
+          <div *ngFor="let row of matrixA.data; let i = index" class="matrix-row">
+            <input *ngFor="let val of row; let j = index" 
+                   type="number" 
+                   [(ngModel)]="matrixA.data[i][j]"
+                   class="matrix-cell">
+          </div>
+        </div>
+      </div>
+
+      <div class="matrix-input-section">
+        <h3>Matrix B</h3>
+        <div class="matrix-size-controls">
+          <label>
+            Rows: <input type="number" [(ngModel)]="matrixB.rows" min="1" max="5"
+                         (change)="updateMatrixSize(matrixB, matrixB.rows, matrixB.cols)">
+          </label>
+          <label>
+            Cols: <input type="number" [(ngModel)]="matrixB.cols" min="1" max="5"
+                         (change)="updateMatrixSize(matrixB, matrixB.rows, matrixB.cols)">
+          </label>
+        </div>
+        <div class="matrix-grid">
+          <div *ngFor="let row of matrixB.data; let i = index" class="matrix-row">
+            <input *ngFor="let val of row; let j = index" 
+                   type="number" 
+                   [(ngModel)]="matrixB.data[i][j]"
+                   class="matrix-cell">
+          </div>
+        </div>
+      </div>
+
+      <div class="scalar-input">
+        <h3>Scalar Value</h3>
+        <input type="number" [(ngModel)]="scalarValue" class="scalar-field">
+      </div>
+    </div>
+
+    <button class="calc-button" (click)="performAllMatrixOperations()">Calculate All Operations</button>
+
+    <div class="results-section" *ngIf="matrixAddResult.length > 0">
+      <div class="result-item">
+        <h3>A + B =</h3>
+        <div class="matrix-display">
+          <div *ngFor="let row of matrixAddResult" class="matrix-row-display">
+            <span *ngFor="let val of row" class="matrix-cell-display">{{ formatNumber(val) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-item">
+        <h3>A - B =</h3>
+        <div class="matrix-display">
+          <div *ngFor="let row of matrixSubResult" class="matrix-row-display">
+            <span *ngFor="let val of row" class="matrix-cell-display">{{ formatNumber(val) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-item">
+        <h3>{{ scalarValue }}A =</h3>
+        <div class="matrix-display">
+          <div *ngFor="let row of matrixScalarResult" class="matrix-row-display">
+            <span *ngFor="let val of row" class="matrix-cell-display">{{ formatNumber(val) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task 2: Determinants -->
+  <div *ngIf="activeTab === 'determinants'" class="tab-content">
+    <h2>Task 2: Calculate Determinants</h2>
+    <p>Calculate determinants for 2×2 and 3×3 matrices.</p>
+
+    <div class="determinant-section">
+      <div class="matrix-input-section">
+        <h3>2×2 Matrix</h3>
+        <div class="matrix-grid">
+          <div *ngFor="let row of det2x2Matrix.data; let i = index" class="matrix-row">
+            <input *ngFor="let val of row; let j = index" 
+                   type="number" 
+                   [(ngModel)]="det2x2Matrix.data[i][j]"
+                   class="matrix-cell">
+          </div>
+        </div>
+      </div>
+
+      <div class="matrix-input-section">
+        <h3>3×3 Matrix</h3>
+        <div class="matrix-grid">
+          <div *ngFor="let row of det3x3Matrix.data; let i = index" class="matrix-row">
+            <input *ngFor="let val of row; let j = index" 
+                   type="number" 
+                   [(ngModel)]="det3x3Matrix.data[i][j]"
+                   class="matrix-cell">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="calc-button" (click)="calculateDeterminants()">Calculate Determinants</button>
+
+    <div class="results-section" *ngIf="det2x2Result !== null">
+      <div class="result-item">
+        <h3>Determinant of 2×2 Matrix:</h3>
+        <p class="determinant-result">det(A) = {{ formatNumber(det2x2Result) }}</p>
+      </div>
+
+      <div class="result-item">
+        <h3>Determinant of 3×3 Matrix:</h3>
+        <p class="determinant-result">det(B) = {{ formatNumber(det3x3Result!) }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task 3: Inverses -->
+  <div *ngIf="activeTab === 'inverses'" class="tab-content">
+    <h2>Task 3: Matrix Inverses</h2>
+    <p>Find the inverse of matrices if they exist.</p>
+
+    <div class="inverse-section">
+      <div class="matrix-input-section">
+        <h3>2×2 Matrix</h3>
+        <div class="matrix-grid">
+          <div *ngFor="let row of inverse2x2Matrix.data; let i = index" class="matrix-row">
+            <input *ngFor="let val of row; let j = index" 
+                   type="number" 
+                   [(ngModel)]="inverse2x2Matrix.data[i][j]"
+                   class="matrix-cell">
+          </div>
+        </div>
+      </div>
+
+      <div class="matrix-input-section">
+        <h3>3×3 Matrix</h3>
+        <div class="matrix-grid">
+          <div *ngFor="let row of inverse3x3Matrix.data; let i = index" class="matrix-row">
+            <input *ngFor="let val of row; let j = index" 
+                   type="number" 
+                   [(ngModel)]="inverse3x3Matrix.data[i][j]"
+                   class="matrix-cell">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="calc-button" (click)="calculateInverses()">Calculate Inverses</button>
+
+    <div class="results-section" *ngIf="inverse2x2Result !== null || inverse2x2Error">
+      <div class="result-item">
+        <h3>Inverse of 2×2 Matrix:</h3>
+        <div *ngIf="inverse2x2Error" class="error-message">{{ inverse2x2Error }}</div>
+        <div *ngIf="inverse2x2Result" class="matrix-display">
+          <div *ngFor="let row of inverse2x2Result" class="matrix-row-display">
+            <span *ngFor="let val of row" class="matrix-cell-display">{{ formatNumber(val) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-item">
+        <h3>Inverse of 3×3 Matrix:</h3>
+        <div *ngIf="inverse3x3Error" class="error-message">{{ inverse3x3Error }}</div>
+        <div *ngIf="inverse3x3Result" class="matrix-display">
+          <div *ngFor="let row of inverse3x3Result" class="matrix-row-display">
+            <span *ngFor="let val of row" class="matrix-cell-display">{{ formatNumber(val) }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task 4: Systems of Linear Equations -->
+  <div *ngIf="activeTab === 'systems'" class="tab-content">
+    <h2>Task 4: Solving Systems of Linear Equations</h2>
+    <p>Solve the system Ax = b using Gaussian elimination.</p>
+
+    <div class="system-section">
+      <div class="matrix-input-section">
+        <h3>Coefficient Matrix A</h3>
+        <div class="matrix-grid">
+          <div *ngFor="let row of systemMatrix.data; let i = index" class="matrix-row">
+            <input *ngFor="let val of row; let j = index" 
+                   type="number" 
+                   [(ngModel)]="systemMatrix.data[i][j]"
+                   class="matrix-cell">
+          </div>
+        </div>
+      </div>
+
+      <div class="vector-input-section">
+        <h3>Constants Vector b</h3>
+        <div class="vector-grid">
+          <input *ngFor="let val of systemVector; let i = index" 
+                 type="number" 
+                 [(ngModel)]="systemVector[i]"
+                 class="vector-cell">
+        </div>
+      </div>
+    </div>
+
+    <button class="calc-button" (click)="solveSystem()">Solve System</button>
+
+    <div class="results-section" *ngIf="systemSolution !== null || systemError">
+      <div class="result-item">
+        <h3>Solution:</h3>
+        <div *ngIf="systemError" class="error-message">{{ systemError }}</div>
+        <div *ngIf="systemSolution" class="solution-display">
+          <p *ngFor="let val of systemSolution; let i = index">
+            x<sub>{{ i + 1 }}</sub> = {{ formatNumber(val) }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task 5: Eigenvalues and Eigenvectors -->
+  <div *ngIf="activeTab === 'eigenvalues'" class="tab-content">
+    <h2>Task 5: Eigenvalues and Eigenvectors</h2>
+    <p>Find eigenvalues and corresponding eigenvectors (2×2 matrices only).</p>
+
+    <div class="eigen-section">
+      <div class="matrix-input-section">
+        <h3>2×2 Matrix</h3>
+        <div class="matrix-grid">
+          <div *ngFor="let row of eigenMatrix.data; let i = index" class="matrix-row">
+            <input *ngFor="let val of row; let j = index" 
+                   type="number" 
+                   [(ngModel)]="eigenMatrix.data[i][j]"
+                   class="matrix-cell">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="calc-button" (click)="calculateEigenvalues2x2()">Calculate Eigenvalues & Eigenvectors</button>
+
+    <div class="results-section" *ngIf="eigenResults.length > 0 || eigenError">
+      <div *ngIf="eigenError" class="error-message">{{ eigenError }}</div>
+      <div *ngIf="eigenResults.length > 0">
+        <div *ngFor="let result of eigenResults; let i = index" class="result-item">
+          <h3>Eigenvalue λ<sub>{{ i + 1 }}</sub>:</h3>
+          <p class="eigenvalue">λ = {{ formatNumber(result.eigenvalue) }}</p>
+          <h4>Corresponding Eigenvector:</h4>
+          <div class="eigenvector-display">
+            <p *ngFor="let val of result.eigenvector; let j = index">
+              v<sub>{{ j + 1 }}</sub> = {{ formatNumber(val) }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task 6: Cramer's Rule -->
+  <div *ngIf="activeTab === 'cramers'" class="tab-content">
+    <h2>Task 6: Cramer's Rule</h2>
+    <p>Solve the system using Cramer's Rule.</p>
+
+    <div class="cramer-section">
+      <div class="matrix-input-section">
+        <h3>Coefficient Matrix A</h3>
+        <div class="matrix-grid">
+          <div *ngFor="let row of cramerMatrix.data; let i = index" class="matrix-row">
+            <input *ngFor="let val of row; let j = index" 
+                   type="number" 
+                   [(ngModel)]="cramerMatrix.data[i][j]"
+                   class="matrix-cell">
+          </div>
+        </div>
+      </div>
+
+      <div class="vector-input-section">
+        <h3>Constants Vector b</h3>
+        <div class="vector-grid">
+          <input *ngFor="let val of cramerVector; let i = index" 
+                 type="number" 
+                 [(ngModel)]="cramerVector[i]"
+                 class="vector-cell">
+        </div>
+      </div>
+    </div>
+
+    <button class="calc-button" (click)="solveCramersRule()">Solve with Cramer's Rule</button>
+
+    <div class="results-section" *ngIf="cramerSolution !== null || cramerError">
+      <div class="result-item">
+        <h3>Solution:</h3>
+        <div *ngIf="cramerError" class="error-message">{{ cramerError }}</div>
+        <div *ngIf="cramerSolution" class="solution-display">
+          <p *ngFor="let val of cramerSolution; let i = index">
+            x<sub>{{ i + 1 }}</sub> = {{ formatNumber(val) }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task 7: Row Reduction -->
+  <div *ngIf="activeTab === 'rref'" class="tab-content">
+    <h2>Task 7: Row Reduction (RREF)</h2>
+    <p>Perform row reduction to reduced row echelon form.</p>
+
+    <div class="rref-section">
+      <div class="matrix-input-section">
+        <h3>Augmented Matrix [A|b]</h3>
+        <div class="matrix-grid">
+          <div *ngFor="let row of augmentedMatrix.data; let i = index" class="matrix-row">
+            <input *ngFor="let val of row; let j = index" 
+                   type="number" 
+                   [(ngModel)]="augmentedMatrix.data[i][j]"
+                   class="matrix-cell"
+                   [class.augmented-separator]="j === augmentedMatrix.cols - 2">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="calc-button" (click)="rowReduce()">Perform Row Reduction</button>
+
+    <div class="results-section" *ngIf="rrefResult !== null">
+      <div class="result-item">
+        <h3>Reduced Row Echelon Form:</h3>
+        <div class="matrix-display">
+          <div *ngFor="let row of rrefResult" class="matrix-row-display">
+            <span *ngFor="let val of row; let j = index" 
+                  class="matrix-cell-display"
+                  [class.augmented-separator]="j === rrefResult[0].length - 2">
+              {{ formatNumber(val) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-item" *ngIf="rrefSolution">
+        <h3>Solution:</h3>
+        <div class="solution-display">
+          <p *ngFor="let val of rrefSolution; let i = index">
+            x<sub>{{ i + 1 }}</sub> = {{ formatNumber(val) }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Task 8: Determinant and Inverse Relationship -->
+  <div *ngIf="activeTab === 'relationship'" class="tab-content">
+    <h2>Task 8: Determinant and Inverse Relationship</h2>
+    <p>Verify that a matrix is invertible if and only if its determinant is non-zero.</p>
+
+    <div class="relationship-section">
+      <div class="matrix-input-section">
+        <h3>Test Matrix</h3>
+        <div class="matrix-grid">
+          <div *ngFor="let row of testMatrix.data; let i = index" class="matrix-row">
+            <input *ngFor="let val of row; let j = index" 
+                   type="number" 
+                   [(ngModel)]="testMatrix.data[i][j]"
+                   class="matrix-cell">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="calc-button" (click)="testDeterminantInverseRelationship()">Test Relationship</button>
+
+    <div class="results-section" *ngIf="detInverseTest.determinant !== null">
+      <div class="result-item">
+        <h3>Determinant:</h3>
+        <p class="determinant-result">det(A) = {{ formatNumber(detInverseTest.determinant) }}</p>
+      </div>
+
+      <div class="result-item">
+        <h3>Is Invertible:</h3>
+        <p [class.invertible]="detInverseTest.isInvertible" 
+           [class.not-invertible]="!detInverseTest.isInvertible">
+          {{ detInverseTest.isInvertible ? 'YES' : 'NO' }}
+        </p>
+      </div>
+
+      <div class="result-item" *ngIf="detInverseTest.inverse">
+        <h3>Inverse Matrix:</h3>
+        <div class="matrix-display">
+          <div *ngFor="let row of detInverseTest.inverse" class="matrix-row-display">
+            <span *ngFor="let val of row" class="matrix-cell-display">{{ formatNumber(val) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-item" *ngIf="!detInverseTest.isInvertible">
+        <div class="info-box">
+          <p><strong>Theorem:</strong> A matrix A is invertible if and only if det(A) ≠ 0.</p>
+          <p>Since det(A) = {{ formatNumber(detInverseTest.determinant) }}, the matrix is <strong>not invertible</strong>.</p>
+        </div>
+      </div>
+
+      <div class="result-item" *ngIf="detInverseTest.isInvertible">
+        <div class="info-box success">
+          <p><strong>Theorem:</strong> A matrix A is invertible if and only if det(A) ≠ 0.</p>
+          <p>Since det(A) = {{ formatNumber(detInverseTest.determinant) }} ≠ 0, the matrix <strong>is invertible</strong>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

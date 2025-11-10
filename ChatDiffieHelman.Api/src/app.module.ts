@@ -25,8 +25,17 @@ import { FiatSessionsService } from './BL/Singelton/Services/FiatSessionsService
 import { FiatService } from './BL/Services/FiatService';
 import { BmcSessionsService } from './BL/Singelton/Services/BmcSessionsService';
 import { BmcService } from './BL/Services/BmcService';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+
 @Module({
   imports: [
+    // Security: Rate Limiting
+    ThrottlerModule.forRoot([{
+      ttl: 60000, // 60 секунд
+      limit: 100,  // 100 запросов на IP за минуту
+    }]),
+    
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
@@ -36,6 +45,8 @@ import { BmcService } from './BL/Services/BmcService';
       database: 'chat_db',
       entities: [Chat, User, Message, Invite],
       synchronize: true,
+      // Security: Логирование SQL запросов в dev mode
+      logging: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
     }),
 
     PassportModule,
@@ -47,6 +58,11 @@ import { BmcService } from './BL/Services/BmcService';
     // FiatSessionsModule,
   ],
   providers: [
+    // Security: Global Rate Limiting Guard
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     AuthService,
     JwtStrategy,
     UserService,

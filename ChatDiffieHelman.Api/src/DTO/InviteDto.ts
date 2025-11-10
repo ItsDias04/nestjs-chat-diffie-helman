@@ -3,54 +3,81 @@ import { ChatDto } from "./ChatDto";
 import { UserDto } from "./UserDto";
 
 export class InviteDto {
-    @ApiProperty({
-       example: '123e4567-e89b-12d3-a456-426614174000',
-       description: 'ID приглашения (UUID)',
-       format: 'uuid',
-     })  id: string;
-     
+  @ApiProperty({
+    example: '123e4567-e89b-12d3-a456-426614174000',
+    description: 'ID приглашения (UUID)',
+    format: 'uuid',
+  })
+  id: string;
 
-    @ApiProperty({
-       example: '123e4567-e89b-12d3-a456-426614174001',
-       description: 'ID чата (UUID)',
-       format: 'uuid',
-     })  chatId: string;
-     chat: ChatDto;
+  @ApiProperty({
+    example: '123e4567-e89b-12d3-a456-426614174001',
+    description: 'ID чата (UUID)',
+    format: 'uuid',
+  })
+  chatId: string;
 
-    @ApiProperty({
-       example: '123e4567-e89b-12d3-a456-426614174002',
-       description: 'ID отправителя (UUID)',
-       format: 'uuid',
-     })  userSenderId: string;
-    userSender: UserDto;
+  @ApiProperty({
+    description: 'Информация о чате',
+    type: () => ChatDto,
+    required: false
+  })
+  chat: ChatDto;
 
-    @ApiProperty({
-       example: '123e4567-e89b-12d3-a456-426614174003',
-       description: 'ID получателя (UUID)',
-       format: 'uuid',
-     })  userReceiverId: string | null;
-     userReceiver: UserDto | null;
+  @ApiProperty({
+    example: '123e4567-e89b-12d3-a456-426614174002',
+    description: 'ID отправителя (UUID)',
+    format: 'uuid',
+  })
+  userSenderId: string;
 
-    @ApiProperty({
-       example: 'pending',
-       description: 'Статус приглашения',
-       enum: ['pending', 'accepted', 'declined'],
-     })  status: string;
+  @ApiProperty({
+    description: 'Информация об отправителе приглашения',
+    type: () => UserDto,
+    required: false
+  })
+  userSender: UserDto;
 
-    @ApiProperty({
-       example: '2023-03-15T12:00:00Z',
-       description: 'Дата создания приглашения',
-       type: 'string',
-       format: 'date-time',
-     })  createdAt: Date;
+  @ApiProperty({
+    example: '123e4567-e89b-12d3-a456-426614174003',
+    description: 'ID получателя (UUID)',
+    format: 'uuid',
+    nullable: true,
+  })
+  userReceiverId: string | null;
 
-    @ApiProperty({
-       example: '2023-03-15T12:00:00Z',
-       description: 'Дата обновления приглашения',
-       type: 'string',
-       format: 'date-time',
-     })  updatedAt: Date;
+  @ApiProperty({
+    description: 'Информация о получателе приглашения',
+    type: () => UserDto,
+    nullable: true,
+    required: false
+  })
+  userReceiver: UserDto | null;
+
+  @ApiProperty({
+    example: 'pending',
+    description: 'Статус приглашения',
+    enum: ['pending', 'accepted', 'declined'],
+  })
+  status: string;
+
+  @ApiProperty({
+    example: '2023-03-15T12:00:00Z',
+    description: 'Дата создания приглашения',
+    type: 'string',
+    format: 'date-time',
+  })
+  createdAt: Date;
+
+  @ApiProperty({
+    example: '2023-03-15T12:00:00Z',
+    description: 'Дата обновления приглашения',
+    type: 'string',
+    format: 'date-time',
+  })
+  updatedAt: Date;
 }
+
 // import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 // import { Chat } from "./Chat";
 // import { User } from "./User";

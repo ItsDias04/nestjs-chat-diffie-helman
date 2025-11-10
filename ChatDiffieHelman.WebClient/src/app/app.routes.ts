@@ -13,6 +13,7 @@ import { Bmc2FAComponent } from './pages/bmc-2fa/bmc-2fa.component';
 import { EcdsaLabComponent } from './pages/ecdsa-lab/ecdsa-lab.component';
 import { PrngLabComponent } from './pages/prng-lab/prng-lab.component';
 import { EcdsaBlockchainComponent } from './pages/ecdsa-blockchain/ecdsa-blockchain.component';
+import { LinearAlgebraComponent } from './pages/linear-algebra/linear-algebra.component';
 
 export const routes: Routes = [
   {
@@ -28,6 +29,7 @@ export const routes: Routes = [
      { path: 'ecdsa-lab', component: EcdsaLabComponent},
      { path: 'prng-lab', component: PrngLabComponent},
      { path: 'ecdsa-blockchain', component: EcdsaBlockchainComponent},
+     { path: 'linear-algebra', component: LinearAlgebraComponent},
 
     ],
     canActivate: [() => canActivateAuth(undefined)], 

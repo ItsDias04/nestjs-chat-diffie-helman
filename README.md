@@ -116,4 +116,3 @@ If you want, I can:
 - Add a `.env.example` with the commonly used environment variables (I will infer reasonable defaults).
 - Create quick run scripts or tasks for Windows PowerShell if you prefer one-step startup.
 
-Если хотите, могу:

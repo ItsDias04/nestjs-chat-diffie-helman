@@ -5,22 +5,67 @@ import { SwaggerModule } from '@nestjs/swagger/dist/swagger-module';
 import { ValidationPipe } from '@nestjs/common';
 import { AllExceptionsFilter } from './WebApi/Helpers/AllExceptionFilter';
 import { GlobalWsExceptionFilter } from './WebApi/Helpers/GlobalWsExceptionFilter';
+import helmet from 'helmet';
+import * as fs from 'fs';
+import * as path from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-   const config = new DocumentBuilder()
-    .setTitle('My API')
-    .setDescription('API description')
-    .setVersion('1.0')
+  
+  // Security: Helmet для защиты HTTP заголовков
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", 'data:', 'https:'],
+      },
+    },
+    crossOriginEmbedderPolicy: false, // Для WebSocket совместимости
+  }));
+  
+  const config = new DocumentBuilder()
+    .setTitle('Chat Diffie-Hellman API')
+    .setDescription(`
+      API для чата с криптографической защитой.
+      
+      ## Возможности:
+      - 🔐 Аутентификация JWT
+      - 🔑 Протокол Fiat-Shamir идентификации
+      - 🛡️ Протокол Brickell–McCurley идентификации  
+      - 💬 Управление чатами и сообщениями
+      - 🔒 Обмен ключами Diffie-Hellman для шифрования
+      - 👥 Система приглашений
+      
+      ## Как начать:
+      1. Зарегистрируйтесь через \`POST /users/registration\`
+      2. Войдите через \`POST /auth/login\`
+      3. Используйте полученный токен для авторизации (кнопка "Authorize" вверху)
+      
+      ## JSON документация доступна по адресу:
+      - Swagger UI: \`/api\`
+      - JSON схема: \`/api-json\`
+      - YAML схема: \`/api-yaml\`
+    `)
+    .setVersion('1.0.0')
+    .setContact('API Support', '', 'support@example.com')
+    .setLicense('MIT', 'https://opensource.org/licenses/MIT')
     .addBearerAuth(
       {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
         in: 'header',
+        description: 'Введите JWT токен, полученный после авторизации',
       },
       'access-token' // идентификатор схемы — используйте его в @ApiBearerAuth()
     )
+    .addTag('auth', 'Эндпоинты аутентификации и криптографической идентификации')
+    .addTag('users', 'Управление пользователями')
+    .addTag('chats', 'Управление чатами')
+    .addTag('messages', 'Управление сообщениями')
+    .addTag('invites', 'Управление приглашениями в чаты')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
@@ -29,9 +74,17 @@ async function bootstrap() {
   // автоматически отправлять заголовок Authorization после авторизации в UI
   document.security = [{ 'access-token': [] }];
 
+  // Сохраняем JSON документацию в файл
+  const outputPath = path.join(__dirname, '..', 'swagger-spec.json');
+  fs.writeFileSync(outputPath, JSON.stringify(document, null, 2), { encoding: 'utf8' });
+  console.log(`📄 Swagger JSON документация сохранена в: ${outputPath}`);
+
   SwaggerModule.setup('api', app, document, {
     swaggerOptions: {
       persistAuthorization: true, // сохраняет токен при перезагрузке UI
+      docExpansion: 'none', // Сворачивает все эндпоинты по умолчанию
+      filter: true, // Включает поиск
+      showRequestDuration: true, // Показывает время выполнения запросов
       // Опционально: заранее префиллить поле авторизации (удобно для dev)
       // замените значение на 'Bearer <токен>' если хотите автозаполнение
       authAction: {
@@ -54,7 +107,15 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Authorization',
     credentials: true,
   });
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  
+  // Security: Усиленная валидация входных данных
+  app.useGlobalPipes(new ValidationPipe({ 
+    transform: true,
+    whitelist: true, // Удаляет свойства, не описанные в DTO
+    forbidNonWhitelisted: true, // Выбрасывает ошибку при лишних полях
+    disableErrorMessages: process.env.NODE_ENV === 'production', // Скрывает детали в продакшене
+  }));
+  
   app.useGlobalFilters(new AllExceptionsFilter()); // твой глобальный фильтр
 
   // --- Express-level error handler: ловит ошибки, которые выскочили в passport / middleware ---
@@ -95,5 +156,11 @@ async function bootstrap() {
   });
 
   await app.listen(process.env.PORT ?? 3000);
+  
+  const port = process.env.PORT ?? 3000;
+  console.log(`🚀 Приложение запущено на: http://localhost:${port}`);
+  console.log(`📚 Swagger документация: http://localhost:${port}/api`);
+  console.log(`📄 JSON спецификация: http://localhost:${port}/api-json`);
+  console.log(`📄 YAML спецификация: http://localhost:${port}/api-yaml`);
 }
 bootstrap();

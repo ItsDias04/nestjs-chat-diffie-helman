@@ -1,0 +1,456 @@
+.linear-algebra-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+h1 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 30px;
+  font-size: 2.5em;
+}
+
+h2 {
+  color: #34495e;
+  border-bottom: 3px solid #3498db;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+h3 {
+  color: #555;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+h4 {
+  color: #666;
+  margin-top: 15px;
+  margin-bottom: 8px;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.tabs button {
+  padding: 12px 20px;
+  background-color: #ecf0f1;
+  border: 2px solid #bdc3c7;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  color: #555;
+}
+
+.tabs button:hover {
+  background-color: #d5dbdb;
+  border-color: #95a5a6;
+}
+
+.tabs button.active {
+  background-color: #3498db;
+  color: white;
+  border-color: #2980b9;
+  transform: translateY(-2px);
+}
+
+/* Tab Content */
+.tab-content {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.tab-content > p {
+  color: #666;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+/* Matrix Operations */
+.matrix-operations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
+.matrix-input-section {
+  flex: 1;
+  min-width: 250px;
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.matrix-size-controls {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.matrix-size-controls label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #555;
+}
+
+.matrix-size-controls input {
+  width: 60px;
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+/* Matrix Grid */
+.matrix-grid {
+  display: inline-block;
+  padding: 10px;
+  background-color: white;
+  border-radius: 6px;
+  border: 2px solid #3498db;
+}
+
+.matrix-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.matrix-row:last-child {
+  margin-bottom: 0;
+}
+
+.matrix-cell {
+  width: 70px;
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: 'Courier New', monospace;
+}
+
+.matrix-cell:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+.matrix-cell.augmented-separator {
+  border-right: 3px solid #e74c3c;
+}
+
+/* Scalar Input */
+.scalar-input {
+  flex: 1;
+  min-width: 200px;
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.scalar-field {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+}
+
+/* Vector Input */
+.vector-input-section {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.vector-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  background-color: white;
+  border-radius: 6px;
+  border: 2px solid #3498db;
+}
+
+.vector-cell {
+  width: 100px;
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #bdc3c7;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: 'Courier New', monospace;
+}
+
+.vector-cell:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+}
+
+/* Sections */
+.determinant-section,
+.inverse-section,
+.system-section,
+.eigen-section,
+.cramer-section,
+.rref-section,
+.relationship-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-bottom: 20px;
+}
+
+/* Buttons */
+.calc-button {
+  padding: 15px 40px;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.calc-button:hover {
+  background: linear-gradient(135deg, #2980b9, #21618c);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.calc-button:active {
+  transform: translateY(0);
+}
+
+/* Results Section */
+.results-section {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #27ae60;
+}
+
+.result-item {
+  margin-bottom: 30px;
+}
+
+.result-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Matrix Display */
+.matrix-display {
+  display: inline-block;
+  padding: 15px;
+  background-color: white;
+  border-radius: 6px;
+  border: 2px solid #27ae60;
+  margin-top: 10px;
+}
+
+.matrix-row-display {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 10px;
+  justify-content: center;
+}
+
+.matrix-row-display:last-child {
+  margin-bottom: 0;
+}
+
+.matrix-cell-display {
+  min-width: 80px;
+  padding: 10px;
+  text-align: center;
+  background-color: #ecf0f1;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.matrix-cell-display.augmented-separator {
+  border-right: 3px solid #e74c3c;
+  margin-right: 10px;
+}
+
+/* Determinant Result */
+.determinant-result {
+  font-size: 20px;
+  font-weight: bold;
+  color: #27ae60;
+  font-family: 'Courier New', monospace;
+  margin-top: 10px;
+}
+
+/* Solution Display */
+.solution-display {
+  padding: 15px;
+  background-color: white;
+  border-radius: 6px;
+  border-left: 4px solid #27ae60;
+  margin-top: 10px;
+}
+
+.solution-display p {
+  font-size: 16px;
+  font-family: 'Courier New', monospace;
+  margin: 8px 0;
+  color: #2c3e50;
+}
+
+/* Eigenvalue Display */
+.eigenvalue {
+  font-size: 18px;
+  font-weight: bold;
+  color: #3498db;
+  font-family: 'Courier New', monospace;
+  margin: 10px 0;
+}
+
+.eigenvector-display {
+  padding: 10px;
+  background-color: white;
+  border-radius: 6px;
+  border-left: 4px solid #3498db;
+  margin-top: 10px;
+}
+
+.eigenvector-display p {
+  font-size: 16px;
+  font-family: 'Courier New', monospace;
+  margin: 5px 0;
+  color: #2c3e50;
+}
+
+/* Invertible Status */
+.invertible {
+  font-size: 24px;
+  font-weight: bold;
+  color: #27ae60;
+  margin: 10px 0;
+}
+
+.not-invertible {
+  font-size: 24px;
+  font-weight: bold;
+  color: #e74c3c;
+  margin: 10px 0;
+}
+
+/* Info Box */
+.info-box {
+  padding: 20px;
+  background-color: #fff3cd;
+  border: 2px solid #ffc107;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.info-box.success {
+  background-color: #d4edda;
+  border-color: #28a745;
+}
+
+.info-box p {
+  margin: 10px 0;
+  color: #333;
+  line-height: 1.6;
+}
+
+.info-box strong {
+  color: #000;
+}
+
+/* Error Message */
+.error-message {
+  padding: 15px;
+  background-color: #f8d7da;
+  border: 2px solid #e74c3c;
+  border-radius: 6px;
+  color: #721c24;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .tabs {
+    flex-direction: column;
+  }
+
+  .tabs button {
+    width: 100%;
+    border-radius: 8px;
+  }
+
+  .matrix-operations,
+  .determinant-section,
+  .inverse-section,
+  .system-section,
+  .eigen-section,
+  .cramer-section,
+  .rref-section,
+  .relationship-section {
+    flex-direction: column;
+  }
+
+  .matrix-cell,
+  .vector-cell {
+    width: 60px;
+    padding: 6px;
+    font-size: 12px;
+  }
+
+  .matrix-cell-display {
+    min-width: 60px;
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  h1 {
+    font-size: 1.8em;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .tabs,
+  .calc-button {
+    display: none;
+  }
+
+  .tab-content {
+    box-shadow: none;
+  }
+}
