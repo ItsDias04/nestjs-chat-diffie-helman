@@ -1,0 +1,92 @@
+{
+  "test_users": [
+    {
+      "id": "740623ae-7cbe-46f5-aa5e-c7e1eb97a0ab",
+      "username": "test user",
+      "email": "test@example.com",
+      "password": "testPassword123",
+      "jwt_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJzdWIiOiI3NDA2MjNhZS03Y2JlLTQ2ZjUtYWE1ZS1jN2UxZWI5N2EwYWIiLCJpYXQiOjE3NjI3Njk5NTh9.AA913lOFH0AtB_OwNOk3MlI-0plsazp3KEE3vapeeSk",
+      "fiat_enabled": false,
+      "fiat_n": null,
+      "fiat_v": null,
+      "bmc_enabled": false,
+      "bmc_n": null,
+      "bmc_g": null,
+      "bmc_y": null
+    }
+  ],
+  "test_data": {
+    "registration": {
+      "username": "SQL Injection Test User",
+      "email": "sqltest@example.com",
+      "password": "testPassword123"
+    },
+    "login": {
+      "email": "test@example.com",
+      "password": "testPassword123"
+    },
+    "chat": {
+      "name": "Test Chat Room"
+    },
+    "message": {
+      "content": "Test message content",
+      "type": "text",
+      "reviewed": false
+    },
+    "invite_create": {
+      "chatId": "740623ae-7cbe-46f5-aa5e-c7e1eb97a0ab",
+      "userReceiverId": "740623ae-7cbe-46f5-aa5e-c7e1eb97a0ab"
+    },
+    "invite_respond": {
+      "inviteId": "740623ae-7cbe-46f5-aa5e-c7e1eb97a0ab",
+      "accept": true
+    },
+    "fiat_start": {
+      "sid": "test-session-id",
+      "t": "123456789"
+    },
+    "fiat_finish": {
+      "sid": "test-session-id",
+      "r": "987654321"
+    },
+    "fiat_enable": {
+      "v": "1234567890",
+      "n": "9876543210"
+    },
+    "bmc_start": {
+      "sid": "test-session-id",
+      "a": "123456789"
+    },
+    "bmc_finish": {
+      "sid": "test-session-id",
+      "e": "987654321"
+    },
+    "bmc_enable": {
+      "n": "1234567890",
+      "g": "9876543210",
+      "y": "5555555555"
+    }
+  },
+  "sql_injection_payloads": {
+    "common": [
+      "' OR '1'='1",
+      "' OR 1=1--",
+      "admin'--",
+      "' UNION SELECT NULL--",
+      "1' AND '1'='1"
+    ],
+    "time_based": [
+      "'; WAITFOR DELAY '00:00:05'--",
+      "' OR SLEEP(5)--"
+    ],
+    "union_based": [
+      "' UNION SELECT username, password FROM users--",
+      "' UNION ALL SELECT NULL, NULL--"
+    ]
+  },
+  "notes": {
+    "test_user_info": "Тестовый пользователь из БД PostgreSQL",
+    "jwt_token_note": "JWT токен может быть устаревшим, скрипт автоматически получит новый",
+    "usage": "Используйте run-sqlmap-test.sh для автоматического тестирования"
+  }
+}

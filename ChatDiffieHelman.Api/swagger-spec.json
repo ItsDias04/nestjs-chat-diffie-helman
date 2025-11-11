@@ -1,0 +1,1344 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/users/all": {
+      "get": {
+        "description": "Возвращает список всех зарегистрированных пользователей",
+        "operationId": "UserController_getAllUsers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Список пользователей",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Получить всех пользователей",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/me": {
+      "get": {
+        "description": "Возвращает данные авторизованного пользователя",
+        "operationId": "UserController_getMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Данные текущего пользователя",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Получить информацию о текущем пользователе",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "description": "Возвращает информацию о конкретном пользователе",
+        "operationId": "UserController_getUser",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "UUID пользователя",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Данные пользователя",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Пользователь не найден"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Получить пользователя по ID",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/users/registration": {
+      "post": {
+        "description": "Создает нового пользователя в системе",
+        "operationId": "UserController_registerUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Зарегистрированный пользователь",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректные данные"
+          },
+          "409": {
+            "description": "Пользователь с таким email уже существует"
+          }
+        },
+        "summary": "Регистрация нового пользователя",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "description": "Аутентификация пользователя с email и паролем. Может потребовать дополнительную идентификацию (Fiat-Shamir или BMC).",
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Успешный вход или требуется дополнительная идентификация",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "access_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "JWT токен (null если требуется дополнительная идентификация)"
+                    },
+                    "fiat_required": {
+                      "type": "boolean",
+                      "description": "Требуется ли идентификация Fiat-Shamir"
+                    },
+                    "fiat_session_id": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "ID сессии Fiat-Shamir"
+                    },
+                    "bmc_required": {
+                      "type": "boolean",
+                      "description": "Требуется ли идентификация Brickell–McCurley"
+                    },
+                    "bmc_session_id": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "ID сессии BMC"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Неверные учетные данные"
+          }
+        },
+        "summary": "Вход пользователя",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/fiat/start": {
+      "post": {
+        "description": "Первый шаг протокола идентификации Fiat-Shamir",
+        "operationId": "AuthController_fiatStart",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "sid": {
+                    "type": "string",
+                    "description": "ID сессии"
+                  },
+                  "t": {
+                    "type": "string",
+                    "description": "Обязательство (commitment) t = r² mod n"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Возвращает вызов (challenge)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "c": {
+                      "type": "number",
+                      "description": "Случайный вызов (0 или 1)"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Начать идентификацию Fiat-Shamir",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/fiat/finish": {
+      "post": {
+        "description": "Второй шаг протокола идентификации Fiat-Shamir",
+        "operationId": "AuthController_fiatFinish",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "sid": {
+                    "type": "string",
+                    "description": "ID сессии"
+                  },
+                  "r": {
+                    "type": "string",
+                    "description": "Ответ r = x·c + y mod n"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JWT токен при успешной идентификации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "access_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "JWT токен доступа"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Идентификация не пройдена"
+          }
+        },
+        "summary": "Завершить идентификацию Fiat-Shamir",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/bmc/start": {
+      "post": {
+        "description": "Первый шаг протокола идентификации Brickell–McCurley",
+        "operationId": "AuthController_bmcStart",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "sid": {
+                    "type": "string",
+                    "description": "ID сессии"
+                  },
+                  "a": {
+                    "type": "string",
+                    "description": "Обязательство a = g^k mod n"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Возвращает случайный вызов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "r": {
+                      "type": "number",
+                      "description": "Случайное число вызова"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Начать идентификацию Brickell–McCurley",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/bmc/finish": {
+      "post": {
+        "description": "Второй шаг протокола идентификации Brickell–McCurley",
+        "operationId": "AuthController_bmcFinish",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "sid": {
+                    "type": "string",
+                    "description": "ID сессии"
+                  },
+                  "e": {
+                    "type": "string",
+                    "description": "Ответ e = k + r·x mod (n-1)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JWT токен при успешной идентификации",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "access_token": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "JWT токен доступа"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Идентификация не пройдена"
+          }
+        },
+        "summary": "Завершить идентификацию Brickell–McCurley",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/fiat/enable/{userId}": {
+      "post": {
+        "description": "Активация протокола Fiat-Shamir идентификации",
+        "operationId": "AuthController_enableFiatForUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "v": {
+                    "type": "string",
+                    "description": "Публичный ключ v = s² mod n"
+                  },
+                  "n": {
+                    "type": "string",
+                    "description": "Модуль n (произведение двух простых чисел)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Сообщение об успехе",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Включить Fiat-Shamir для пользователя",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/fiat/disable/{userId}": {
+      "post": {
+        "description": "Деактивация протокола Fiat-Shamir идентификации",
+        "operationId": "AuthController_disableFiatForUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Обновленные данные пользователя",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Отключить Fiat-Shamir для пользователя",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/bmc/enable/{userId}": {
+      "post": {
+        "description": "Активация протокола Brickell–McCurley идентификации",
+        "operationId": "AuthController_enableBmcForUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "n": {
+                    "type": "string",
+                    "description": "Модуль n"
+                  },
+                  "g": {
+                    "type": "string",
+                    "description": "Генератор g"
+                  },
+                  "y": {
+                    "type": "string",
+                    "description": "Публичный ключ y = g^x mod n"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Обновленные данные пользователя",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Включить Brickell–McCurley для пользователя",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/bmc/disable/{userId}": {
+      "post": {
+        "description": "Деактивация протокола Brickell–McCurley идентификации",
+        "operationId": "AuthController_disableBmcForUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Обновленные данные пользователя",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Отключить Brickell–McCurley для пользователя",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/chats": {
+      "get": {
+        "description": "Возвращает список всех чатов текущего пользователя",
+        "operationId": "ChatController_getMyChats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Список чатов",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Получить мои чаты",
+        "tags": [
+          "chats"
+        ]
+      },
+      "post": {
+        "description": "Создает новый чат с указанным названием",
+        "operationId": "ChatController_createChat",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Название чата",
+                    "example": "My Chat Room"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Созданный чат",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректные данные"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Создать новый чат",
+        "tags": [
+          "chats"
+        ]
+      }
+    },
+    "/chats/{chatId}": {
+      "get": {
+        "description": "Возвращает информацию о конкретном чате",
+        "operationId": "ChatController_getChat",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "description": "UUID чата",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Данные чата",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatDto"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          },
+          "404": {
+            "description": "Чат не найден"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Получить чат по ID",
+        "tags": [
+          "chats"
+        ]
+      }
+    },
+    "/chats/{chatId}/users": {
+      "get": {
+        "description": "Возвращает список всех пользователей в чате",
+        "operationId": "ChatController_getChatUsers",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "description": "UUID чата",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список участников",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDto"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          },
+          "404": {
+            "description": "Чат не найден"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Получить участников чата",
+        "tags": [
+          "chats"
+        ]
+      }
+    },
+    "/messages/{chatId}": {
+      "get": {
+        "description": "Возвращает все сообщения в указанном чате",
+        "operationId": "MessageController_getMessages",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "description": "UUID чата",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Список сообщений",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MessageDto"
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          },
+          "404": {
+            "description": "Чат не найден"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Получить сообщения в чате",
+        "tags": [
+          "messages"
+        ]
+      },
+      "post": {
+        "description": "Создает новое сообщение в чате. Поддерживает как обычные, так и зашифрованные сообщения (Diffie-Hellman)",
+        "operationId": "MessageController_sendMessage",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "description": "UUID чата",
+            "schema": {
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Отправленное сообщение",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректные данные"
+          },
+          "403": {
+            "description": "Доступ запрещен"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Отправить сообщение",
+        "tags": [
+          "messages"
+        ]
+      }
+    },
+    "/invites/create": {
+      "post": {
+        "description": "Отправляет приглашение пользователю присоединиться к чату",
+        "operationId": "InviteController_sendInvite",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteCreateDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Созданное приглашение",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректные данные"
+          },
+          "404": {
+            "description": "Чат или пользователь не найден"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Создать приглашение в чат",
+        "tags": [
+          "invites"
+        ]
+      }
+    },
+    "/invites": {
+      "get": {
+        "description": "Возвращает список всех приглашений для текущего пользователя",
+        "operationId": "InviteController_getMyInvites",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Список приглашений",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InviteDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Получить мои приглашения",
+        "tags": [
+          "invites"
+        ]
+      }
+    },
+    "/invites/respond": {
+      "post": {
+        "description": "Принять или отклонить приглашение в чат",
+        "operationId": "InviteController_respondToInvite",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InviteRespondDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Обновленное приглашение",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InviteDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Некорректные данные"
+          },
+          "404": {
+            "description": "Приглашение не найдено"
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Ответить на приглашение",
+        "tags": [
+          "invites"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Chat Diffie-Hellman API",
+    "description": "\n      API для чата с криптографической защитой.\n      \n      ## Возможности:\n      - 🔐 Аутентификация JWT\n      - 🔑 Протокол Fiat-Shamir идентификации\n      - 🛡️ Протокол Brickell–McCurley идентификации  \n      - 💬 Управление чатами и сообщениями\n      - 🔒 Обмен ключами Diffie-Hellman для шифрования\n      - 👥 Система приглашений\n      \n      ## Как начать:\n      1. Зарегистрируйтесь через `POST /users/registration`\n      2. Войдите через `POST /auth/login`\n      3. Используйте полученный токен для авторизации (кнопка \"Authorize\" вверху)\n      \n      ## JSON документация доступна по адресу:\n      - Swagger UI: `/api`\n      - JSON схема: `/api-json`\n      - YAML схема: `/api-yaml`\n    ",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "url": "",
+      "email": "support@example.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Эндпоинты аутентификации и криптографической идентификации"
+    },
+    {
+      "name": "users",
+      "description": "Управление пользователями"
+    },
+    {
+      "name": "chats",
+      "description": "Управление чатами"
+    },
+    {
+      "name": "messages",
+      "description": "Управление сообщениями"
+    },
+    {
+      "name": "invites",
+      "description": "Управление приглашениями в чаты"
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "access-token": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http",
+        "in": "header",
+        "description": "Введите JWT токен, полученный после авторизации"
+      }
+    },
+    "schemas": {
+      "UserDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000",
+            "description": "ID пользователя (UUID)",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe",
+            "description": "Имя пользователя"
+          },
+          "email": {
+            "type": "string",
+            "example": "john.doe@example.com",
+            "description": "Email пользователя"
+          },
+          "fiat_enabled": {
+            "type": "boolean",
+            "example": true,
+            "description": "Включена ли функция Fiat"
+          },
+          "bmc_enabled": {
+            "type": "boolean",
+            "example": false,
+            "description": "Включен ли протокол Brickell–McCurley"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "fiat_enabled",
+          "bmc_enabled"
+        ]
+      },
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "example": "John Doe",
+            "description": "Имя пользователя"
+          },
+          "email": {
+            "type": "string",
+            "example": "john.doe@example.com",
+            "description": "Email пользователя"
+          },
+          "password": {
+            "type": "string",
+            "example": "strongPassword123",
+            "description": "Пароль пользователя"
+          }
+        },
+        "required": [
+          "username",
+          "email",
+          "password"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "john.doe@example.com",
+            "description": "Email пользователя"
+          },
+          "password": {
+            "type": "string",
+            "example": "strongPassword123",
+            "description": "Пароль пользователя"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "ChatDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000",
+            "description": "ID чата (UUID)",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "example": "Chat Room 1",
+            "description": "Название чата"
+          }
+        },
+        "required": [
+          "id",
+          "name"
+        ]
+      },
+      "MessageDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000",
+            "description": "ID сообщения (UUID)",
+            "format": "uuid"
+          },
+          "chatId": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000",
+            "description": "ID чата (UUID)",
+            "format": "uuid"
+          },
+          "chat": {
+            "description": "Информация о чате",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChatDto"
+              }
+            ]
+          },
+          "userId": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000",
+            "description": "ID пользователя (UUID)",
+            "format": "uuid"
+          },
+          "user": {
+            "description": "Информация о пользователе, отправившем сообщение",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserDto"
+              }
+            ]
+          },
+          "content": {
+            "type": "string",
+            "example": "Hello, world!",
+            "description": "Содержимое сообщения"
+          },
+          "timestamp": {
+            "type": "string",
+            "example": "2023-10-05T14:48:00.000Z",
+            "description": "Временная метка сообщения",
+            "format": "date-time"
+          },
+          "reviewed": {
+            "type": "boolean",
+            "example": true,
+            "description": "Флаг, указывающий, было ли сообщение просмотрено"
+          },
+          "type": {
+            "type": "string",
+            "example": "text",
+            "description": "Тип сообщения",
+            "enum": [
+              "text",
+              "diffie-hellman-key",
+              "system"
+            ]
+          },
+          "encryptionKeyIndex": {
+            "type": "number",
+            "example": 0,
+            "description": "Порядковый номер ключа шифрования в чате",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "chatId",
+          "userId",
+          "content",
+          "timestamp",
+          "reviewed",
+          "type"
+        ]
+      },
+      "InviteCreateDto": {
+        "type": "object",
+        "properties": {
+          "chatId": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000",
+            "description": "ID чата (UUID)",
+            "format": "uuid"
+          },
+          "userReceiverId": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000",
+            "description": "ID пользователя-получателя (UUID)",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "chatId",
+          "userReceiverId"
+        ]
+      },
+      "InviteDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000",
+            "description": "ID приглашения (UUID)",
+            "format": "uuid"
+          },
+          "chatId": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174001",
+            "description": "ID чата (UUID)",
+            "format": "uuid"
+          },
+          "chat": {
+            "description": "Информация о чате",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ChatDto"
+              }
+            ]
+          },
+          "userSenderId": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174002",
+            "description": "ID отправителя (UUID)",
+            "format": "uuid"
+          },
+          "userSender": {
+            "description": "Информация об отправителе приглашения",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserDto"
+              }
+            ]
+          },
+          "userReceiverId": {
+            "type": "object",
+            "example": "123e4567-e89b-12d3-a456-426614174003",
+            "description": "ID получателя (UUID)",
+            "format": "uuid",
+            "nullable": true
+          },
+          "userReceiver": {
+            "description": "Информация о получателе приглашения",
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserDto"
+              }
+            ]
+          },
+          "status": {
+            "type": "string",
+            "example": "pending",
+            "description": "Статус приглашения",
+            "enum": [
+              "pending",
+              "accepted",
+              "declined"
+            ]
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2023-03-15T12:00:00Z",
+            "description": "Дата создания приглашения",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2023-03-15T12:00:00Z",
+            "description": "Дата обновления приглашения",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "chatId",
+          "userSenderId",
+          "userReceiverId",
+          "status",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "InviteRespondDto": {
+        "type": "object",
+        "properties": {
+          "inviteId": {
+            "type": "string",
+            "example": "123e4567-e89b-12d3-a456-426614174000",
+            "description": "ID приглашения (UUID)",
+            "format": "uuid"
+          },
+          "accept": {
+            "type": "boolean",
+            "example": true,
+            "description": "Признак принятия приглашения"
+          }
+        },
+        "required": [
+          "inviteId",
+          "accept"
+        ]
+      }
+    }
+  },
+  "security": [
+    {
+      "access-token": []
+    }
+  ]
+}

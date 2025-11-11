@@ -68,7 +68,7 @@ export class ChatService {
       name: chat.name,
     });
   }
-
+  
   private toUserDto(user: User): UserDto {
     return {
       id: user.id,
