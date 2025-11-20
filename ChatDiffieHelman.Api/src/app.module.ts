@@ -27,14 +27,21 @@ import { BmcSessionsService } from './BL/Singelton/Services/BmcSessionsService';
 import { BmcService } from './BL/Services/BmcService';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { RedisModule } from '@nestjs-modules/ioredis';
 
 @Module({
   imports: [
     // Security: Rate Limiting
-    ThrottlerModule.forRoot([{
-      ttl: 60000, // 60 секунд
-      limit: 100,  // 100 запросов на IP за минуту
-    }]),
+    // ThrottlerModule.forRoot([{
+    //   ttl: 60000, // 60 секунд
+    //   limit: 100,  // 100 запросов на IP за минуту
+    // }]),
+    // RedisModule.forRoot({
+    //   config: {
+    //     host: 'localhost',
+    //     port: 6379,
+    //   },
+    // }),
     
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -59,10 +66,10 @@ import { APP_GUARD } from '@nestjs/core';
   ],
   providers: [
     // Security: Global Rate Limiting Guard
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ThrottlerGuard,
+    // },
     AuthService,
     JwtStrategy,
     UserService,

@@ -11,23 +11,26 @@ import * as path from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   // Security: Helmet для защиты HTTP заголовков
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", 'data:', 'https:'],
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+        },
       },
-    },
-    crossOriginEmbedderPolicy: false, // Для WebSocket совместимости
-  }));
-  
+      crossOriginEmbedderPolicy: false, // Для WebSocket совместимости
+    }),
+  );
+
   const config = new DocumentBuilder()
     .setTitle('Chat Diffie-Hellman API')
-    .setDescription(`
+    .setDescription(
+      `
       API для чата с криптографической защитой.
       
       ## Возможности:
@@ -47,7 +50,8 @@ async function bootstrap() {
       - Swagger UI: \`/api\`
       - JSON схема: \`/api-json\`
       - YAML схема: \`/api-yaml\`
-    `)
+    `,
+    )
     .setVersion('1.0.0')
     .setContact('API Support', '', 'support@example.com')
     .setLicense('MIT', 'https://opensource.org/licenses/MIT')
@@ -59,9 +63,12 @@ async function bootstrap() {
         in: 'header',
         description: 'Введите JWT токен, полученный после авторизации',
       },
-      'access-token' // идентификатор схемы — используйте его в @ApiBearerAuth()
+      'access-token', // идентификатор схемы — используйте его в @ApiBearerAuth()
     )
-    .addTag('auth', 'Эндпоинты аутентификации и криптографической идентификации')
+    .addTag(
+      'auth',
+      'Эндпоинты аутентификации и криптографической идентификации',
+    )
     .addTag('users', 'Управление пользователями')
     .addTag('chats', 'Управление чатами')
     .addTag('messages', 'Управление сообщениями')
@@ -76,7 +83,9 @@ async function bootstrap() {
 
   // Сохраняем JSON документацию в файл
   const outputPath = path.join(__dirname, '..', 'swagger-spec.json');
-  fs.writeFileSync(outputPath, JSON.stringify(document, null, 2), { encoding: 'utf8' });
+  fs.writeFileSync(outputPath, JSON.stringify(document, null, 2), {
+    encoding: 'utf8',
+  });
   console.log(`📄 Swagger JSON документация сохранена в: ${outputPath}`);
 
   SwaggerModule.setup('api', app, document, {
@@ -101,21 +110,23 @@ async function bootstrap() {
     },
   });
 
-    app.enableCors({
+  app.enableCors({
     origin: 'http://localhost:4200', // разрешаем Angular
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Authorization',
     credentials: true,
   });
-  
+
   // Security: Усиленная валидация входных данных
-  app.useGlobalPipes(new ValidationPipe({ 
-    transform: true,
-    whitelist: true, // Удаляет свойства, не описанные в DTO
-    forbidNonWhitelisted: true, // Выбрасывает ошибку при лишних полях
-    disableErrorMessages: process.env.NODE_ENV === 'production', // Скрывает детали в продакшене
-  }));
-  
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true, // Удаляет свойства, не описанные в DTO
+      forbidNonWhitelisted: true, // Выбрасывает ошибку при лишних полях
+      disableErrorMessages: process.env.NODE_ENV === 'production', // Скрывает детали в продакшене
+    }),
+  );
+
   app.useGlobalFilters(new AllExceptionsFilter()); // твой глобальный фильтр
 
   // --- Express-level error handler: ловит ошибки, которые выскочили в passport / middleware ---
@@ -131,9 +142,15 @@ async function bootstrap() {
     }
 
     // Логируем
-    console.error('Express error middleware caught:', err && (err.stack || err));
+    console.error(
+      'Express error middleware caught:',
+      err && (err.stack || err),
+    );
 
-    const status = err && (err.status || err.statusCode) ? (err.status || err.statusCode) : 500;
+    const status =
+      err && (err.status || err.statusCode)
+        ? err.status || err.statusCode
+        : 500;
     const message = err && err.message ? err.message : 'Internal server error';
 
     res.status(status).json({
@@ -156,7 +173,7 @@ async function bootstrap() {
   });
 
   await app.listen(process.env.PORT ?? 3000);
-  
+
   const port = process.env.PORT ?? 3000;
   console.log(`🚀 Приложение запущено на: http://localhost:${port}`);
   console.log(`📚 Swagger документация: http://localhost:${port}/api`);

@@ -1,0 +1,30 @@
+# SQLMap результаты и логи
+sqlmap_results/
+*.log
+
+# Python кэш
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Виртуальное окружение
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Временные файлы
+*.tmp
+*.bak
+*.old
+
+# OS файлы
+.DS_Store
+Thumbs.db

@@ -56,15 +56,4 @@ export class MessageController {
     );
   }
 
-  // @UseGuards(JwtAuthGuard)
-  // @ApiBearerAuth('access-token')
-  // @Post('diffie-hellman/:chatId')
-  // async AddDiffieHellmanMessage(
-  //   @CurrentUser() user: UserData,
-  //   @Param('chatId') chatId: string,
-  //   // @Param('messageId') messageId: string,
-  //   @Body() diffieHellmanMessageDto: DiffieHellmanMessageDto
-  // ): Promise<DiffieHellmanMessageDto> {
-  //   throw new Error('Method not implemented.');
-  // }
 }
