@@ -10,19 +10,19 @@ npm run start:dev
 ### 2. Откройте Swagger UI
 Перейдите в браузере:
 ```
-http://localhost:3000/api
+http://localhost:3001/api
 ```
 
 ### 3. Получите JSON документацию
 
 **В браузере:**
 ```
-http://localhost:3000/api-json
+http://localhost:3001/api-json
 ```
 
 **Через PowerShell:**
 ```powershell
-Invoke-WebRequest -Uri http://localhost:3000/api-json -OutFile swagger-spec.json
+Invoke-WebRequest -Uri http://localhost:3001/api-json -OutFile swagger-spec.json
 ```
 
 **Автоматически:**
@@ -233,7 +233,7 @@ POST /auth/login
 
 **PowerShell:**
 ```powershell
-Invoke-WebRequest -Uri http://localhost:3000/api-json -OutFile swagger-spec.json
+Invoke-WebRequest -Uri http://localhost:3001/api-json -OutFile swagger-spec.json
 ```
 
 **Или найдите автоматически созданный файл:**
@@ -253,13 +253,13 @@ ChatDiffieHelman.Api/swagger-spec.json
 ```bash
 # TypeScript клиент
 npx @openapitools/openapi-generator-cli generate `
-  -i http://localhost:3000/api-json `
+  -i http://localhost:3001/api-json `
   -g typescript-axios `
   -o ./generated-client
 
 # C# клиент
 npx @openapitools/openapi-generator-cli generate `
-  -i http://localhost:3000/api-json `
+  -i http://localhost:3001/api-json `
   -g csharp `
   -o ./generated-client-csharp
 ```
@@ -300,14 +300,14 @@ npx @openapitools/openapi-generator-cli generate `
 
 #### Регистрация
 ```bash
-curl -X POST "http://localhost:3000/users/registration" `
+curl -X POST "http://localhost:3001/users/registration" `
   -H "Content-Type: application/json" `
   -d "{\"username\":\"John Doe\",\"email\":\"john@test.com\",\"password\":\"pass12345\"}"
 ```
 
 #### Вход
 ```bash
-curl -X POST "http://localhost:3000/auth/login" `
+curl -X POST "http://localhost:3001/auth/login" `
   -H "Content-Type: application/json" `
   -d "{\"email\":\"john@test.com\",\"password\":\"pass12345\"}"
 ```
@@ -318,13 +318,13 @@ curl -X POST "http://localhost:3000/auth/login" `
 
 ##### Получить всех пользователей (требует JWT ✅)
 ```bash
-curl -X GET "http://localhost:3000/users/all" `
+curl -X GET "http://localhost:3001/users/all" `
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### Создать чат (требует JWT ✅)
 ```bash
-curl -X POST "http://localhost:3000/chats" `
+curl -X POST "http://localhost:3001/chats" `
   -H "Content-Type: application/json" `
   -H "Authorization: Bearer YOUR_TOKEN" `
   -d "{\"name\":\"Новый чат\"}"
@@ -332,7 +332,7 @@ curl -X POST "http://localhost:3000/chats" `
 
 ### Отправить сообщение (требует JWT ✅)
 ```bash
-curl -X POST "http://localhost:3000/messages/CHAT_ID" `
+curl -X POST "http://localhost:3001/messages/CHAT_ID" `
   -H "Content-Type: application/json" `
   -H "Authorization: Bearer YOUR_TOKEN" `
   -d "{\"content\":\"Привет!\",\"type\":\"text\",\"chatId\":\"CHAT_ID\",\"userId\":\"USER_ID\"}"
@@ -372,7 +372,7 @@ curl -X POST "http://localhost:3000/messages/CHAT_ID" `
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 # Получите новый токен через login
-curl -X POST http://localhost:3000/auth/login ...
+curl -X POST http://localhost:3001/auth/login ...
 ```
 
 **❌ 403 Forbidden**

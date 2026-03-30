@@ -1,13 +1,13 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Message } from '../Entities/Message';
+import { Injectable } from "@angular/core";
+import { HttpClient } from "@angular/common/http";
+import { Observable } from "rxjs";
+import { Message } from "../Entities/Message";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root",
 })
 export class MessageService {
-  private apiUrl = 'http://localhost:3000/messages';
+  private apiUrl = "http://localhost:3001/messages";
 
   constructor(private http: HttpClient) {}
 

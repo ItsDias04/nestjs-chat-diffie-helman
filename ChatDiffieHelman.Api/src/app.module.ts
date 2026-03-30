@@ -25,6 +25,7 @@ import { FiatSessionsService } from './BL/Singelton/Services/FiatSessionsService
 import { FiatService } from './BL/Services/FiatService';
 import { BmcSessionsService } from './BL/Singelton/Services/BmcSessionsService';
 import { BmcService } from './BL/Services/BmcService';
+import { UniAuthSsoService } from './BL/Services/UniAuthSsoService';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { RedisModule } from '@nestjs-modules/ioredis';
@@ -42,18 +43,19 @@ import { RedisModule } from '@nestjs-modules/ioredis';
     //     port: 6379,
     //   },
     // }),
-    
+
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
       port: 5432,
       username: 'postgres',
       password: 'SuperAdmin',
-      database: 'chat_db',
+      database: 'NestChat',
       entities: [Chat, User, Message, Invite],
       synchronize: true,
       // Security: Логирование SQL запросов в dev mode
-      logging: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+      logging:
+        process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
     }),
 
     PassportModule,
@@ -83,6 +85,7 @@ import { RedisModule } from '@nestjs-modules/ioredis';
     FiatService,
     BmcSessionsService,
     BmcService,
+    UniAuthSsoService,
   ],
   exports: [
     AuthService,

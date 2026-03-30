@@ -6,16 +6,13 @@ import { HttpClient } from '@angular/common/http';
 // import { GetGroupsInterface, StudentsByFilter, StudentsFilterDTO } from '../Entities/search.interface';
 import { User } from '../Entities/User';
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProfileService {
-  
-  constructor(private http: HttpClient) { }
-  baseApiUrl = 'http://localhost:3000';
-
+  constructor(private http: HttpClient) {}
+  baseApiUrl = 'http://localhost:3001';
 
   getMe() {
-    return this.http.get<User>(`${this.baseApiUrl}/users/me`)
+    return this.http.get<User>(`${this.baseApiUrl}/users/me`);
   }
-
 }

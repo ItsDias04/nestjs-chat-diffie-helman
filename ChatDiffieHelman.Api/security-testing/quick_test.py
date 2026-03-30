@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 # Конфигурация
-API_BASE_URL = os.getenv('API_BASE_URL', 'http://localhost:3000')
+API_BASE_URL = os.getenv('API_BASE_URL', 'http://localhost:3001')
 JWT_TOKEN = os.getenv('JWT_TOKEN', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJzdWIiOiI3NDA2MjNhZS03Y2JlLTQ2ZjUtYWE1ZS1jN2UxZWI5N2EwYWIiLCJpYXQiOjE3NjI3Njk5NTh9.AA913lOFH0AtB_OwNOk3MlI-0plsazp3KEE3vapeeSk')
 TEST_USER_ID = '740623ae-7cbe-46f5-aa5e-c7e1eb97a0ab'
 

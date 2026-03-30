@@ -20,7 +20,12 @@ import { BmcKeys } from '../../helpers/bmc-setup-data';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FiatSetupModalComponent, BmcSetupModalComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    FiatSetupModalComponent,
+    BmcSetupModalComponent,
+  ],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.css'],
 })
@@ -39,10 +44,10 @@ export class ProfileComponent implements OnInit {
   constructor(
     private usersService: UsersService,
     private authService: AuthService,
-  private fiatShamirService: FiatShamirService,
-  private bmcService: BmcServiceClient,
+    private fiatShamirService: FiatShamirService,
+    private bmcService: BmcServiceClient,
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
   ) {
     this.profileForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
@@ -58,12 +63,11 @@ export class ProfileComponent implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
 
-    
     const cachedUser = this.usersService.getFromLocalStorage();
     if (cachedUser) {
       this.currentUser = cachedUser;
-  this.is2FAEnabled = cachedUser.fiat_enabled || false;
-  this.isBmcEnabled = cachedUser.bmc_enabled || false;
+      this.is2FAEnabled = cachedUser.fiat_enabled || false;
+      this.isBmcEnabled = cachedUser.bmc_enabled || false;
       this.updateForm(cachedUser);
       this.isLoading = false;
     }
@@ -71,8 +75,8 @@ export class ProfileComponent implements OnInit {
     this.usersService.getMe().subscribe({
       next: (user) => {
         this.currentUser = user;
-  this.is2FAEnabled = user.fiat_enabled || false;
-  this.isBmcEnabled = user.bmc_enabled || false;
+        this.is2FAEnabled = user.fiat_enabled || false;
+        this.isBmcEnabled = user.bmc_enabled || false;
         this.updateForm(user);
         this.usersService.saveToLocalStorage(user);
         this.isLoading = false;
@@ -122,10 +126,9 @@ export class ProfileComponent implements OnInit {
 
       setTimeout(() => {
         this.saveMessage = '';
-      }, 3000);
+      }, 3001);
     }
   }
-  
 
   getInitials(): string {
     if (!this.currentUser?.name) return '?';
@@ -144,16 +147,14 @@ export class ProfileComponent implements OnInit {
     if (!this.currentUser) return;
 
     if (this.is2FAEnabled) {
-    
       if (
         confirm(
-          'Вы уверены, что хотите отключить двухфакторную аутентификацию?'
+          'Вы уверены, что хотите отключить двухфакторную аутентификацию?',
         )
       ) {
         this.disable2FA();
       }
     } else {
-      
       if (this.isBmcEnabled) {
         alert('Сначала отключите BMC 2FA, затем включите Fiat-Shamir.');
         return;
@@ -169,7 +170,6 @@ export class ProfileComponent implements OnInit {
         this.disableBMC();
       }
     } else {
-  
       if (this.is2FAEnabled) {
         alert('Сначала отключите Fiat-Shamir 2FA, затем включите BMC.');
         return;
@@ -181,20 +181,22 @@ export class ProfileComponent implements OnInit {
   onFiatSetupConfirmed(keys: FiatShamirKeys): void {
     if (!this.currentUser) return;
 
+    this.fiatShamirService
+      .enableFiatForUser(
+        this.currentUser.id,
+        keys.v.toString(),
+        keys.n.toString(),
+      )
+      .subscribe(() => {
+        this.is2FAEnabled = true;
+        this.saveMessage = '✅ Двухфакторная аутентификация успешно включена!';
+        this.showFiatSetupModal = false;
 
-    this.fiatShamirService.enableFiatForUser(this.currentUser.id, keys.v.toString(), keys.n.toString())
-      .subscribe( () => {
-          this.is2FAEnabled = true;
-          this.saveMessage = '✅ Двухфакторная аутентификация успешно включена!';
-          this.showFiatSetupModal = false;
-        
-          if (this.currentUser) {
-            this.currentUser.fiat_enabled = true;
-            this.usersService.saveToLocalStorage(this.currentUser);
-          }
-        },
-        
-      );
+        if (this.currentUser) {
+          this.currentUser.fiat_enabled = true;
+          this.usersService.saveToLocalStorage(this.currentUser);
+        }
+      });
   }
 
   onFiatSetupCancelled(): void {
@@ -206,18 +208,20 @@ export class ProfileComponent implements OnInit {
     if (!this.currentUser) return;
     this.saveMessage = 'Включение BMC 2FA...';
     // send public parameters to server
-    this.bmcService.enableBmcForUser(this.currentUser.id, keys.n, keys.g, keys.y).subscribe({
-      next: () => {
-        this.isBmcEnabled = true;
-        this.showBmcSetupModal = false;
-        this.saveMessage = '✅ BMC 2FA успешно включена!';
-        this.currentUser!.bmc_enabled = true;
-        this.usersService.saveToLocalStorage(this.currentUser!);
-      },
-      error: () => {
-        this.saveMessage = '❌ Ошибка включения BMC 2FA';
-      }
-    });
+    this.bmcService
+      .enableBmcForUser(this.currentUser.id, keys.n, keys.g, keys.y)
+      .subscribe({
+        next: () => {
+          this.isBmcEnabled = true;
+          this.showBmcSetupModal = false;
+          this.saveMessage = '✅ BMC 2FA успешно включена!';
+          this.currentUser!.bmc_enabled = true;
+          this.usersService.saveToLocalStorage(this.currentUser!);
+        },
+        error: () => {
+          this.saveMessage = '❌ Ошибка включения BMC 2FA';
+        },
+      });
   }
 
   onBmcSetupCancelled(): void {
@@ -243,14 +247,14 @@ export class ProfileComponent implements OnInit {
 
         setTimeout(() => {
           this.saveMessage = '';
-        }, 3000);
+        }, 3001);
       },
       error: (err) => {
         console.error('Error disabling 2FA:', err);
         this.saveMessage = '❌ Ошибка отключения 2FA. Попробуйте позже.';
         setTimeout(() => {
           this.saveMessage = '';
-        }, 3000);
+        }, 3001);
       },
     });
   }

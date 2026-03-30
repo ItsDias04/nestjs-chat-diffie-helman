@@ -21,7 +21,6 @@ The goal is to showcase an end-to-end chat flow with cryptographically-inspired 
 ## Quick start (recommended order) / Быстрый старт (рекомендуемый порядок)
 
 1. API (server)
-
    - Open a terminal and go to the API folder:
 
      cd ChatDiffieHelman.Api
@@ -31,10 +30,9 @@ The goal is to showcase an end-to-end chat flow with cryptographically-inspired 
      npm install
      npm run start:dev
 
-   - The server typically listens on port 3000 by default (verify `src/main.ts` or `package.json` scripts).
+   - The server typically listens on port 3001 by default (verify `src/main.ts` or `package.json` scripts).
 
 2. Web client (Angular)
-
    - In a new terminal, go to the web client folder:
 
      cd ChatDiffieHelman.WebClient
@@ -47,7 +45,6 @@ The goal is to showcase an end-to-end chat flow with cryptographically-inspired 
    - Open the app in a browser (usually at http://localhost:4200). Adjust ports if the NestJS server uses different defaults.
 
 3. Mobile client (optional)
-
    - The NativeScript mobile client is located under `NativeScript/DiffieHelmanChatMobile`.
    - Follow NativeScript docs for setting up Android/iOS builds and run using NativeScript CLI.
 
@@ -115,4 +112,3 @@ If you want, I can:
 - Update subproject READMEs (`ChatDiffieHelman.Api/README.md`, `ChatDiffieHelman.WebClient/README.md`) with specific commands from their `package.json` files.
 - Add a `.env.example` with the commonly used environment variables (I will infer reasonable defaults).
 - Create quick run scripts or tasks for Windows PowerShell if you prefer one-step startup.
-

@@ -50,7 +50,7 @@ echo -e "${YELLOW}Проверка Python зависимостей...${NC}"
 # source venv/bin/activate
 
 # Настройка переменных окружения
-export API_BASE_URL="${API_BASE_URL:-http://localhost:3000}"
+export API_BASE_URL="${API_BASE_URL:-http://localhost:3001}"
 export JWT_TOKEN="${JWT_TOKEN:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3RAZXhhbXBsZS5jb20iLCJzdWIiOiI3NDA2MjNhZS03Y2JlLTQ2ZjUtYWE1ZS1jN2UxZWI5N2EwYWIiLCJpYXQiOjE3NjI3Njk5NTh9.AA913lOFH0AtB_OwNOk3MlI-0plsazp3KEE3vapeeSk}"
 
 echo -e "${GREEN}Конфигурация:${NC}"

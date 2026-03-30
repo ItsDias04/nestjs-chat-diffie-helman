@@ -22,7 +22,7 @@ nano config.env
 ```
 
 Укажите:
-- `API_BASE_URL` - URL вашего API (по умолчанию: http://localhost:3000)
+- `API_BASE_URL` - URL вашего API (по умолчанию: http://localhost:3001)
 - `JWT_TOKEN` - ваш JWT токен
 - `TEST_USER_ID` - ID тестового пользователя
 
@@ -105,7 +105,7 @@ security-testing/
 ### С пользовательским URL
 
 ```bash
-API_BASE_URL=http://192.168.1.100:3000 ./run_sqlmap_tests.sh
+API_BASE_URL=http://192.168.1.100:3001 ./run_sqlmap_tests.sh
 ```
 
 ### Запуск с другим токеном
@@ -128,14 +128,14 @@ pip3 install sqlmap-python
 
 ```bash
 # Проверьте, запущен ли сервер
-curl http://localhost:3000/users/all
+curl http://localhost:3001/users/all
 ```
 
 ### Ошибка авторизации
 
 Проверьте JWT токен:
 ```bash
-curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3000/users/me
+curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3001/users/me
 ```
 
 ## 📚 Дополнительная документация

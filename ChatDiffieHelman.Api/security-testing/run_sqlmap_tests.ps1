@@ -38,7 +38,7 @@ if ($LASTEXITCODE -ne 0) {
 # Параметры (можно изменить)
 $API_BASE_URL = $env:API_BASE_URL
 if (-not $API_BASE_URL) {
-    $API_BASE_URL = "http://localhost:3000"
+    $API_BASE_URL = "http://localhost:3001"
 }
 
 $JWT_TOKEN = $env:JWT_TOKEN

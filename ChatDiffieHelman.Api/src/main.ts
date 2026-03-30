@@ -9,6 +9,26 @@ import helmet from 'helmet';
 import * as fs from 'fs';
 import * as path from 'path';
 
+function loadEnvironmentVariables(): void {
+  if (typeof process.loadEnvFile !== 'function') {
+    return;
+  }
+
+  try {
+    process.loadEnvFile();
+  } catch (error) {
+    if (process.env.NODE_ENV !== 'production') {
+      const message =
+        error instanceof Error ? error.message : 'Unknown .env loading error';
+      console.warn(
+        `[env] .env file was not loaded (${message}). Using OS environment variables only.`,
+      );
+    }
+  }
+}
+
+loadEnvironmentVariables();
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -111,7 +131,7 @@ async function bootstrap() {
   });
 
   app.enableCors({
-    origin: 'http://localhost:4200', // разрешаем Angular
+    origin: 'http://localhost:4400', // разрешаем Angular
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Authorization',
     credentials: true,
@@ -172,9 +192,9 @@ async function bootstrap() {
     console.error('unhandledRejection at promise', p, 'reason:', reason);
   });
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3001);
 
-  const port = process.env.PORT ?? 3000;
+  const port = process.env.PORT ?? 3001;
   console.log(`🚀 Приложение запущено на: http://localhost:${port}`);
   console.log(`📚 Swagger документация: http://localhost:${port}/api`);
   console.log(`📄 JSON спецификация: http://localhost:${port}/api-json`);

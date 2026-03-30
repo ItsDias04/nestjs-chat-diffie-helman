@@ -13,7 +13,7 @@ SQLMap Automation Script для Chat Diffie-Hellman API
 sqlmap/1.7.11#stable
 
 Конфигурация:
-API URL: http://localhost:3000
+API URL: http://localhost:3001
 JWT Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 Проверка доступности API...
@@ -26,14 +26,14 @@ JWT Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 2025-11-11 14:30:22 - INFO - ================================================================================
 2025-11-11 14:30:22 - INFO - НАЧАЛО АВТОМАТИЗИРОВАННОГО ТЕСТИРОВАНИЯ SQL-ИНЪЕКЦИЙ
-2025-11-11 14:30:22 - INFO - Базовый URL: http://localhost:3000
+2025-11-11 14:30:22 - INFO - Базовый URL: http://localhost:3001
 2025-11-11 14:30:22 - INFO - Всего эндпоинтов: 23
 2025-11-11 14:30:22 - INFO - ================================================================================
 
 2025-11-11 14:30:23 - INFO - ================================================================================
 2025-11-11 14:30:23 - INFO - Тестирование: UserController_getAllUsers
 2025-11-11 14:30:23 - INFO - Описание: Получить всех пользователей
-2025-11-11 14:30:23 - INFO - URL: http://localhost:3000/users/all
+2025-11-11 14:30:23 - INFO - URL: http://localhost:3001/users/all
 2025-11-11 14:30:23 - INFO - Метод: GET
 2025-11-11 14:30:23 - INFO - ================================================================================
 
@@ -51,7 +51,7 @@ JWT Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 2025-11-11 14:32:16 - INFO - ================================================================================
 2025-11-11 14:32:16 - INFO - Тестирование: AuthController_login
 2025-11-11 14:32:16 - INFO - Описание: Вход пользователя
-2025-11-11 14:32:16 - INFO - URL: http://localhost:3000/auth/login
+2025-11-11 14:32:16 - INFO - URL: http://localhost:3001/auth/login
 2025-11-11 14:32:16 - INFO - Метод: POST
 2025-11-11 14:32:16 - INFO - Данные: {
   "email": "test@example.com",
@@ -87,7 +87,7 @@ JWT Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
   "vulnerable_endpoints": 0,
   "safe_endpoints": 23,
   "test_date": "2025-11-11T15:45:30",
-  "base_url": "http://localhost:3000"
+  "base_url": "http://localhost:3001"
 }
 
 ==================================================
@@ -101,7 +101,7 @@ JWT Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 2025-11-11 14:35:20 - INFO - ================================================================================
 2025-11-11 14:35:20 - INFO - Тестирование: UserController_getUser
 2025-11-11 14:35:20 - INFO - Описание: Получить пользователя по ID
-2025-11-11 14:35:20 - INFO - URL: http://localhost:3000/users/740623ae-7cbe-46f5-aa5e-c7e1eb97a0ab
+2025-11-11 14:35:20 - INFO - URL: http://localhost:3001/users/740623ae-7cbe-46f5-aa5e-c7e1eb97a0ab
 2025-11-11 14:35:20 - INFO - Метод: GET
 2025-11-11 14:35:20 - INFO - ================================================================================
 
@@ -150,7 +150,7 @@ Parameter: id (GET)
 
 2025-11-11 15:45:30 - WARNING - 
 ⚠️  УЯЗВИМЫЕ ЭНДПОИНТЫ:
-2025-11-11 15:45:30 - WARNING -   - GET http://localhost:3000/users/740623ae-7cbe-46f5-aa5e-c7e1eb97a0ab
+2025-11-11 15:45:30 - WARNING -   - GET http://localhost:3001/users/740623ae-7cbe-46f5-aa5e-c7e1eb97a0ab
 2025-11-11 15:45:30 - WARNING -     Эндпоинт: UserController_getUser
 2025-11-11 15:45:30 - WARNING -     Результаты: ./sqlmap_results/UserController_getUser_20251111_143520
 ```
@@ -164,12 +164,12 @@ Parameter: id (GET)
     "vulnerable_endpoints": 1,
     "safe_endpoints": 22,
     "test_date": "2025-11-11T15:45:30.123456",
-    "base_url": "http://localhost:3000"
+    "base_url": "http://localhost:3001"
   },
   "results": [
     {
       "endpoint": "UserController_getAllUsers",
-      "url": "http://localhost:3000/users/all",
+      "url": "http://localhost:3001/users/all",
       "method": "GET",
       "timestamp": "20251111_143022",
       "vulnerable": false,
@@ -178,7 +178,7 @@ Parameter: id (GET)
     },
     {
       "endpoint": "UserController_getUser",
-      "url": "http://localhost:3000/users/740623ae-7cbe-46f5-aa5e-c7e1eb97a0ab",
+      "url": "http://localhost:3001/users/740623ae-7cbe-46f5-aa5e-c7e1eb97a0ab",
       "method": "GET",
       "timestamp": "20251111_143520",
       "vulnerable": true,
@@ -187,7 +187,7 @@ Parameter: id (GET)
     },
     {
       "endpoint": "AuthController_login",
-      "url": "http://localhost:3000/auth/login",
+      "url": "http://localhost:3001/auth/login",
       "method": "POST",
       "timestamp": "20251111_143615",
       "vulnerable": false,
@@ -204,14 +204,14 @@ Parameter: id (GET)
 {
   "endpoint": "AuthController_login",
   "description": "Вход пользователя",
-  "url": "http://localhost:3000/auth/login",
+  "url": "http://localhost:3001/auth/login",
   "method": "POST",
   "data": {
     "email": "test@example.com",
     "password": "testPassword123"
   },
   "timestamp": "20251111_143615",
-  "command": "sqlmap -u http://localhost:3000/auth/login --method POST --headers Authorization: Bearer eyJhbGc... --batch --random-agent --level 5 --risk 3 --threads 5 --output-dir ./sqlmap_results/AuthController_login_20251111_143615 --flush-session --fresh-queries --technique BEUSTQ -v 1 --data {\"email\":\"test@example.com\",\"password\":\"testPassword123\"} --content-type application/json"
+  "command": "sqlmap -u http://localhost:3001/auth/login --method POST --headers Authorization: Bearer eyJhbGc... --batch --random-agent --level 5 --risk 3 --threads 5 --output-dir ./sqlmap_results/AuthController_login_20251111_143615 --flush-session --fresh-queries --technique BEUSTQ -v 1 --data {\"email\":\"test@example.com\",\"password\":\"testPassword123\"} --content-type application/json"
 }
 ```
 
@@ -222,14 +222,14 @@ $ python3 quick_test.py 4
 
 ================================================================================
 Тестирование: POST /auth/login
-URL: http://localhost:3000/auth/login
+URL: http://localhost:3001/auth/login
 ================================================================================
 
 Body: {"email":"test@example.com","password":"testPassword123"}
 
 Запуск SQLMap...
 
-Команда: sqlmap -u http://localhost:3000/auth/login --method POST --headers Authorization: Bearer eyJhbGc... --batch --random-agent --level 3 --risk 2 -v 1 --data {"email":"test@example.com","password":"testPassword123"} --content-type application/json
+Команда: sqlmap -u http://localhost:3001/auth/login --method POST --headers Authorization: Bearer eyJhbGc... --batch --random-agent --level 3 --risk 2 -v 1 --data {"email":"test@example.com","password":"testPassword123"} --content-type application/json
 
         ___
        __H__
@@ -291,7 +291,7 @@ sqlmap_results/
 └──────────────┘  └──────────────┘  └──────────────┘
 
 📊 Статистика безопасности
-Базовый URL: http://localhost:3000
+Базовый URL: http://localhost:3001
 Процент безопасности: 95.7%
 
 ⚠️ Обнаруженные уязвимости
@@ -299,7 +299,7 @@ sqlmap_results/
 
 ┌─────────────────────────────────────────────────────────┐
 │ UserController_getUser                     [УЯЗВИМ]     │
-│ [GET] http://localhost:3000/users/...                   │
+│ [GET] http://localhost:3001/users/...                   │
 │ Тестирование: 20251111_143520                           │
 │ Результаты: Открыть детальный отчет                     │
 └─────────────────────────────────────────────────────────┘

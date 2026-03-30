@@ -1,21 +1,19 @@
-import { Injectable } from "@angular/core";
-import { User } from "../Entities/User";
-import { HttpClient } from "@angular/common/http";
-
+import { Injectable } from '@angular/core';
+import { User } from '../Entities/User';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UsersService {
- private apiUrl = 'http://localhost:3000/users';
+  private apiUrl = 'http://localhost:3001/users';
 
+  constructor(private http: HttpClient) {}
 
-  constructor( private http: HttpClient) { }
-
-    getAllUsers() {
-      return this.http.get<User[]>(`${this.apiUrl}/all`);
-    }
-      getMe() {
+  getAllUsers() {
+    return this.http.get<User[]>(`${this.apiUrl}/all`);
+  }
+  getMe() {
     return this.http.get<User>(`${this.apiUrl}/me`);
   }
 

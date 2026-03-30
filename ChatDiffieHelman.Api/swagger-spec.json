@@ -201,6 +201,73 @@
         ]
       }
     },
+    "/auth/uniauth/start": {
+      "post": {
+        "description": "Получает Token 1 в UniAuth и возвращает redirectUrl на bridge страницу UniAuth.",
+        "operationId": "AuthController_startUniAuth",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ссылка для перехода на UniAuth bridge",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "redirectUrl": {
+                      "type": "string",
+                      "example": "http://localhost:4200/oauth2/external-redirect/<token1>"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Начать вход через UniAuth",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/uniauth/callback": {
+      "get": {
+        "description": "Принимает token3, валидирует его через UniAuth и редиректит пользователя обратно во внешний frontend.",
+        "operationId": "AuthController_uniAuthCallback",
+        "parameters": [
+          {
+            "name": "token3",
+            "required": false,
+            "in": "query",
+            "description": "Одноразовый Token 3 от UniAuth bridge",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Редирект на login страницу web-клиента с результатом входа"
+          },
+          "502": {
+            "description": "Fallback HTML-страница при ошибке redirect или сети"
+          }
+        },
+        "summary": "Callback входа через UniAuth",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/auth/fiat/start": {
       "post": {
         "description": "Первый шаг протокола идентификации Fiat-Shamir",

@@ -37,19 +37,19 @@ npm install
 # Запуск в режиме разработки
 npm run start:dev
 
-# API должно быть доступно на http://localhost:3000
+# API должно быть доступно на http://localhost:3001
 ```
 
 ### 3. Создание тестовых данных
 
 ```powershell
 # Регистрация тестового пользователя
-curl -X POST http://localhost:3000/users/registration `
+curl -X POST http://localhost:3001/users/registration `
   -H "Content-Type: application/json" `
   -d '{\"name\":\"Test User\",\"email\":\"test@example.com\",\"password\":\"testPassword123\"}'
 
 # Получение JWT токена
-$response = Invoke-RestMethod -Uri http://localhost:3000/auth/login `
+$response = Invoke-RestMethod -Uri http://localhost:3001/auth/login `
   -Method Post `
   -ContentType "application/json" `
   -Body '{\"email\":\"test@example.com\",\"password\":\"testPassword123\"}'
@@ -95,7 +95,7 @@ chmod +x sqlmap-test.sh
 
 ```bash
 python3 ~/Рабочий\ стол/sqlmap/sqlmap/sqlmap.py \
-  -u "http://localhost:3000/auth/login" \
+  -u "http://localhost:3001/auth/login" \
   --data='{"email":"test@example.com","password":"test*"}' \
   --method=POST \
   --headers="Content-Type: application/json" \
@@ -115,7 +115,7 @@ python3 ~/Рабочий\ стол/sqlmap/sqlmap/sqlmap.py \
 
 ```bash
 python3 ~/Рабочий\ стол/sqlmap/sqlmap/sqlmap.py \
-  -u "http://localhost:3000/users/550e8400-e29b-41d4-a716-446655440000*" \
+  -u "http://localhost:3001/users/550e8400-e29b-41d4-a716-446655440000*" \
   --headers="Authorization: Bearer YOUR_JWT_TOKEN" \
   --batch \
   --level=3 \
@@ -131,7 +131,7 @@ python3 ~/Рабочий\ стол/sqlmap/sqlmap/sqlmap.py \
 
 ```bash
 python3 ~/Рабочий\ стол/sqlmap/sqlmap/sqlmap.py \
-  -u "http://localhost:3000/users/registration" \
+  -u "http://localhost:3001/users/registration" \
   --data='{"name":"Test*","email":"test*@test.com","password":"pass*"}' \
   --method=POST \
   --headers="Content-Type: application/json" \
@@ -154,7 +154,7 @@ python3 ~/Рабочий\ стол/sqlmap/sqlmap/sqlmap.py \
 ```bash
 # Получить список БД
 python3 ~/Рабочий\ стол/sqlmap/sqlmap/sqlmap.py \
-  -u "http://localhost:3000/auth/login" \
+  -u "http://localhost:3001/auth/login" \
   --data='{"email":"test@example.com","password":"test"}' \
   --method=POST \
   --headers="Content-Type: application/json" \
@@ -163,7 +163,7 @@ python3 ~/Рабочий\ стол/sqlmap/sqlmap/sqlmap.py \
 
 # Получить таблицы конкретной БД
 python3 ~/Рабочий\ стол/sqlmap/sqlmap/sqlmap.py \
-  -u "http://localhost:3000/auth/login" \
+  -u "http://localhost:3001/auth/login" \
   --data='{"email":"test@example.com","password":"test"}' \
   --method=POST \
   --headers="Content-Type: application/json" \
@@ -173,7 +173,7 @@ python3 ~/Рабочий\ стол/sqlmap/sqlmap/sqlmap.py \
 
 # Дамп таблицы users
 python3 ~/Рабочий\ стол/sqlmap/sqlmap/sqlmap.py \
-  -u "http://localhost:3000/auth/login" \
+  -u "http://localhost:3001/auth/login" \
   --data='{"email":"test@example.com","password":"test"}' \
   --method=POST \
   --headers="Content-Type: application/json" \
@@ -190,7 +190,7 @@ python3 ~/Рабочий\ стол/sqlmap/sqlmap/sqlmap.py \
 npm install -g wscat
 
 # Подключение к WebSocket
-wscat -c ws://localhost:3000/diffie-hellman \
+wscat -c ws://localhost:3001/diffie-hellman \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 
 # Ручная отправка с инъекциями
@@ -285,7 +285,7 @@ async function bootstrap() {
     }),
   );
   
-  await app.listen(3000);
+  await app.listen(3001);
 }
 ```
 

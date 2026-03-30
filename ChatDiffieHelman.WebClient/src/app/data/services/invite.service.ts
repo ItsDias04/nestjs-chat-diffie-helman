@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Invite } from '../Entities/Invite';
 
-
 export interface InviteCreateDto {
   chatId: string;
   userReceiverId: string;
@@ -15,10 +14,10 @@ export interface InviteRespondDto {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class InviteService {
-  private apiUrl = 'http://localhost:3000/invites';
+  private apiUrl = 'http://localhost:3001/invites';
 
   constructor(private http: HttpClient) {}
 

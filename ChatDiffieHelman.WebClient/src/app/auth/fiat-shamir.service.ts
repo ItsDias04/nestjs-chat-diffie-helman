@@ -8,7 +8,7 @@ import { TokenResponse } from './auth.interface';
 import BN from 'bn.js';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FiatShamirService {
   token: TokenResponse | null = null;
@@ -18,10 +18,10 @@ export class FiatShamirService {
   constructor(
     private cookieService: CookieService,
     private http: HttpClient,
-    private router: Router
-  ) { }
+    private router: Router,
+  ) {}
 
-  baseApiUrl = 'http://localhost:3000';
+  baseApiUrl = 'http://localhost:3001';
   urlLogin = `${this.baseApiUrl}/auth`;
   urlRegister = `${this.baseApiUrl}/users`;
 
@@ -32,15 +32,14 @@ export class FiatShamirService {
    * @returns challenge c от сервера
    */
   fiatStart(sid: string, t: string) {
-    return this.http.post<{ c: number }>(
-      `${this.urlLogin}/fiat/start`,
-      { sid, t }
-    ).pipe(
-      catchError((error) => {
-        console.error('Fiat start failed', error);
-        return throwError(() => new Error('Fiat start failed'));
-      })
-    );
+    return this.http
+      .post<{ c: number }>(`${this.urlLogin}/fiat/start`, { sid, t })
+      .pipe(
+        catchError((error) => {
+          console.error('Fiat start failed', error);
+          return throwError(() => new Error('Fiat start failed'));
+        }),
+      );
   }
 
   /**
@@ -50,22 +49,23 @@ export class FiatShamirService {
    * @returns access_token при успешной верификации
    */
   fiatFinish(sid: string, r: string) {
-    return this.http.post<{ access_token: string | null }>(
-      `${this.urlLogin}/fiat/finish`,
-      { sid, r }
-    ).pipe(
-      tap((res) => {
-        if (res.access_token) {
-          this.token = { access_token: res.access_token };
-          localStorage.setItem('token', res.access_token);
-          this.fiatSessionId = null;
-        }
-      }),
-      catchError((error) => {
-        console.error('Fiat finish failed', error);
-        return throwError(() => new Error('Fiat finish failed'));
-      })
-    );
+    return this.http
+      .post<{
+        access_token: string | null;
+      }>(`${this.urlLogin}/fiat/finish`, { sid, r })
+      .pipe(
+        tap((res) => {
+          if (res.access_token) {
+            this.token = { access_token: res.access_token };
+            localStorage.setItem('token', res.access_token);
+            this.fiatSessionId = null;
+          }
+        }),
+        catchError((error) => {
+          console.error('Fiat finish failed', error);
+          return throwError(() => new Error('Fiat finish failed'));
+        }),
+      );
   }
 
   /**
@@ -76,10 +76,10 @@ export class FiatShamirService {
    * @returns обновленные данные пользователя
    */
   enableFiatForUser(userId: string, v: string, n: string) {
-    return this.http.post<any>(
-      `${this.urlLogin}/fiat/enable/${userId}`,
-      { v, n }
-    );
+    return this.http.post<any>(`${this.urlLogin}/fiat/enable/${userId}`, {
+      v,
+      n,
+    });
   }
 
   /**
@@ -88,18 +88,17 @@ export class FiatShamirService {
    * @returns обновленные данные пользователя
    */
   disableFiatForUser(userId: string) {
-    return this.http.post<any>(
-      `${this.urlLogin}/fiat/disable/${userId}`,
-      {}
-    ).pipe(
-      tap((res) => {
-        console.log('Fiat 2FA disabled for user', res);
-      }),
-      catchError((error) => {
-        console.error('Disable Fiat 2FA failed', error);
-        return throwError(() => new Error('Disable Fiat 2FA failed'));
-      })
-    );
+    return this.http
+      .post<any>(`${this.urlLogin}/fiat/disable/${userId}`, {})
+      .pipe(
+        tap((res) => {
+          console.log('Fiat 2FA disabled for user', res);
+        }),
+        catchError((error) => {
+          console.error('Disable Fiat 2FA failed', error);
+          return throwError(() => new Error('Disable Fiat 2FA failed'));
+        }),
+      );
   }
 
   /**
@@ -116,7 +115,7 @@ export class FiatShamirService {
     return !!this.fiatSessionId;
   }
 
-  /** 
+  /**
    * Запуск полного протокола Fiat-Shamir (start + finish)
    * Использует bn.js для корректной работы с большими числами
    *
@@ -131,39 +130,33 @@ export class FiatShamirService {
       return throwError(() => new Error('Missing Fiat-Shamir keys'));
     }
 
- 
     const sBN = new BN(keys.s.toString(), 10);
     const nBN = new BN(keys.n.toString(), 10);
     const red = BN.red(nBN);
 
-  
-  // Случайный элемент a ∈ Z*_n (взаимно простой с n)
-  const aBN = this.generateRandomA(nBN);
-    
+    // Случайный элемент a ∈ Z*_n (взаимно простой с n)
+    const aBN = this.generateRandomA(nBN);
 
-  // x = a^2 mod n (в коде поле t)
-  const tBN = aBN.toRed(red).redSqr().fromRed();
+    // x = a^2 mod n (в коде поле t)
+    const tBN = aBN.toRed(red).redSqr().fromRed();
     const tHex = tBN.toString(16);
 
     console.log('Generated commitment t:', tHex);
-
 
     return this.fiatStart(sid, tHex).pipe(
       switchMap((res) => {
         const c = res.c;
         console.log('Challenge from server:', c);
 
-   
-  // y = a · s^c mod n; начинаем с a
-  let rRedBN = aBN.toRed(red);
-        
+        // y = a · s^c mod n; начинаем с a
+        let rRedBN = aBN.toRed(red);
+
         if (c === 1) {
           const sPowBN = sBN.toRed(red);
           rRedBN = rRedBN.redMul(sPowBN);
         }
-        
-        
-  const rBN = rRedBN.fromRed(); // y в обычном представлении
+
+        const rBN = rRedBN.fromRed(); // y в обычном представлении
         const rHex = rBN.toString(16);
 
         console.log('Computed response r:', rHex);
@@ -172,7 +165,7 @@ export class FiatShamirService {
       catchError((error) => {
         console.error('runFullFiatProtocol failed', error);
         return throwError(() => new Error('runFullFiatProtocol failed'));
-      })
+      }),
     );
   }
 
@@ -183,12 +176,11 @@ export class FiatShamirService {
     const maxAttempts = 100;
 
     do {
-    
       const randomBytes = this.getRandomBytes(Math.ceil(bitLength / 8));
       a = new BN(randomBytes);
-      
+
       a = a.umod(nBN.subn(2)).addn(2);
-      
+
       attempts++;
       if (attempts > maxAttempts) {
         throw new Error('Failed to generate valid random a');

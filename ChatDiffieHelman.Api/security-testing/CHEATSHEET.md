@@ -30,7 +30,7 @@ wsl python3 quick_test.py 4
 
 ### Файл config.env
 ```bash
-API_BASE_URL=http://localhost:3000
+API_BASE_URL=http://localhost:3001
 JWT_TOKEN=your_jwt_token
 TEST_USER_ID=your_user_id
 SQLMAP_LEVEL=5
@@ -40,7 +40,7 @@ SQLMAP_TIMEOUT=600
 
 ### Переменные окружения
 ```bash
-export API_BASE_URL=http://localhost:3000
+export API_BASE_URL=http://localhost:3001
 export JWT_TOKEN=your_token
 python3 sqlmap_automation.py
 ```
@@ -164,10 +164,10 @@ python3 sqlmap/sqlmap.py --version
 ### API недоступен
 ```bash
 # Проверка доступности
-curl http://localhost:3000/users/all
+curl http://localhost:3001/users/all
 
 # Проверка с токеном
-curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3000/users/me
+curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3001/users/me
 ```
 
 ### WSL проблемы (Windows)

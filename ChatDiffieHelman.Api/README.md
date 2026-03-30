@@ -8,9 +8,9 @@ NestJS API для чата с криптографической защитой.
 
 После запуска приложения доступна интерактивная документация:
 
-**Swagger UI:** http://localhost:3000/api  
-**JSON спецификация:** http://localhost:3000/api-json  
-**YAML спецификация:** http://localhost:3000/api-yaml  
+**Swagger UI:** http://localhost:3001/api  
+**JSON спецификация:** http://localhost:3001/api-json  
+**YAML спецификация:** http://localhost:3001/api-yaml
 
 **Автоматически создаваемый файл:** `swagger-spec.json` (в корне проекта)
 
@@ -38,40 +38,44 @@ npm install
 ## 🏃 Запуск
 
 ### Режим разработки (с автоперезагрузкой)
+
 ```bash
 npm run start:dev
 ```
 
 ### Продакшн режим
+
 ```bash
 npm run build
 npm run start:prod
 ```
 
 ### Отладка
+
 ```bash
 npm run start:debug
 ```
 
 После запуска:
-- **API:** http://localhost:3000
-- **Swagger:** http://localhost:3000/api
+
+- **API:** http://localhost:3001
+- **Swagger:** http://localhost:3001/api
 
 ---
 
 ## 📝 Доступные скрипты
 
-| Команда | Описание |
-|---------|----------|
-| `npm run build` | Компиляция проекта |
-| `npm run format` | Форматирование кода (Prettier) |
-| `npm start` | Запуск продакшн сервера |
-| `npm run start:dev` | Запуск в режиме разработки |
-| `npm run start:debug` | Запуск в режиме отладки |
-| `npm run start:prod` | Запуск скомпилированной версии |
-| `npm run lint` | Проверка и автофикс ESLint |
-| `npm test` | Запуск тестов |
-| `npm run test:e2e` | Запуск e2e тестов |
+| Команда               | Описание                       |
+| --------------------- | ------------------------------ |
+| `npm run build`       | Компиляция проекта             |
+| `npm run format`      | Форматирование кода (Prettier) |
+| `npm start`           | Запуск продакшн сервера        |
+| `npm run start:dev`   | Запуск в режиме разработки     |
+| `npm run start:debug` | Запуск в режиме отладки        |
+| `npm run start:prod`  | Запуск скомпилированной версии |
+| `npm run lint`        | Проверка и автофикс ESLint     |
+| `npm test`            | Запуск тестов                  |
+| `npm run test:e2e`    | Запуск e2e тестов              |
 
 ---
 
@@ -82,14 +86,28 @@ npm run start:debug
 Создайте файл `.env` в корне проекта:
 
 ```env
-PORT=3000
+PORT=3002
 DATABASE_HOST=localhost
 DATABASE_PORT=5432
 DATABASE_USER=postgres
 DATABASE_PASSWORD=your_password
 DATABASE_NAME=chat_db
 JWT_SECRET=your_jwt_secret
+
+# UniAuth SSO
+UNI_AUTH_API_BASE=http://localhost:3001/api/v1
+UNI_AUTH_WEB_BASE=http://localhost:4200
+UNI_AUTH_APPLICATION_ID=your-application-id
+UNI_AUTH_OWNER_ACCESS_TOKEN=owner-jwt-token-in-uniauth
+UNI_AUTH_CALLBACK_PATH=/auth/uniauth/callback
+UNI_AUTH_HTTP_TIMEOUT_MS=7000
+
+# Redirect в web client после callback
+UNI_AUTH_EXTERNAL_WEB_BASE=http://localhost:4400
+UNI_AUTH_SUCCESS_REDIRECT_PATH=/chats
 ```
+
+Готовый шаблон переменных: `.env.example`.
 
 ### База данных
 
@@ -100,11 +118,13 @@ JWT_SECRET=your_jwt_secret
 ## 🎯 Возможности API
 
 ### 🔐 Аутентификация
+
 - JWT токены
 - Протокол Fiat-Shamir идентификации
 - Протокол Brickell–McCurley идентификации
 
 ### 💬 Функционал
+
 - Управление пользователями
 - Создание и управление чатами
 - Отправка и получение сообщений
@@ -112,6 +132,7 @@ JWT_SECRET=your_jwt_secret
 - Обмен ключами Diffie-Hellman
 
 ### 🛡️ Безопасность
+
 - Helmet для защиты HTTP заголовков
 - Валидация входных данных (class-validator)
 - CORS настройка
@@ -141,16 +162,19 @@ src/
 ## 🧪 Тестирование
 
 ### Unit тесты
+
 ```bash
 npm test
 ```
 
 ### E2E тесты
+
 ```bash
 npm run test:e2e
 ```
 
 ### Покрытие кода
+
 ```bash
 npm run test:cov
 ```
@@ -160,13 +184,17 @@ npm run test:cov
 ## 🔍 Отладка
 
 ### Логи разработки
+
 При запуске в dev режиме автоматически выводятся:
+
 - Адрес приложения
 - Ссылка на Swagger документацию
 - Ссылки на JSON/YAML спецификации
 
 ### VS Code Debug
+
 Создайте `.vscode/launch.json`:
+
 ```json
 {
   "version": "0.2.0",
@@ -231,7 +259,7 @@ async create(@Body() dto: CreateUserDto): Promise<UserDto> {
 
 ## 📝 Заметки
 
-- По умолчанию сервер запускается на порту 3000
+- По умолчанию сервер запускается на порту 3001
 - CORS настроен для `http://localhost:4200` (Angular frontend)
 - JWT токены имеют ограниченный срок действия
 - Для WebSocket соединений используйте Socket.IO клиент
@@ -239,41 +267,43 @@ async create(@Body() dto: CreateUserDto): Promise<UserDto> {
 ---
 
 Requirements
+
 - Node.js and npm (or yarn)
 
 Install
 
-  cd ChatDiffieHelman.Api
-  npm install
+cd ChatDiffieHelman.Api
+npm install
 
 Available scripts (from package.json)
 
-- npm run build       — compile the project (nest build)
-- npm run format      — run Prettier to format source files
-- npm start           — run production server (nest start)
-- npm run start:dev   — run in development mode with watch (nest start --watch)
+- npm run build — compile the project (nest build)
+- npm run format — run Prettier to format source files
+- npm start — run production server (nest start)
+- npm run start:dev — run in development mode with watch (nest start --watch)
 - npm run start:debug — run in debug mode with watch
-- npm run start:prod  — run compiled production build (node dist/main)
-- npm run lint        — run ESLint and autofix
-- npm test            — run Jest tests
-- npm run test:e2e    — run e2e Jest tests (test/jest-e2e.json)
+- npm run start:prod — run compiled production build (node dist/main)
+- npm run lint — run ESLint and autofix
+- npm test — run Jest tests
+- npm run test:e2e — run e2e Jest tests (test/jest-e2e.json)
 
 Running locally (development)
 
 1. Make sure your environment variables are set (see repository `.env.example`).
 2. Start the API in dev mode:
 
-  cd ChatDiffieHelman.Api
-  npm run start:dev
+cd ChatDiffieHelman.Api
+npm run start:dev
 
-By default the NestJS server typically listens on port 3000. Check `src/main.ts` to confirm or change this.
+By default the NestJS server typically listens on port 3001. Check `src/main.ts` to confirm or change this.
 
 Tests
 
-  npm test
-  npm run test:e2e
+npm test
+npm run test:e2e
 
 Notes
+
 - If you use a database, ensure your DB connection environment variables are set and migrations are applied or TypeORM is configured appropriately.
 - Configure CORS or WebSocket origins if the frontend is served from a different host/port.
 <p align="center">

@@ -4,12 +4,11 @@ import { Observable } from 'rxjs';
 import { Chat } from '../Entities/Chat';
 import { User } from '../Entities/User';
 
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ChatsService {
-  private apiUrl = 'http://localhost:3000/chats';
+  private apiUrl = 'http://localhost:3001/chats';
 
   constructor(private http: HttpClient) {}
 

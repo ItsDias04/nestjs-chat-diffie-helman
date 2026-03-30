@@ -163,13 +163,13 @@ Enable-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform
 
 ```powershell
 # Используйте host.docker.internal вместо localhost
-$env:API_BASE_URL = "http://host.docker.internal:3000"
+$env:API_BASE_URL = "http://host.docker.internal:3001"
 ```
 
 Или найдите IP адрес Windows:
 ```powershell
 ipconfig
-# Используйте IPv4 адрес, например http://192.168.1.100:3000
+# Используйте IPv4 адрес, например http://192.168.1.100:3001
 ```
 
 ## 📝 Примеры команд
@@ -178,7 +178,7 @@ ipconfig
 
 ```powershell
 # Установка переменных окружения
-$env:API_BASE_URL = "http://localhost:3000"
+$env:API_BASE_URL = "http://localhost:3001"
 $env:JWT_TOKEN = "your_token_here"
 
 # Запуск через WSL

@@ -122,7 +122,7 @@ sudo apt-get install -y sqlmap python3 curl jq
 
 ```bash
 # API настройки
-API_BASE_URL=http://localhost:3000
+API_BASE_URL=http://localhost:3001
 JWT_TOKEN=your_jwt_token_here
 TEST_USER_ID=your_test_user_id
 
@@ -149,7 +149,7 @@ python3 quick_test.py 4  # Тест логина
 
 ### С пользовательскими параметрами
 ```bash
-API_BASE_URL=http://192.168.1.100:3000 \
+API_BASE_URL=http://192.168.1.100:3001 \
 JWT_TOKEN=new_token \
 python3 sqlmap_automation.py
 ```
@@ -181,11 +181,11 @@ sudo apt-get install sqlmap
 ### API недоступен
 ```bash
 # Проверьте, запущен ли сервер
-curl http://localhost:3000/users/all
+curl http://localhost:3001/users/all
 
 # Убедитесь, что JWT токен валидный
 curl -H "Authorization: Bearer YOUR_TOKEN" \
-     http://localhost:3000/users/me
+     http://localhost:3001/users/me
 ```
 
 ### WSL проблемы (Windows)

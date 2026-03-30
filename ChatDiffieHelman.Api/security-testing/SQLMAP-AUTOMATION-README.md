@@ -45,7 +45,7 @@ security-testing/
 
 ```bash
 # URL вашего API
-API_BASE_URL=http://localhost:3000
+API_BASE_URL=http://localhost:3001
 
 # JWT токен (получен после логина)
 JWT_TOKEN=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
@@ -59,7 +59,7 @@ TEST_USER_ID=740623ae-7cbe-46f5-aa5e-c7e1eb97a0ab
 Если необходимо, измените параметры в начале файла:
 
 ```python
-API_BASE_URL = "http://localhost:3000"  # URL API
+API_BASE_URL = "http://localhost:3001"  # URL API
 JWT_TOKEN = "ваш_jwt_token"             # JWT токен
 TEST_USER_ID = "user_id"                # ID пользователя
 ```
@@ -90,7 +90,7 @@ python3 sqlmap_automation.py
 
 ```bash
 # Указать свой URL и токен
-API_BASE_URL=http://192.168.1.100:3000 \
+API_BASE_URL=http://192.168.1.100:3001 \
 JWT_TOKEN=your_token_here \
 python3 sqlmap_automation.py
 ```
@@ -271,10 +271,10 @@ pip3 install sqlmap-python
 
 ```bash
 # Проверьте, запущен ли сервер
-curl http://localhost:3000/users/all
+curl http://localhost:3001/users/all
 
 # Проверьте JWT токен
-curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3000/users/me
+curl -H "Authorization: Bearer YOUR_TOKEN" http://localhost:3001/users/me
 ```
 
 ### Проблема: Таймауты
@@ -305,12 +305,12 @@ timeout=1200  # 20 минут
     "vulnerable_endpoints": 2,
     "safe_endpoints": 21,
     "test_date": "2025-11-11T14:30:00",
-    "base_url": "http://localhost:3000"
+    "base_url": "http://localhost:3001"
   },
   "results": [
     {
       "endpoint": "AuthController_login",
-      "url": "http://localhost:3000/auth/login",
+      "url": "http://localhost:3001/auth/login",
       "method": "POST",
       "timestamp": "20251111_143045",
       "vulnerable": true,

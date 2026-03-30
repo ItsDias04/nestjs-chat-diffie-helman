@@ -1,32 +1,40 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { catchError, switchMap, tap, throwError } from 'rxjs';
-import BN from 'bn.js';
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { catchError, switchMap, tap, throwError } from "rxjs";
+import BN from "bn.js";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class BmcServiceClient {
   constructor(private http: HttpClient) {}
 
-  baseApiUrl = 'http://localhost:3000';
+  baseApiUrl = "http://localhost:3001";
   urlAuth = `${this.baseApiUrl}/auth`;
 
   bmcStart(sid: string, aHex: string) {
-    return this.http.post<{ r: number }>(`${this.urlAuth}/bmc/start`, { sid, a: aHex }).pipe(
-      catchError((e) => throwError(() => e))
-    );
+    return this.http
+      .post<{ r: number }>(`${this.urlAuth}/bmc/start`, { sid, a: aHex })
+      .pipe(catchError((e) => throwError(() => e)));
   }
 
   bmcFinish(sid: string, eHex: string) {
-    return this.http.post<{ access_token: string | null }>(`${this.urlAuth}/bmc/finish`, { sid, e: eHex }).pipe(
-      tap((res) => {
-        if (res.access_token) localStorage.setItem('token', res.access_token);
-      }),
-      catchError((e) => throwError(() => e))
-    );
+    return this.http
+      .post<{
+        access_token: string | null;
+      }>(`${this.urlAuth}/bmc/finish`, { sid, e: eHex })
+      .pipe(
+        tap((res) => {
+          if (res.access_token) localStorage.setItem("token", res.access_token);
+        }),
+        catchError((e) => throwError(() => e)),
+      );
   }
 
   enableBmcForUser(userId: string, n: string, g: string, y: string) {
-    return this.http.post<any>(`${this.urlAuth}/bmc/enable/${userId}`, { n, g, y });
+    return this.http.post<any>(`${this.urlAuth}/bmc/enable/${userId}`, {
+      n,
+      g,
+      y,
+    });
   }
 
   disableBmcForUser(userId: string) {
@@ -44,8 +52,14 @@ export class BmcServiceClient {
   //   - BN.red(N): контекст модульной арифметики.
   //   - toRed(red), redPow(e), redMul(b): операции mod N.
   //   - fromRed(): возврат к обычной форме.
-  runFullBmcProtocol(sid: string, nStr: string, gStr: string, yStr: string, xStr: string) {
-    if (!sid) return throwError(() => new Error('Missing bmc session id'));
+  runFullBmcProtocol(
+    sid: string,
+    nStr: string,
+    gStr: string,
+    yStr: string,
+    xStr: string,
+  ) {
+    if (!sid) return throwError(() => new Error("Missing bmc session id"));
     const N = new BN(nStr, 10);
     const g = new BN(gStr, 10).umod(N);
     const y = new BN(yStr, 10).umod(N);
@@ -63,7 +77,7 @@ export class BmcServiceClient {
         const e = k.add(x.mul(new BN(r))); // k + r*x
         const eHex = e.toString(16);
         return this.bmcFinish(sid, eHex);
-      })
+      }),
     );
   }
 
