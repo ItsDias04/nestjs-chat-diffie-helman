@@ -97,8 +97,7 @@ JWT_SECRET=your_jwt_secret
 # UniAuth SSO
 UNI_AUTH_API_BASE=http://localhost:3001/api/v1
 UNI_AUTH_WEB_BASE=http://localhost:4200
-UNI_AUTH_APPLICATION_ID=your-application-id
-UNI_AUTH_OWNER_ACCESS_TOKEN=owner-jwt-token-in-uniauth
+UNI_AUTH_APPLICATION_API_TOKEN=ua_app_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 UNI_AUTH_CALLBACK_PATH=/auth/uniauth/callback
 UNI_AUTH_HTTP_TIMEOUT_MS=7000
 

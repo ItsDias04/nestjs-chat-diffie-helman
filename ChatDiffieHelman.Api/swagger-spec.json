@@ -241,9 +241,68 @@
         ]
       }
     },
+    "/auth/uniauth/exchange-token-3": {
+      "post": {
+        "description": "Используется web-клиентом: передает token3, backend валидирует его через UniAuth и возвращает local access token.",
+        "operationId": "AuthController_exchangeUniAuthToken3",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token3": {
+                    "type": "string",
+                    "description": "Одноразовый Token 3 от UniAuth bridge"
+                  }
+                },
+                "required": [
+                  "token3"
+                ],
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Результат обмена token3 на локальный JWT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "OK",
+                        "ERROR"
+                      ]
+                    },
+                    "access_token": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "reason": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Проверить token3 в UniAuth и выдать локальный JWT",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/auth/uniauth/callback": {
       "get": {
-        "description": "Принимает token3, валидирует его через UniAuth и редиректит пользователя обратно во внешний frontend.",
+        "description": "Принимает token3 и редиректит пользователя на login страницу web-клиента; дальнейший обмен token3 выполняется через endpoint exchange-token-3.",
         "operationId": "AuthController_uniAuthCallback",
         "parameters": [
           {

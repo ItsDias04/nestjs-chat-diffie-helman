@@ -106,11 +106,75 @@ export class AuthController {
     return this.uniAuthSsoService.start();
   }
 
+  @Post('uniauth/exchange-token-3')
+  @ApiOperation({
+    summary: 'Проверить token3 в UniAuth и выдать локальный JWT',
+    description:
+      'Используется web-клиентом: передает token3, backend валидирует его через UniAuth и возвращает local access token.',
+  })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        token3: {
+          type: 'string',
+          description: 'Одноразовый Token 3 от UniAuth bridge',
+        },
+      },
+      required: ['token3'],
+      additionalProperties: false,
+    },
+  })
+  @ApiOkResponse({
+    description: 'Результат обмена token3 на локальный JWT',
+    schema: {
+      properties: {
+        status: {
+          type: 'string',
+          enum: ['OK', 'ERROR'],
+        },
+        access_token: {
+          type: 'string',
+          nullable: true,
+        },
+        reason: {
+          type: 'string',
+          nullable: true,
+        },
+      },
+    },
+  })
+  async exchangeUniAuthToken3(
+    @Body('token3') token3: string | undefined,
+  ): Promise<
+    { status: 'OK'; access_token: string } | { status: 'ERROR'; reason: string }
+  > {
+    if (!token3?.trim()) {
+      return {
+        status: 'ERROR',
+        reason: 'Не получен token3 от UniAuth.',
+      };
+    }
+
+    const callbackResult = await this.uniAuthSsoService.handleCallback(token3);
+    if (callbackResult.status === 'OK') {
+      return {
+        status: 'OK',
+        access_token: callbackResult.accessToken,
+      };
+    }
+
+    return {
+      status: 'ERROR',
+      reason: callbackResult.reason,
+    };
+  }
+
   @Get('uniauth/callback')
   @ApiOperation({
     summary: 'Callback входа через UniAuth',
     description:
-      'Принимает token3, валидирует его через UniAuth и редиректит пользователя обратно во внешний frontend.',
+      'Принимает token3 и редиректит пользователя на login страницу web-клиента; дальнейший обмен token3 выполняется через endpoint exchange-token-3.',
   })
   @ApiQuery({
     name: 'token3',
@@ -134,14 +198,7 @@ export class AuthController {
       return;
     }
 
-    const callbackResult = await this.uniAuthSsoService.handleCallback(token3);
-
-    if (callbackResult.status === 'OK') {
-      this.redirectToLoginWithToken(res, callbackResult.accessToken);
-      return;
-    }
-
-    this.redirectToLoginWithError(res, callbackResult.reason);
+    this.redirectToLoginWithToken3(res, token3);
   }
 
   @Post('fiat/start')
@@ -356,10 +413,9 @@ export class AuthController {
     return this.authService.disableBmcForUser(userId) as any;
   }
 
-  private redirectToLoginWithToken(res: Response, accessToken: string): void {
+  private redirectToLoginWithToken3(res: Response, token3: string): void {
     const loginUrl = this.buildFrontendLoginUrl({
-      uniauthToken: accessToken,
-      returnUrl: this.getSuccessPath(),
+      token3: token3.trim(),
     });
 
     if (loginUrl) {
@@ -371,7 +427,7 @@ export class AuthController {
       .status(500)
       .send(
         this.renderFallbackPage(
-          'Вход через UniAuth выполнен, но не удалось сделать redirect в web-клиент.',
+          'Token 3 получен, но не удалось сделать redirect в web-клиент.',
         ),
       );
   }
@@ -408,17 +464,6 @@ export class AuthController {
     } catch {
       return null;
     }
-  }
-
-  private getSuccessPath(): string {
-    const rawPath = (
-      process.env.UNI_AUTH_SUCCESS_REDIRECT_PATH || '/chats'
-    ).trim();
-    if (!rawPath) {
-      return '/chats';
-    }
-
-    return rawPath.startsWith('/') ? rawPath : `/${rawPath}`;
   }
 
   private normalizeErrorMessage(message: string): string {

@@ -10,6 +10,12 @@ interface UniAuthStartResponse {
   redirectUrl: string;
 }
 
+interface UniAuthExchangeToken3Response {
+  status: 'OK' | 'ERROR';
+  access_token?: string;
+  reason?: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -95,6 +101,22 @@ export class AuthService {
           console.error('Failed to start UniAuth login', error);
           return throwError(
             () => new Error('Не удалось начать вход через UniAuth'),
+          );
+        }),
+      );
+  }
+
+  exchangeUniAuthToken3(token3: string) {
+    return this.http
+      .post<UniAuthExchangeToken3Response>(
+        `${this.urlLogin}/uniauth/exchange-token-3`,
+        { token3 },
+      )
+      .pipe(
+        catchError((error) => {
+          console.error('Failed to exchange token3 via backend', error);
+          return throwError(
+            () => new Error('Не удалось проверить token3 через backend'),
           );
         }),
       );

@@ -35,21 +35,43 @@ export class LoginPageComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe((params) => {
-      const uniauthToken = params.get('uniauthToken');
+      const token3 = params.get('token3');
       const uniauthError = params.get('uniauthError');
-      const returnUrl = params.get('returnUrl');
 
-      if (uniauthToken) {
-        this.authService.setAccessToken(uniauthToken);
-
-        const safeReturnUrl =
-          returnUrl && returnUrl.startsWith('/') ? returnUrl : '/chats';
-        this.router.navigateByUrl(safeReturnUrl, { replaceUrl: true });
+      if (uniauthError) {
+        this.uniAuthError = uniauthError;
+        this.uniAuthLoading = false;
         return;
       }
 
-      this.uniAuthError = uniauthError;
-      this.uniAuthLoading = false;
+      if (!token3?.trim()) {
+        this.uniAuthLoading = false;
+        return;
+      }
+
+      this.uniAuthError = null;
+      this.uniAuthLoading = true;
+
+      this.authService.exchangeUniAuthToken3(token3.trim()).subscribe({
+        next: (response) => {
+          this.uniAuthLoading = false;
+
+          if (response.status === 'OK' && response.access_token) {
+            this.authService.setAccessToken(response.access_token);
+            this.router.navigateByUrl('/profile', { replaceUrl: true });
+            return;
+          }
+
+          this.uniAuthError =
+            response.reason ||
+            'Token 3 недействителен или уже использован. Повторите вход через UniAuth.';
+        },
+        error: () => {
+          this.uniAuthLoading = false;
+          this.uniAuthError =
+            'Не удалось проверить token3 через backend. Повторите попытку.';
+        },
+      });
     });
   }
 

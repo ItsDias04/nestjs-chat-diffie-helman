@@ -63,11 +63,7 @@ export class UniAuthSsoService {
   ) {}
 
   async start(): Promise<{ redirectUrl: string }> {
-    const applicationId = this.requiredEnv(
-      'UNI_AUTH_APPLICATION_ID',
-      '5107f420-bbbd-430b-aee7-6329021b058d',
-    );
-    const ownerAccessToken = this.requiredEnv('UNI_AUTH_OWNER_ACCESS_TOKEN');
+    const applicationApiToken = this.applicationApiToken;
     const token1Endpoint = `${this.uniAuthApiBase}/oauth2/sso/issue-token-1`;
 
     try {
@@ -76,7 +72,7 @@ export class UniAuthSsoService {
         {
           method: 'POST',
           headers: {
-            Authorization: `Bearer ${ownerAccessToken}`,
+            Authorization: `Bearer ${applicationApiToken}`,
             'Content-Type': 'application/json',
           },
           body: '{}',
@@ -108,13 +104,13 @@ export class UniAuthSsoService {
         (error.status === 401 || error.status === 403)
       ) {
         throw new ServiceUnavailableException(
-          'UniAuth отклонил технический токен владельца приложения. Проверьте UNI_AUTH_OWNER_ACCESS_TOKEN.',
+          'UniAuth отклонил API token приложения. Проверьте UNI_AUTH_APPLICATION_API_TOKEN.',
         );
       }
 
       if (error instanceof UniAuthUpstreamHttpError && error.status === 404) {
         throw new ServiceUnavailableException(
-          'UniAuth не нашел приложение. Проверьте UNI_AUTH_APPLICATION_ID и UNI_AUTH_API_BASE.',
+          'UniAuth endpoint issue-token-1 не найден. Проверьте UNI_AUTH_API_BASE.',
         );
       }
 
@@ -129,6 +125,8 @@ export class UniAuthSsoService {
       return { status: 'ERROR', reason: 'Не получен token3 от UniAuth.' };
     }
 
+    const applicationApiToken = this.applicationApiToken;
+
     try {
       const introspectResponse =
         await this.fetchJson<UniAuthIntrospectResponse>(
@@ -136,6 +134,7 @@ export class UniAuthSsoService {
           {
             method: 'POST',
             headers: {
+              Authorization: `Bearer ${applicationApiToken}`,
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({ token3 }),
@@ -161,9 +160,51 @@ export class UniAuthSsoService {
         accessToken: this.jwtService.sign(payload),
       };
     } catch (error) {
-      this.logger.warn(
-        'UniAuth callback failed due to upstream or network issue',
-      );
+      if (error instanceof UniAuthUpstreamHttpError) {
+        this.logger.warn(
+          `UniAuth callback introspection failed (status=${error.status})`,
+        );
+
+        if (error.responseBody?.trim()) {
+          this.logger.debug(
+            `UniAuth introspect-token-3 response body: ${this.truncateForLog(error.responseBody)}`,
+          );
+        }
+
+        if (error.status === 404) {
+          return {
+            status: 'ERROR',
+            reason:
+              'UniAuth endpoint introspect-token-3 не найден. Проверьте UNI_AUTH_API_BASE.',
+          };
+        }
+
+        if (error.status === 401 || error.status === 403) {
+          return {
+            status: 'ERROR',
+            reason:
+              'UniAuth отклонил API token приложения. Проверьте UNI_AUTH_APPLICATION_API_TOKEN.',
+          };
+        }
+      }
+
+      if (error instanceof InternalServerErrorException) {
+        return {
+          status: 'ERROR',
+          reason:
+            'Интеграция UniAuth не настроена. Проверьте переменные окружения backend.',
+        };
+      }
+
+      if (error instanceof Error) {
+        this.logger.warn(
+          `UniAuth callback failed due to upstream or network issue: ${error.message}`,
+        );
+      } else {
+        this.logger.warn(
+          'UniAuth callback failed due to upstream or network issue',
+        );
+      }
 
       return {
         status: 'ERROR',
@@ -270,6 +311,25 @@ export class UniAuthSsoService {
     );
   }
 
+  private get applicationApiToken(): string {
+    const primary = process.env.UNI_AUTH_APPLICATION_API_TOKEN?.trim();
+    if (primary) {
+      return primary;
+    }
+
+    const legacy = process.env.UNI_AUTH_OWNER_ACCESS_TOKEN?.trim();
+    if (legacy) {
+      this.logger.warn(
+        'UNI_AUTH_OWNER_ACCESS_TOKEN is deprecated. Use UNI_AUTH_APPLICATION_API_TOKEN instead.',
+      );
+      return legacy;
+    }
+
+    throw new InternalServerErrorException(
+      'UNI_AUTH_APPLICATION_API_TOKEN is not configured for UniAuth integration. Set it in ChatDiffieHelman.Api/.env (see .env.example).',
+    );
+  }
+
   private async fetchJson<T>(url: string, init: RequestInit): Promise<T> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.httpTimeoutMs);
@@ -281,13 +341,20 @@ export class UniAuthSsoService {
       });
 
       const textPayload = await response.text();
-      const parsedPayload = textPayload ? JSON.parse(textPayload) : null;
 
       if (!response.ok) {
         throw new UniAuthUpstreamHttpError(response.status, textPayload);
       }
 
-      return parsedPayload as T;
+      if (!textPayload) {
+        return null as T;
+      }
+
+      try {
+        return JSON.parse(textPayload) as T;
+      } catch {
+        throw new Error(`Upstream response is not valid JSON (${url})`);
+      }
     } catch (error) {
       if (error instanceof Error && error.name === 'AbortError') {
         throw new Error(
@@ -318,5 +385,14 @@ export class UniAuthSsoService {
     }
 
     return this.defaultTimeoutMs;
+  }
+
+  private truncateForLog(value: string, maxLength = 300): string {
+    const normalized = value.replace(/\s+/g, ' ').trim();
+    if (normalized.length <= maxLength) {
+      return normalized;
+    }
+
+    return `${normalized.slice(0, maxLength)}...`;
   }
 }
