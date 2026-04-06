@@ -38,7 +38,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
         error = exception.name;
       }
 
-      this.logger.error(`${request.method} ${request.url} -> ${status} ${message}`, exception instanceof Error ? exception.stack : undefined);
+      this.logger.error(
+        `${request.method} ${request.url} -> ${status} ${message}`,
+        exception instanceof Error ? exception.stack : undefined,
+      );
 
       response.status(status).json({
         statusCode: status,
@@ -56,7 +59,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
       const payload = {
         timestamp: new Date().toISOString(),
-        message: exception instanceof Error ? exception.message : 'Internal server error',
+        message:
+          exception instanceof Error
+            ? exception.message
+            : 'Internal server error',
       };
 
       try {
@@ -64,13 +70,18 @@ export class AllExceptionsFilter implements ExceptionFilter {
           // событие — можно использовать 'error' или 'exception' — в клиенте слушай соответствующее
           client.emit('exception', payload);
           // отключаем клиента (по желанию) чтобы не оставлять дефектное соединение
-          try { client.disconnect(true); } catch {}
+          try {
+            client.disconnect(true);
+          } catch {}
         }
       } catch (e) {
-        this.logger.error('Failed to emit ws exception to client', e as any);
+        this.logger.error('Failed to emit ws exception to client', e);
       }
 
-      this.logger.error(`WS exception: ${payload.message}`, exception instanceof Error ? exception.stack : (exception as any));
+      this.logger.error(
+        `WS exception: ${payload.message}`,
+        exception instanceof Error ? exception.stack : (exception as any),
+      );
       return;
     }
 

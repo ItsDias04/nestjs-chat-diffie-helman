@@ -1,8 +1,16 @@
-import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../Data/Entities/User';
-import { BmcSessionsService, BmcSessionState } from '../Singelton/Services/BmcSessionsService';
+import {
+  BmcSessionsService,
+  BmcSessionState,
+} from '../Singelton/Services/BmcSessionsService';
 import BN = require('bn.js');
 import { randomInt } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
@@ -40,7 +48,8 @@ export class BmcService {
     if (!session) throw new NotFoundException('session not found');
 
     const aNorm = this.sanitizeHex(aHex);
-    if (!this.isValidHex(aNorm)) throw new BadRequestException('invalid hex for a');
+    if (!this.isValidHex(aNorm))
+      throw new BadRequestException('invalid hex for a');
 
     const r = randomInt(0, 2);
     session.current = { a: aNorm, r };
@@ -50,7 +59,10 @@ export class BmcService {
   }
 
   // Client responds with e = k + r*x; server verifies: g^e ?= a * y^r (mod N)
-  async finish(sid: string, eHex: string): Promise<{ access_token: string | null }> {
+  async finish(
+    sid: string,
+    eHex: string,
+  ): Promise<{ access_token: string | null }> {
     if (!sid) throw new BadRequestException('sid required');
     if (!eHex) throw new BadRequestException('e (response) required');
 
@@ -61,7 +73,9 @@ export class BmcService {
       throw new BadRequestException('no active challenge for session');
     }
 
-    const user = await this.userRepository.findOne({ where: { id: session.userId } });
+    const user = await this.userRepository.findOne({
+      where: { id: session.userId },
+    });
     this.sessions.deleteSession(sid);
 
     if (!user) throw new NotFoundException('user not found');
@@ -69,17 +83,17 @@ export class BmcService {
       throw new BadRequestException('user has no BMC parameters');
     }
 
-  const N = this.parseBig(user.bmc_n);
-  const g = this.parseBig(user.bmc_g).umod(N);
-  const y = this.parseBig(user.bmc_y).umod(N);
+    const N = this.parseBig(user.bmc_n);
+    const g = this.parseBig(user.bmc_g).umod(N);
+    const y = this.parseBig(user.bmc_y).umod(N);
     const red = BN.red(N);
 
-  const eBN = this.parseBig(this.sanitizeHex(eHex)); // e — показатель для g^e (mod N)
-  const aBN = this.parseBig(session.current.a).umod(N).toRed(red);
+    const eBN = this.parseBig(this.sanitizeHex(eHex)); // e — показатель для g^e (mod N)
+    const aBN = this.parseBig(session.current.a).umod(N).toRed(red);
     const r = session.current.r;
 
     // left = g^e mod N
-  const left = g.toRed(red).redPow(eBN);
+    const left = g.toRed(red).redPow(eBN);
     // right = a if r==0, a*y if r==1
     let right = aBN;
     if (r === 1) {

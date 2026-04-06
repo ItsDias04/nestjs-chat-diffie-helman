@@ -152,7 +152,7 @@ async function bootstrap() {
   // --- Express-level error handler: ловит ошибки, которые выскочили в passport / middleware ---
   // Только если ты используешь Express (по умолчанию Nest uses Express). Если у тебя Fastify —
   // нужен другой подход.
-  const server = app.getHttpAdapter().getInstance() as any; // express app
+  const server = app.getHttpAdapter().getInstance(); // express app
   // NOTE: этот middleware должен быть зарегистрирован **после** app.useGlobalFilters / init,
   // но до app.listen
   server.use((err: any, req: any, res: any, next: any) => {

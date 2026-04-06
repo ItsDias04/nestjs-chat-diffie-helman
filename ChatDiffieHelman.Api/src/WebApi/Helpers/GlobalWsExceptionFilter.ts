@@ -1,8 +1,4 @@
-import {
-  Catch,
-  ArgumentsHost,
-  WsExceptionFilter,
-} from '@nestjs/common';
+import { Catch, ArgumentsHost, WsExceptionFilter } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 
@@ -20,7 +16,7 @@ export class GlobalWsExceptionFilter implements WsExceptionFilter {
     // Отправляем клиенту стандартное событие
     client.emit('error', {
       event: 'exception',
-        data: { error },
+      data: { error },
     });
   }
 }

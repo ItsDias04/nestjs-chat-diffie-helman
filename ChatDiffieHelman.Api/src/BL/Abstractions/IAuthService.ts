@@ -1,5 +1,5 @@
-import { LoginDto } from "src/DTO/LoginDto";
+import { LoginDto } from 'src/DTO/LoginDto';
 
 export interface IAuthService {
-    login(loginDto: LoginDto): Promise<any>;
+  login(loginDto: LoginDto): Promise<any>;
 }

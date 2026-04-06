@@ -15,7 +15,9 @@ import { ActiveUsersService } from '../../BL/Singelton/Services/ActiveUsersServi
 import { MessageDto } from 'src/DTO/MessageDto';
 
 @WebSocketGateway({ cors: true })
-export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class ChatGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
   @WebSocketServer()
   server: Server;
 
@@ -29,17 +31,21 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     server.use(async (socket: Socket & { data?: any }, next) => {
       try {
         const handshake: any = socket.handshake;
-        const authHeader = handshake?.auth?.token ?? handshake?.headers?.authorization;
+        const authHeader =
+          handshake?.auth?.token ?? handshake?.headers?.authorization;
 
         if (!authHeader) {
           return next(new Error('Unauthorized: token not provided'));
         }
 
-        const token = (typeof authHeader === 'string' && authHeader.startsWith('Bearer '))
-          ? authHeader.slice(7)
-          : authHeader;
+        const token =
+          typeof authHeader === 'string' && authHeader.startsWith('Bearer ')
+            ? authHeader.slice(7)
+            : authHeader;
 
-        const payload = await this.jwtService.verifyAsync(token).catch(() => null);
+        const payload = await this.jwtService
+          .verifyAsync(token)
+          .catch(() => null);
         if (!payload || !payload['sub']) {
           return next(new Error('Unauthorized: invalid token'));
         }
@@ -70,15 +76,15 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   handleDisconnect(client: Socket) {
     const userId = client.data?.userId as string | undefined;
-    
+
     // Получаем все чаты, в которых был этот пользователь, перед удалением
     const userChats = this.activeUsersService.getUserChats(userId);
-    
+
     // Удаляем пользователя из сервиса
     this.activeUsersService.removeUser(client.id);
-    
+
     // Уведомляем все чаты об отключении пользователя
-    userChats.forEach(chatId => {
+    userChats.forEach((chatId) => {
       const activeUsers = this.activeUsersService.getActiveUsersInChat(chatId);
       this.server.to(chatId).emit('chatUsersUpdate', {
         chatId,
@@ -139,12 +145,12 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 
   sendMessageToChat(chatId: string, message: MessageDto) {
     // if (message.toClientId) {
-      // const socketId = this.activeUsersService.getSocketId(message.toClientId);
-      // if (socketId) {
-        // this.server.to(socketId).emit('newMessage', message);
-      // }
+    // const socketId = this.activeUsersService.getSocketId(message.toClientId);
+    // if (socketId) {
+    // this.server.to(socketId).emit('newMessage', message);
+    // }
     // } else {
-      this.server.to(chatId).emit('newMessage', message);
+    this.server.to(chatId).emit('newMessage', message);
     // }
   }
 }

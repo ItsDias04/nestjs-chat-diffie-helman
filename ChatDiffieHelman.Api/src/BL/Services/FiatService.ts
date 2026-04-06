@@ -1,12 +1,21 @@
 // ...existing code...
-import { Injectable, BadRequestException, NotFoundException, UnauthorizedException } from "@nestjs/common";
-import { FiatSessionsService, FiatSession, FiatSessionState } from "../Singelton/Services/FiatSessionsService";
-import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "../../Data/Entities/User";
-import { Repository } from "typeorm";
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import {
+  FiatSessionsService,
+  FiatSession,
+  FiatSessionState,
+} from '../Singelton/Services/FiatSessionsService';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../../Data/Entities/User';
+import { Repository } from 'typeorm';
 import BN = require('bn.js');
-import { randomInt } from "crypto";
-import { JwtService } from "@nestjs/jwt";
+import { randomInt } from 'crypto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class FiatService {
@@ -53,7 +62,8 @@ export class FiatService {
 
     // normalize hex
     const tNorm = this.sanitizeHex(tHex);
-    if (!this.isValidHex(tNorm)) throw new BadRequestException('invalid hex for t');
+    if (!this.isValidHex(tNorm))
+      throw new BadRequestException('invalid hex for t');
 
     // set session current and state
     const c = randomInt(0, 2); // 0 or 1
@@ -64,7 +74,10 @@ export class FiatService {
     return { c };
   }
 
-  async finish(sid: string, rHex: string): Promise<{ access_token: string | null }> {
+  async finish(
+    sid: string,
+    rHex: string,
+  ): Promise<{ access_token: string | null }> {
     if (!sid) throw new BadRequestException('sid required');
     if (!rHex) throw new BadRequestException('r required');
 
@@ -75,20 +88,24 @@ export class FiatService {
       throw new BadRequestException('no active challenge for session');
     }
 
-    const user = await this.userRepository.findOne({ where: { id: session.userId }});
-    
+    const user = await this.userRepository.findOne({
+      where: { id: session.userId },
+    });
+
     this.fiatSessionsService.deleteSession(sid);
 
     if (!user) throw new NotFoundException('user not found');
-    if (user.fiat_n == null || user.fiat_v == null) throw new BadRequestException('user has no fiat parameters');
+    if (user.fiat_n == null || user.fiat_v == null)
+      throw new BadRequestException('user has no fiat parameters');
 
-  // n и v могут храниться как десятичные строки — парсим в BN
-  const nBN = new BN(user.fiat_n.toString(), 10);
-  const vBN = new BN(user.fiat_v.toString(), 10);
+    // n и v могут храниться как десятичные строки — парсим в BN
+    const nBN = new BN(user.fiat_n.toString(), 10);
+    const vBN = new BN(user.fiat_v.toString(), 10);
     const red = BN.red(nBN);
 
     const rNorm = this.sanitizeHex(rHex);
-    if (!this.isValidHex(rNorm)) throw new BadRequestException('invalid hex for r');
+    if (!this.isValidHex(rNorm))
+      throw new BadRequestException('invalid hex for r');
 
     // r — это ответ клиента y, интерпретируем как hex → mod n → редуцированная форма
     const rBN = new BN(rNorm, 16).umod(nBN).toRed(red);

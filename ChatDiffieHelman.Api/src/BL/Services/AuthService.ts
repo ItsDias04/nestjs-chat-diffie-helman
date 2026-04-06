@@ -19,15 +19,14 @@ export class AuthService implements IAuthService {
   ) {}
 
   async login(loginDto: LoginDto) {
-    
     const user = await this.userRepository.findOne({
       where: { email: loginDto.email },
     });
-    
+
     if (!user || user.password !== loginDto.password) {
       throw new UnauthorizedException();
     }
-    
+
     const payload = { email: user.email, sub: user.id };
 
     const needFiat = !!user.fiat_enabled;
@@ -37,14 +36,22 @@ export class AuthService implements IAuthService {
     return {
       access_token: noImmediateJwt ? null : this.jwtService.sign(payload),
       fiat_required: needFiat,
-      fiat_session_id: needFiat ? this.fiatSessionsService.createSession(user.id) : null,
+      fiat_session_id: needFiat
+        ? this.fiatSessionsService.createSession(user.id)
+        : null,
       // BMC
       bmc_required: needBmc,
-      bmc_session_id: needBmc ? this.bmcSessionsService.createSession(user.id) : null,
+      bmc_session_id: needBmc
+        ? this.bmcSessionsService.createSession(user.id)
+        : null,
     } as any;
   }
 
-  async enableFiatForUser(userId: string, vHex: string, nHex: string): Promise<string> {
+  async enableFiatForUser(
+    userId: string,
+    vHex: string,
+    nHex: string,
+  ): Promise<string> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new UnauthorizedException('User not found');
     // user.fiat_n = this.getN().toString();
@@ -70,7 +77,12 @@ export class AuthService implements IAuthService {
     return user;
   }
 
-  async enableBmcForUser(userId: string, n: string, g: string, y: string): Promise<User> {
+  async enableBmcForUser(
+    userId: string,
+    n: string,
+    g: string,
+    y: string,
+  ): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) throw new UnauthorizedException('User not found');
     user.bmc_n = n;

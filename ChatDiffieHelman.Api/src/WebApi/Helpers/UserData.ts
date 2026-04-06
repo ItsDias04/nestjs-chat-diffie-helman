@@ -1,4 +1,4 @@
 export class UserData {
-    userId: string;
-    email: string;
+  userId: string;
+  email: string;
 }

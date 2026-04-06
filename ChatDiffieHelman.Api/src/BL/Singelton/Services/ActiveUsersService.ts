@@ -31,7 +31,7 @@ export class ActiveUsersService {
       for (const users of this.chatUsers.values()) {
         users.delete(removedUser);
       }
-      
+
       // очистить информацию о чатах пользователя
       this.userChats.delete(removedUser);
     }
@@ -58,7 +58,7 @@ export class ActiveUsersService {
     const chatUserSet = this.chatUsers.get(chatId);
     if (chatUserSet) {
       chatUserSet.delete(userId);
-      
+
       // Если в чате не осталось пользователей, удаляем чат
       if (chatUserSet.size === 0) {
         this.chatUsers.delete(chatId);
@@ -69,7 +69,7 @@ export class ActiveUsersService {
     const userChatSet = this.userChats.get(userId);
     if (userChatSet) {
       userChatSet.delete(chatId);
-      
+
       // Если у пользователя не осталось чатов, удаляем запись
       if (userChatSet.size === 0) {
         this.userChats.delete(userId);

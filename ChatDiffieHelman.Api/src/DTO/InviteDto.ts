@@ -1,6 +1,6 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { ChatDto } from "./ChatDto";
-import { UserDto } from "./UserDto";
+import { ApiProperty } from '@nestjs/swagger';
+import { ChatDto } from './ChatDto';
+import { UserDto } from './UserDto';
 
 export class InviteDto {
   @ApiProperty({
@@ -20,7 +20,7 @@ export class InviteDto {
   @ApiProperty({
     description: 'Информация о чате',
     type: () => ChatDto,
-    required: false
+    required: false,
   })
   chat: ChatDto;
 
@@ -34,7 +34,7 @@ export class InviteDto {
   @ApiProperty({
     description: 'Информация об отправителе приглашения',
     type: () => UserDto,
-    required: false
+    required: false,
   })
   userSender: UserDto;
 
@@ -50,7 +50,7 @@ export class InviteDto {
     description: 'Информация о получателе приглашения',
     type: () => UserDto,
     nullable: true,
-    required: false
+    required: false,
   })
   userReceiver: UserDto | null;
 
@@ -81,7 +81,6 @@ export class InviteDto {
 // import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
 // import { Chat } from "./Chat";
 // import { User } from "./User";
-
 
 // export enum InviteStatus {
 //     Pending = "pending",

@@ -19,6 +19,12 @@ class UniAuthUpstreamHttpError extends Error {
   }
 }
 
+class UniAuthLocalAccountMismatchError extends Error {
+  constructor() {
+    super('UniAuth user mismatch for existing local account');
+  }
+}
+
 interface UniAuthToken1Response {
   token1: string;
   expiresInSeconds: number;
@@ -140,7 +146,7 @@ export class UniAuthSsoService {
             body: JSON.stringify({ token3 }),
           },
         );
-
+      console.log('Introspect response:', JSON.stringify(introspectResponse));
       if (introspectResponse.status === 'ERROR') {
         return {
           status: 'ERROR',
@@ -188,6 +194,21 @@ export class UniAuthSsoService {
         }
       }
 
+      if (error instanceof UniAuthLocalAccountMismatchError) {
+        this.logger.warn(
+          'UniAuth callback rejected due to local account mismatch with existing UniAuth link',
+        );
+        console.error(
+          'Error during UniAuth callback handling:',
+          JSON.stringify(error),
+        );
+        return {
+          status: 'ERROR',
+          reason:
+            'Локальный аккаунт уже привязан к другому UniAuth пользователю. Войдите под правильным аккаунтом UniAuth или обратитесь к администратору.',
+        };
+      }
+
       if (error instanceof InternalServerErrorException) {
         return {
           status: 'ERROR',
@@ -220,42 +241,36 @@ export class UniAuthSsoService {
 
     let existingUser: User | null = null;
 
-    if (normalizedUserId) {
-      existingUser = await this.userRepository.findOne({
-        where: { uniauth_user_id: normalizedUserId },
-      });
-    }
-
-    if (!existingUser && normalizedEmail) {
+    if (normalizedEmail) {
       existingUser = await this.userRepository.findOne({
         where: { email: normalizedEmail },
       });
     }
 
     if (existingUser) {
-      if (
-        existingUser.uniauth_user_id &&
-        normalizedUserId &&
-        existingUser.uniauth_user_id !== normalizedUserId
-      ) {
-        throw new Error('UniAuth user mismatch for existing local account');
-      }
+      // if (
+      //   existingUser.uniauth_user_id &&
+      //   normalizedUserId &&
+      //   existingUser.uniauth_user_id !== normalizedUserId
+      // ) {
+      //   throw new UniAuthLocalAccountMismatchError();
+      // }
 
-      let changed = false;
+      // let changed = false;
 
-      if (!existingUser.uniauth_user_id && normalizedUserId) {
-        existingUser.uniauth_user_id = normalizedUserId;
-        changed = true;
-      }
+      // if (!existingUser.uniauth_user_id && normalizedUserId) {
+      //   existingUser.uniauth_user_id = normalizedUserId;
+      //   changed = true;
+      // }
 
-      if (!existingUser.name?.trim()) {
-        existingUser.name = this.buildDisplayName(ssoUser, normalizedEmail);
-        changed = true;
-      }
+      // if (!existingUser.name?.trim()) {
+      //   existingUser.name = this.buildDisplayName(ssoUser, normalizedEmail);
+      //   changed = true;
+      // }
 
-      if (changed) {
-        return this.userRepository.save(existingUser);
-      }
+      // if (changed) {
+      //   return this.userRepository.save(existingUser);
+      // }
 
       return existingUser;
     }

@@ -1,9 +1,9 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "src/Data/Entities/User";
-import { RegisterDto } from "src/DTO/RegisterDto";
-import { UserDto } from "src/DTO/UserDto";
-import { Repository } from "typeorm";
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from 'src/Data/Entities/User';
+import { RegisterDto } from 'src/DTO/RegisterDto';
+import { UserDto } from 'src/DTO/UserDto';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UserService {
@@ -33,7 +33,7 @@ export class UserService {
 
   async getAllUsers(): Promise<UserDto[]> {
     const users = await this.userRepository.find();
-    return users.map(u => this.toUserDto(u));
+    return users.map((u) => this.toUserDto(u));
   }
 
   // Маппинг User -> UserDto
